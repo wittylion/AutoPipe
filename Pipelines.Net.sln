@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines", "Pipelines\Pipelines.csproj", "{EAFC0584-3D48-45A8-8083-D6AE3C7BAA53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines.Tests.Units", "Pipelines.Tests.Units\Pipelines.Tests.Units.csproj", "{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{EAFC0584-3D48-45A8-8083-D6AE3C7BAA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAFC0584-3D48-45A8-8083-D6AE3C7BAA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAFC0584-3D48-45A8-8083-D6AE3C7BAA53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

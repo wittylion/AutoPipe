@@ -46,6 +46,7 @@
     <Compile Include="IPipeline.cs" />
     <Compile Include="IProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
