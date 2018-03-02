@@ -1,6 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
+﻿using System.Threading.Tasks;
+using Moq;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -10,55 +9,36 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async Task Safe_Execution_Is_Not_Reached_When_There_Is_An_Incorrect_Type()
         {
-            var reachedSafeExecution = false;
-            IProcessor processor = new StringSafeProcessor(() => reachedSafeExecution = true);
-            await processor.Execute(false);
-            Assert.False(reachedSafeExecution);
+            var processor = new Mock<SafeProcessor<string>>();
+            await processor.Object.Execute(false);
+            processor.Verify(p => p.SafeExecute(It.IsAny<string>()), Times.Never);
         }
 
         [Fact]
-        public async Task Safe_Execution_Is_Not_Reached_When_Type_Is_Correct()
+        public async Task Safe_Condition_Is_Reached_When_Type_Is_Correct()
         {
-            var reachedSafeExecution = false;
-            IProcessor processor = new StringSafeProcessor(() => reachedSafeExecution = true);
-            await processor.Execute(string.Empty);
-            Assert.True(reachedSafeExecution);
+            var processor = new Mock<SafeProcessor<string>>();
+            await processor.Object.Execute(string.Empty);
+            processor.Verify(p => p.SafeCondition(It.IsAny<string>()), Times.AtLeastOnce);
         }
         
         [Fact]
         public async Task Safe_Execution_Is_Not_Reached_When_Safe_Condition_Returns_False()
         {
-            var reachedSafeExecution = false;
-            IProcessor processor = new StringSafeProcessor(() => reachedSafeExecution = true, s => false);
-            await processor.Execute(string.Empty);
-            Assert.False(reachedSafeExecution);
-        }
-    }
-
-    public class StringSafeProcessor : SafeProcessor<string>
-    {
-        public Action Action { get; }
-        public Maybe<Predicate<string>> SafeCheck { get; }
-
-        public StringSafeProcessor(Action action)
-        {
-            Action = action;
+            var processor = new Mock<SafeProcessor<string>>();
+            processor.Setup(x => x.SafeCondition(It.IsAny<string>())).Returns(false);
+            await processor.Object.Execute(string.Empty);
+            processor.Verify(p => p.SafeExecute(It.IsAny<string>()), Times.Never);
         }
 
-        public StringSafeProcessor(Action action, Predicate<string> safeCheck)
-        {
-            Action = action;
-            SafeCheck = safeCheck;
-        }
 
-        public override bool SafeCondition(string args)
+        [Fact]
+        public async Task Safe_Execution_Is_Reached_When_Safe_Condition_Returns_False()
         {
-            return base.SafeCondition(args) && SafeCheck.Unwrap(check => check(args), defaultValue: true);
-        }
-
-        public override Task SafeExecute(string args)
-        {
-            return Task.Run(Action);
+            var processor = new Mock<SafeProcessor<string>>();
+            processor.Setup(x => x.SafeCondition(It.IsAny<string>())).Returns(true);
+            await processor.Object.Execute(string.Empty);
+            processor.Verify(p => p.SafeExecute(It.IsAny<string>()), Times.AtLeastOnce);
         }
     }
 }
