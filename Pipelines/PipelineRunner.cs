@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines
 {
@@ -7,12 +8,12 @@ namespace Pipelines
     {
         public virtual async Task RunPipeline<TArgs>(IPipeline pipeline, TArgs args)
         {
-            IEnumerable<IProcessor> processors;
-            if (pipeline == null || args == null || (processors = pipeline.GetProcessors()) == null)
+            if (pipeline.HasNoValue())
             {
                 return;
             }
 
+            var processors = pipeline.GetProcessors().Ensure(Enumerable.Empty<IProcessor>());
             foreach (var processor in processors)
             {
                 await processor.Execute(args);
