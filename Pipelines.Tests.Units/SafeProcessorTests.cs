@@ -40,5 +40,17 @@ namespace Pipelines.Tests.Units
             await processor.Object.Execute(string.Empty);
             processor.Verify(p => p.SafeExecute(It.IsAny<string>()), Times.AtLeastOnce);
         }
+        
+        [Fact]
+        public async Task Safe_Processor_Makes_A_Check_Of_Safe_Condition_Before_Doing_Safe_Execution()
+        {
+            var processor = new Mock<SafeProcessor<string>>(MockBehavior.Strict);
+
+            var executionSequence = new MockSequence();
+            processor.InSequence(executionSequence).Setup(x => x.SafeCondition(It.IsAny<string>())).Returns(true);
+            processor.InSequence(executionSequence).Setup(x => x.SafeExecute(It.IsAny<string>())).Returns(Task.CompletedTask);
+
+            await processor.Object.Execute(string.Empty);
+        }
     }
 }
