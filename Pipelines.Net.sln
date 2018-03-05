@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines", "Pipelines\Pipe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines.Tests.Units", "Pipelines.Tests.Units\Pipelines.Tests.Units.csproj", "{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines.Tests.Integrations", "Pipelines.Tests.Integrations\Pipelines.Tests.Integrations.csproj", "{FAA81EF4-69DC-45A8-A990-2D78C08C951D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAA81EF4-69DC-45A8-A990-2D78C08C951D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAA81EF4-69DC-45A8-A990-2D78C08C951D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAA81EF4-69DC-45A8-A990-2D78C08C951D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAA81EF4-69DC-45A8-A990-2D78C08C951D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
