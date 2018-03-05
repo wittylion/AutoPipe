@@ -11,19 +11,19 @@ namespace Pipelines
             return true;
         }
 
-        public async Task Execute(object arguments)
+        public Task Execute(object arguments)
         {
             if (!(arguments is T))
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (!SafeCondition((T)arguments))
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            await SafeExecute((T)arguments);
+            return SafeExecute((T)arguments);
         }
     }
 }

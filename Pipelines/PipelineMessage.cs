@@ -1,4 +1,5 @@
 ﻿using System;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines
 {
@@ -11,7 +12,7 @@ namespace Pipelines
 
         public PipelineMessage(string message, MessageType messageType)
         {
-            if (string.IsNullOrWhiteSpace(message))
+            if (message.HasNoValue())
             {
                 throw new ArgumentException(MessageIsNotSetError, nameof(message));
             }
