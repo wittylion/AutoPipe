@@ -33,7 +33,7 @@ namespace Pipelines.Tests.Units
     {
         public virtual PipelineContextTestObject WithMessage(PipelineMessage message)
         {
-            this.AddMessage(message);
+            this.AddMessageObject(message);
             return this;
         }
 

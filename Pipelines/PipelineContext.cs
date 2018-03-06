@@ -31,18 +31,14 @@ namespace Pipelines
             IsAborted = true;
         }
 
-        public virtual void AddMessage(string message)
-        {
-            AddMessage(message, MessageType.Information);
-        }
-        public virtual void AddMessage(PipelineMessage message)
+        public virtual void AddMessageObject(PipelineMessage message)
         {
             Messages.Value.AddLast(message);
         }
 
-        public virtual void AddMessage(string message, MessageType messageType)
+        public virtual void AddMessage(string message, MessageType messageType = MessageType.Information)
         {
-            AddMessage(new PipelineMessage(message, messageType));
+            AddMessageObject(new PipelineMessage(message, messageType));
         }
 
         protected PipelineContext()
