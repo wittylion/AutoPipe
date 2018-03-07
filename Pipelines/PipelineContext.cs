@@ -49,13 +49,13 @@ namespace Pipelines
         {
         }
 
-        public virtual void AbortPipeline(string message)
+        public virtual void AbortPipelineWithMessage(string message)
         {
             AbortPipeline();
             AddMessage(message);
         }
 
-        public virtual void AbortPipeline(string message, MessageType type)
+        public virtual void AbortPipelineWithTypedMessage(string message, MessageType type)
         {
             AbortPipeline();
             AddMessage(message, type);
@@ -63,17 +63,17 @@ namespace Pipelines
 
         public virtual void AbortPipelineWithErrorMessage(string message)
         {
-            AbortPipeline(message, MessageType.Error);
+            AbortPipelineWithTypedMessage(message, MessageType.Error);
         }
 
         public virtual void AbortPipelineWithWarningMessage(string message)
         {
-            AbortPipeline(message, MessageType.Warning);
+            AbortPipelineWithTypedMessage(message, MessageType.Warning);
         }
 
         public virtual void AbortPipelineWithInformationMessage(string message)
         {
-            AbortPipeline(message, MessageType.Information);
+            AbortPipelineWithTypedMessage(message, MessageType.Information);
         }
 
         public virtual void AddInformation(string message)
