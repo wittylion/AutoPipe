@@ -47,7 +47,7 @@ When abstractions are defined, it would be great to see them in action. For this
 ## Installation and Usage
 
 ```ps
-PM> Install-Package Pipelines.Net -Version 1.0.0
+PM> Install-Package Pipelines.Net
 ```
 
 To make it easier to use this mechanism a [yeoman generator](https://www.npmjs.com/package/generator-chain) was created, which can help you easily create common files, used with this library.
