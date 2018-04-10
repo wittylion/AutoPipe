@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -21,11 +22,25 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
-        public void AbotMessageWithError_Calls_Abort_Pipeline_Method()
+        public void AbortMessageWithError_Calls_Abort_Pipeline_Method()
         {
             var pipelineContext = new PipelineContextTestObject();
             pipelineContext.AbortPipelineWithErrorMessage(nameof(PipelineContext));
             pipelineContext.IsAborted.Should().BeTrue("because the method should abort pipeline");
+        }
+
+        [Fact]
+        public void GetInformationsAndWarnings_Should_Retrieve_Warnings_And_Informations_When_Several_Message_Are_Added()
+        {
+            var pipelineContext = new PipelineContextTestObject()
+                .WithError("Error")
+                .WithInformation("Information")
+                .WithWarning("Warning");
+
+            pipelineContext.GetInformationsAndWarnings().Should()
+                .HaveCount(2, "because three messages were added, where only one of them is error")
+                .And
+                .Match(collection => collection.All(x => x.MessageType != MessageType.Error), "because collection should contain no Error type");
         }
     }
 
