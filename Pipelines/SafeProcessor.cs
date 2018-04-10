@@ -1,29 +1,10 @@
-﻿using System.Threading.Tasks;
-
-namespace Pipelines
+﻿namespace Pipelines
 {
-    public abstract class SafeProcessor<T> : IProcessor
+    public abstract class SafeProcessor<T> : SafeTypeProcessor<T> where T : PipelineContext
     {
-        public abstract Task SafeExecute(T args);
-
-        public virtual bool SafeCondition(T args)
+        public override bool SafeCondition(T args)
         {
-            return true;
-        }
-
-        public Task Execute(object arguments)
-        {
-            if (!(arguments is T))
-            {
-                return Task.CompletedTask;
-            }
-
-            if (!SafeCondition((T)arguments))
-            {
-                return Task.CompletedTask;
-            }
-
-            return SafeExecute((T)arguments);
+            return base.SafeCondition(args) && !args.IsAborted;
         }
     }
 }

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines
 {
     [Serializable]
-    public abstract class PipelineContext : ISerializable
+    public class PipelineContext : ISerializable
     {
         public bool IsAborted { get; set; }
 
@@ -36,12 +37,20 @@ namespace Pipelines
             Messages.Value.AddLast(message);
         }
 
+        public virtual void AddMessageObjects(IEnumerable<PipelineMessage> messages)
+        {
+            foreach (var message in messages.EnsureAtLeastEmpty())
+            {
+                Messages.Value.AddLast(message);
+            }
+        }
+
         public virtual void AddMessage(string message, MessageType messageType = MessageType.Information)
         {
             AddMessageObject(new PipelineMessage(message, messageType));
         }
 
-        protected PipelineContext()
+        public PipelineContext()
         {
         }
 

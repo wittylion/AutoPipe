@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtensionMethods\EnumerableExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\NullableBooleanExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\StringExtensionMethods.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="PipelineMessage.cs" />
     <Compile Include="PipelineRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryContext.cs" />
     <Compile Include="SafeProcessor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
