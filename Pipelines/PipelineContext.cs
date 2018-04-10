@@ -6,6 +6,11 @@ using Pipelines.ExtensionMethods;
 
 namespace Pipelines
 {
+    /// <summary>
+    /// Introduces possibility to keep context information
+    /// about the flow of the pipeline, like:
+    /// messages and whether pipeline was aborted.
+    /// </summary>
     [Serializable]
     public class PipelineContext : ISerializable
     {
