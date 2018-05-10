@@ -32,7 +32,7 @@ namespace Pipelines
             Runner = runner;
         }
 
-        public async Task Run(object arguments)
+        public async Task Execute(object arguments)
         {
             await this.Runner.RunPipeline(this.Pipeline, arguments);
         }
