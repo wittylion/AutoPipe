@@ -53,37 +53,32 @@ namespace Pipelines
 
         int IReadOnlyCollection<PipelineMessage>.Count => Collection.Count;
         
-        public virtual void AddMessageObject(PipelineMessage message)
-        {
-            this.Add(message);
-        }
-
         public virtual void AddMessageObjects(IEnumerable<PipelineMessage> messages)
         {
             foreach (var message in messages.EnsureAtLeastEmpty())
             {
-                this.AddMessageObject(message);
+                this.Add(message);
             }
         }
 
         public virtual void AddMessage(string message, MessageType messageType = MessageType.Information)
         {
-            AddMessageObject(new PipelineMessage(message, messageType));
+            this.Add(new PipelineMessage(message, messageType));
         }
 
         public virtual void AddInformation(string message)
         {
-            AddMessage(message, MessageType.Information);
+            this.AddMessage(message, MessageType.Information);
         }
 
         public virtual void AddWarning(string message)
         {
-            AddMessage(message, MessageType.Warning);
+            this.AddMessage(message, MessageType.Warning);
         }
 
         public virtual void AddError(string message)
         {
-            AddMessage(message, MessageType.Error);
+            this.AddMessage(message, MessageType.Error);
         }
 
         public virtual PipelineMessage[] GetMessages(MessageFilter filter)
@@ -94,11 +89,6 @@ namespace Pipelines
             }
 
             return this.Collection.Where(message => ((int) message.MessageType & (int) filter) > 0).ToArray();
-        }
-
-        public virtual PipelineMessage[] GetAllMessages()
-        {
-            return this.GetMessages(MessageFilter.All);
         }
 
         public virtual PipelineMessage[] GetInformationsAndWarnings()
