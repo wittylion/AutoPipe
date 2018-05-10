@@ -10,7 +10,14 @@
     <projectUrl>https://github.com/SergAtGitHub/Pipelines.Net</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial release of the main functionality of Pipelines.Net.</releaseNotes>
+    <releaseNotes>
+		New in this version:
+			- Added executor of pipelines: its role to keep object of a pipeline and execute it each time user needs it.
+			- Added collection of pipeline messages: so user can simply create message collections with an API like:
+				* Add Information/Warning/Error object
+				* Add many message objects from another collection
+				* Get Informations/Warnings/Errors object
+	</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Pipelines SOLID Processors Chain</tags>
   </metadata>
