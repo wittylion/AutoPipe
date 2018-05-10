@@ -7,6 +7,8 @@ namespace Pipelines
 {
     public class PipelineRunner
     {
+        public static readonly PipelineRunner StaticInstance = new PipelineRunner();
+
         public virtual Task RunPipeline<TArgs>(IPipeline pipeline, TArgs args)
         {
             if (pipeline.HasNoValue())

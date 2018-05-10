@@ -47,6 +47,7 @@
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\StringExtensionMethods.cs" />
     <Compile Include="IPipeline.cs" />
+    <Compile Include="PipelineExecutor.cs" />
     <Compile Include="IProcessor.cs" />
     <Compile Include="MessageFilter.cs" />
     <Compile Include="MessageType.cs" />
