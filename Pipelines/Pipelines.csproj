@@ -53,6 +53,7 @@
     <Compile Include="MessageType.cs" />
     <Compile Include="PipelineContext.cs" />
     <Compile Include="PipelineMessage.cs" />
+    <Compile Include="PipelineMessageCollection.cs" />
     <Compile Include="PipelineRunner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryContext.cs" />

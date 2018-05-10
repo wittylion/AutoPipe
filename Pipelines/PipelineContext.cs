@@ -16,8 +16,8 @@ namespace Pipelines
     {
         public bool IsAborted { get; set; }
 
-        protected Lazy<LinkedList<PipelineMessage>> Messages { get; } =
-            new Lazy<LinkedList<PipelineMessage>>(() => new LinkedList<PipelineMessage>());
+        protected Lazy<ICollection<PipelineMessage>> Messages { get; } =
+            new Lazy<ICollection<PipelineMessage>>(() => new PipelineMessageCollection());
 
         public virtual PipelineMessage[] GetMessages(MessageFilter filter)
         {
@@ -69,14 +69,14 @@ namespace Pipelines
 
         public virtual void AddMessageObject(PipelineMessage message)
         {
-            Messages.Value.AddLast(message);
+            Messages.Value.Add(message);
         }
 
         public virtual void AddMessageObjects(IEnumerable<PipelineMessage> messages)
         {
             foreach (var message in messages.EnsureAtLeastEmpty())
             {
-                Messages.Value.AddLast(message);
+                this.AddMessageObject(message);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Pipelines
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue($"{nameof(PipelineContext)}.{nameof(IsAborted)}", IsAborted);
-            info.AddValue($"{nameof(PipelineContext)}.{nameof(Messages)}", Messages, typeof(LinkedList<PipelineMessage>));
+            info.AddValue($"{nameof(PipelineContext)}.{nameof(Messages)}", Messages, typeof(ICollection<PipelineMessage>));
         }
     }
 }
