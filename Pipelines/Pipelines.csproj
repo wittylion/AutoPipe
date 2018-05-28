@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExtensionMethods\ActionExtensionMethods.cs" />
+    <Compile Include="ExtensionMethods\PipelineExtensionMethods.cs" />
     <Compile Include="Implementations\ActionProcessor.cs" />
     <Compile Include="Implementations\ConditionalActionProcessor.cs" />
     <Compile Include="Implementations\ConditionalProcessor.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="ExtensionMethods\NullableBooleanExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\StringExtensionMethods.cs" />
+    <Compile Include="Implementations\PredefinedPipeline.cs" />
     <Compile Include="Implementations\PostActionProcessor.cs" />
     <Compile Include="Implementations\PostProcessorWrapper.cs" />
     <Compile Include="IPipeline.cs" />

@@ -9,5 +9,10 @@ namespace Pipelines.ExtensionMethods
         {
             return enumerable.Ensure(Enumerable.Empty<T>());
         }
+
+        public static bool IsEmpty<T>(this IEnumerable<T> enumerable)
+        {
+            return !enumerable.Any();
+        }
     }
 }

@@ -61,6 +61,47 @@ namespace Pipelines.Tests.Integrations
                 .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");
         }
 
+        [Theory]
+        [MemberData(nameof(BubbleSortIntegrationTest.GetDataCollections))]
+        public async Task Should_Sort_The_Data_By_Means_Of_Several_Pipelines(int[] data)
+        {
+            var args = new DataContainer() {Array = data};
+            
+            await PipelineOfState.From(args, GetSortingProcessors).Run(args);
+
+            data.Should()
+                .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");
+        }
+
+        protected IEnumerable<IProcessor> GetSortingProcessors(DataContainer stateContainer)
+        {
+            var traverse = PipelineOfState.From(stateContainer, GetTraverseProcessors).ToProcessor();
+            var requestOneMoreTraverse = ActionProcessor.From<DataContainer>(container =>
+                container.OneMoreTraverse());
+
+            while (stateContainer.CanTraverseOneMoreTime())
+            {
+                yield return traverse;
+                yield return requestOneMoreTraverse;
+            }
+        }
+
+        protected IEnumerable<IProcessor> GetTraverseProcessors(DataContainer stateContainer)
+        {
+            var swapElementsIfNeeded = ActionProcessor.From<DataContainer>(container =>
+                    SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
+                .If(container => container.CurrentElement > container.NextElement);
+
+            var movePointerToNextElement = ActionProcessor.From<DataContainer>(container =>
+                container.GoNextElement());
+
+            while (stateContainer.HasNextElement())
+            {
+                yield return swapElementsIfNeeded;
+                yield return movePointerToNextElement;
+            }
+        }
+
         protected void SwapElements(int[] array, int first, int second)
         {
             if (first > array.Length || first < 0)
