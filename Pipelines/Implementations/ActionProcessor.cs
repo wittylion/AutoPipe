@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations
 {
@@ -27,23 +28,15 @@ namespace Pipelines.Implementations
     {
         public static readonly string ActionMustBeSpecifiedInGenericProcessor = "Creating a generic 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<GenericType, Task>.";
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
-
+        
         public static IProcessor From(Action<object> action)
         {
-            return ActionProcessor.From(args =>
-            {
-                action(args);
-                return Task.CompletedTask;
-            });
+            return new ActionProcessor(action.ToAsync());
         }
 
         public static SafeTypeProcessor<T> From<T>(Action<T> action)
         {
-            return ActionProcessor.From<T>(args =>
-            {
-                action(args);
-                return Task.CompletedTask;
-            });
+            return new ActionProcessor<T>(action.ToAsync());
         }
 
         public static IProcessor From(Func<object, Task> action)

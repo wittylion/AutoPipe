@@ -18,7 +18,7 @@ namespace Pipelines.Tests.Integrations
 
         [Theory]
         [MemberData(nameof(BubbleSortIntegrationTest.GetDataCollections))]
-        public async Task Should_Sort_The_Data_By_Means_Of_Processors(int[] data)
+        public async Task Should_Sort_The_Data_By_Means_Of_Single_Processor(int[] data)
         {
             var bubbleSortProcessor = ActionProcessor.From<DataContainer>(container =>
                 SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
@@ -29,6 +29,33 @@ namespace Pipelines.Tests.Integrations
                 .While(container => container.CanTraverseOneMoreTime());
 
             await bubbleSortProcessor.Execute(new DataContainer() {Array = data});
+
+            data.Should()
+                .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");
+        }
+
+
+        [Theory]
+        [MemberData(nameof(BubbleSortIntegrationTest.GetDataCollections))]
+        public async Task Should_Sort_The_Data_By_Means_Of_Several_Processors(int[] data)
+        {
+            var swapElementsIfNeeded = ActionProcessor.From<DataContainer>(container =>
+                    SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
+                .If(container => container.CurrentElement > container.NextElement);
+
+            var movePointerToNextElement = ActionProcessor.From<DataContainer>(container =>
+                container.GoNextElement());
+
+            var requestOneMoreTraverse = ActionProcessor.From<DataContainer>(container =>
+                container.OneMoreTraverse());
+            
+            var bubbleSortProcessor = 
+                swapElementsIfNeeded.Then(movePointerToNextElement)
+                .While(container => container.HasNextElement())
+                .Then(requestOneMoreTraverse)
+                .While(container => container.CanTraverseOneMoreTime());
+
+            await bubbleSortProcessor.Execute(new DataContainer() { Array = data });
 
             data.Should()
                 .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");

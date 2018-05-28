@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtensionMethods\ActionExtensionMethods.cs" />
     <Compile Include="Implementations\ActionProcessor.cs" />
     <Compile Include="Implementations\ConditionalActionProcessor.cs" />
     <Compile Include="Implementations\ConditionalProcessor.cs" />
@@ -49,6 +50,8 @@
     <Compile Include="ExtensionMethods\NullableBooleanExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\StringExtensionMethods.cs" />
+    <Compile Include="Implementations\PostActionProcessor.cs" />
+    <Compile Include="Implementations\PostProcessorWrapper.cs" />
     <Compile Include="IPipeline.cs" />
     <Compile Include="PipelineExecutor.cs" />
     <Compile Include="IProcessor.cs" />
@@ -59,8 +62,8 @@
     <Compile Include="PipelineMessageCollection.cs" />
     <Compile Include="Implementations\PipelineOfState.cs" />
     <Compile Include="PipelineRunner.cs" />
-    <Compile Include="Implementations\PostProcessor.cs" />
-    <Compile Include="ExtensionMethods\ProcessorExtension.cs" />
+    <Compile Include="Implementations\PostProcessorConcept.cs" />
+    <Compile Include="ExtensionMethods\ProcessorExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryContext.cs" />
     <Compile Include="SafeProcessor.cs" />

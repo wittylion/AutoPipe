@@ -3,7 +3,7 @@ using Pipelines.Implementations;
 
 namespace Pipelines.ExtensionMethods
 {
-    public static class ProcessorExtension
+    public static class ProcessorExtensionMethods
     {
         public static IProcessor If(this IProcessor processor, Predicate<object> condition)
         {
@@ -41,8 +41,8 @@ namespace Pipelines.ExtensionMethods
         {
             if (processor.HasNoValue() || action.HasNoValue())
                 return processor;
-
-            return new PostProcessor(processor, action);
+            
+            return new PostActionProcessor(processor, action.ToAsync());
         }
 
         public static SafeTypeProcessor<T> Then<T>(this SafeTypeProcessor<T> processor, Action<T> action)
@@ -50,7 +50,23 @@ namespace Pipelines.ExtensionMethods
             if (processor.HasNoValue() || action.HasNoValue())
                 return processor;
 
-            return new PostProcessor<T>(processor, action);
+            return new PostActionProcessor<T>(processor, action.ToAsync());
+        }
+
+        public static IProcessor Then(this IProcessor processor, IProcessor nextProcessor)
+        {
+            if (processor.HasNoValue() || nextProcessor.HasNoValue())
+                return processor;
+
+            return new PostProcessorWrapper(processor, nextProcessor);
+        }
+
+        public static SafeTypeProcessor<T> Then<T>(this SafeTypeProcessor<T> processor, IProcessor nexProcessor)
+        {
+            if (processor.HasNoValue() || nexProcessor.HasNoValue())
+                return processor;
+
+            return new PostProcessorWrapper<T>(processor, nexProcessor);
         }
     }
 }
