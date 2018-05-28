@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Implementations\ActionProcessor.cs" />
+    <Compile Include="Implementations\ConditionalActionProcessor.cs" />
+    <Compile Include="Implementations\ConditionalProcessor.cs" />
     <Compile Include="ExtensionMethods\EnumerableExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\NullableBooleanExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
@@ -54,11 +57,18 @@
     <Compile Include="PipelineContext.cs" />
     <Compile Include="PipelineMessage.cs" />
     <Compile Include="PipelineMessageCollection.cs" />
+    <Compile Include="Implementations\PipelineOfState.cs" />
     <Compile Include="PipelineRunner.cs" />
+    <Compile Include="Implementations\PostProcessor.cs" />
+    <Compile Include="ExtensionMethods\ProcessorExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryContext.cs" />
     <Compile Include="SafeProcessor.cs" />
     <Compile Include="SafeTypeProcessor.cs" />
+    <Compile Include="Implementations\WhileActionProcessor.cs" />
+    <Compile Include="Implementations\WhileProcessorConcept.cs" />
+    <Compile Include="Implementations\ConditionalProcessorWrapper.cs" />
+    <Compile Include="Implementations\WhileProcessorWrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
