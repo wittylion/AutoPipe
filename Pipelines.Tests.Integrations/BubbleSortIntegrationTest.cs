@@ -9,15 +9,9 @@ namespace Pipelines.Tests.Integrations
 {
     public class BubbleSortIntegrationTest
     {
-        public static IEnumerable<object[]> GetDataCollections()
-        {
-            yield return new object[] {new int[] {66, 55, 77, 60, 1, 100, 21, 70}};
-            yield return new object[] {new int[] {10, 9, 8, 7, 6, 5, 4, 3, 2, 1}};
-            yield return new object[] {new int[] {222}};
-        }
 
         [Theory]
-        [MemberData(nameof(BubbleSortIntegrationTest.GetDataCollections))]
+        [MemberData(nameof(DataSets.GetIntegerArrayCollection), MemberType = typeof(DataSets))]
         public async Task Should_Sort_The_Data_By_Means_Of_Single_Processor(int[] data)
         {
             var bubbleSortProcessor = ActionProcessor.From<DataContainer>(container =>
@@ -36,7 +30,7 @@ namespace Pipelines.Tests.Integrations
 
 
         [Theory]
-        [MemberData(nameof(BubbleSortIntegrationTest.GetDataCollections))]
+        [MemberData(nameof(DataSets.GetIntegerArrayCollection), MemberType = typeof(DataSets))]
         public async Task Should_Sort_The_Data_By_Means_Of_Several_Processors(int[] data)
         {
             var swapElementsIfNeeded = ActionProcessor.From<DataContainer>(container =>
@@ -62,7 +56,7 @@ namespace Pipelines.Tests.Integrations
         }
 
         [Theory]
-        [MemberData(nameof(BubbleSortIntegrationTest.GetDataCollections))]
+        [MemberData(nameof(DataSets.GetIntegerArrayCollection), MemberType = typeof(DataSets))]
         public async Task Should_Sort_The_Data_By_Means_Of_Several_Pipelines(int[] data)
         {
             var args = new DataContainer() {Array = data};
