@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinarySearchIntegrationTests.cs" />
     <Compile Include="BubbleSortIntegrationTest.cs" />
     <Compile Include="DataSets.cs" />
     <Compile Include="HelloWorldIntegrationTest.cs" />
