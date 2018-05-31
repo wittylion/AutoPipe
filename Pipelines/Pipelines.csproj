@@ -69,6 +69,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryContext.cs" />
     <Compile Include="SafeProcessor.cs" />
+    <Compile Include="SafeTypePipeline.cs" />
     <Compile Include="SafeTypeProcessor.cs" />
     <Compile Include="Implementations\WhileActionProcessor.cs" />
     <Compile Include="Implementations\WhileProcessorConcept.cs" />

@@ -89,29 +89,22 @@ namespace Pipelines.Tests.Integrations
                 Max = max ?? data.Length - 1
             };
 
-            await ActionProcessor.From<DataContainer>(dataContainer =>
-                {
-                    int mid = (dataContainer.Min + dataContainer.Max) / 2;
-                    var value = dataContainer.Array[mid];
-                    if (dataContainer.ElementToBeFound == value)
-                    {
-                        dataContainer.FoundIndex = mid;
-                    }
+            var setCurrentIndex = ActionProcessor.From<DataContainer>(dataContainer =>
+                dataContainer.CurrentIndex = (dataContainer.Min + dataContainer.Max) / 2);
 
-                    if (dataContainer.ElementToBeFound < value)
-                    {
-                        dataContainer.Max = mid - 1;
-                    }
+            var resizeToLeftPart = ActionProcessor.From<DataContainer>(dataContainer =>
+                    dataContainer.Max = dataContainer.CurrentIndex - 1)
+                .If(dataContainer => dataContainer.ElementToBeFound < dataContainer.CurrentElement);
 
-                    if (dataContainer.ElementToBeFound > value)
-                    {
-                        dataContainer.Min = mid + 1;
-                    }
-                })
-                .While(dataContainer => dataContainer.Min <= dataContainer.Max && !dataContainer.FoundIndex.HasValue)
+            var resizeToRightPart = ActionProcessor.From<DataContainer>(dataContainer =>
+                    dataContainer.Min = dataContainer.CurrentIndex + 1)
+                .If(dataContainer => dataContainer.ElementToBeFound > dataContainer.CurrentElement);
+
+            await PredefinedPipeline.From(setCurrentIndex, resizeToLeftPart, resizeToRightPart).ToProcessor()
+                .While(dataContainer => dataContainer.Min <= dataContainer.Max && !dataContainer.ElementFound())
                 .Execute(container);
 
-            return container.FoundIndex ?? -1;
+            return container.ElementFound() ? container.CurrentIndex : -1;
         }
 
         public class DataContainer
@@ -123,13 +116,18 @@ namespace Pipelines.Tests.Integrations
             }
 
             public int[] Array { get; }
-            public int? FoundIndex { get; set; }
-            public int? FoundElement => FoundIndex.HasValue ? (int?) Array[FoundIndex.Value] : null;
+            public int CurrentIndex { get; set; }
+            public int CurrentElement => Array[CurrentIndex];
 
             public int Min { get; set; }
             public int Max { get; set; }
 
             public int ElementToBeFound { get; }
+
+            public bool ElementFound()
+            {
+                return CurrentElement == ElementToBeFound;
+            }
         }
     }
 }

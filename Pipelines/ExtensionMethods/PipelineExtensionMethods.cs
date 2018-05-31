@@ -15,6 +15,16 @@ namespace Pipelines.ExtensionMethods
             return ActionProcessor.From(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
         }
 
+        public static SafeTypeProcessor<T> ToProcessor<T>(this SafeTypePipeline<T> pipeline)
+        {
+            return pipeline.ToProcessor(PipelineRunner.StaticInstance);
+        }
+
+        public static SafeTypeProcessor<T> ToProcessor<T>(this SafeTypePipeline<T> pipeline, PipelineRunner runner)
+        {
+            return ActionProcessor.From<T>(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
+        }
+
         public static Task Run(this IPipeline pipeline, object args)
         {
             return pipeline.Run(args, PipelineRunner.StaticInstance);
