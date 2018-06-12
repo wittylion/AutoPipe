@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pipelines.Implementations
 {
     public class PredefinedPipeline : IPipeline
     {
+        public static readonly IPipeline Empty = PredefinedPipeline.From(Enumerable.Empty<IProcessor>());
+        public static SafeTypePipeline<T> GetEmpty<T>() => PredefinedPipeline<T>.Empty;
         public static IPipeline From(params IProcessor[] processors)
         {
             return new PredefinedPipeline(processors);
@@ -43,6 +46,7 @@ namespace Pipelines.Implementations
 
     public class PredefinedPipeline<T> : SafeTypePipeline<T>
     {
+        public static readonly SafeTypePipeline<T> Empty = PredefinedPipeline.From(Enumerable.Empty<SafeTypeProcessor<T>>());
         public IEnumerable<SafeTypeProcessor<T>> Processors { get; }
 
         public PredefinedPipeline(IEnumerable<SafeTypeProcessor<T>> processors)

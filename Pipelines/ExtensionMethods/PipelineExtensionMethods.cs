@@ -27,9 +27,14 @@ namespace Pipelines.ExtensionMethods
             return ActionProcessor.From<T>(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
         }
 
-        public static IPipeline RepeatProcessorsWhile<T>(this SafeTypePipeline<T> pipeline, Func<bool> condition)
+        public static IPipeline RepeatProcessorsAsPipelineWhile<T>(this IPipeline pipeline, Func<bool> condition)
         {
             return new RepeatingProcessorsWhileConditionPipeline(pipeline.GetProcessors(), condition);
+        }
+
+        public static SafeTypePipeline<T> RepeatProcessorsAsPipelineWhile<T>(this SafeTypePipeline<T> pipeline, Func<bool> condition)
+        {
+            return new RepeatingProcessorsWhileConditionPipeline<T>(pipeline.GetProcessorsOfType(), condition);
         }
 
         public static Task Run(this IPipeline pipeline, object args)

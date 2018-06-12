@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExtensionMethods\ActionExtensionMethods.cs" />
+    <Compile Include="ExtensionMethods\EnumerableProcessorsExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\PipelineExtensionMethods.cs" />
     <Compile Include="Implementations\ActionProcessor.cs" />
     <Compile Include="Implementations\ConditionalActionProcessor.cs" />

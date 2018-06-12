@@ -61,7 +61,7 @@ namespace Pipelines.Tests.Integrations
         {
             var args = new DataContainer() {Array = data};
             
-            await PipelineOfState.From(args, GetSortingProcessors).Run(args);
+            await GetSortingProcessors(args).RunProcessorsWhile(args, container => container.CanTraverseOneMoreTime());
 
             data.Should()
                 .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");
@@ -69,31 +69,19 @@ namespace Pipelines.Tests.Integrations
 
         protected IEnumerable<IProcessor> GetSortingProcessors(DataContainer stateContainer)
         {
-            var traverse = PipelineOfState.From(stateContainer, GetTraverseProcessors).ToProcessor();
-            var requestOneMoreTraverse = ActionProcessor.From<DataContainer>(container =>
+            yield return GetTraverseProcessors().RepeatProcessorsAsPipelineWhile(stateContainer.HasNextElement).ToProcessor();
+            yield return ActionProcessor.From<DataContainer>(container =>
                 container.OneMoreTraverse());
-
-            while (stateContainer.CanTraverseOneMoreTime())
-            {
-                yield return traverse;
-                yield return requestOneMoreTraverse;
-            }
         }
 
-        protected IEnumerable<IProcessor> GetTraverseProcessors(DataContainer stateContainer)
+        protected IEnumerable<SafeTypeProcessor<DataContainer>> GetTraverseProcessors()
         {
-            var swapElementsIfNeeded = ActionProcessor.From<DataContainer>(container =>
+            yield return ActionProcessor.From<DataContainer>(container =>
                     SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
                 .If(container => container.CurrentElement > container.NextElement);
 
-            var movePointerToNextElement = ActionProcessor.From<DataContainer>(container =>
+            yield return ActionProcessor.From<DataContainer>(container =>
                 container.GoNextElement());
-
-            while (stateContainer.HasNextElement())
-            {
-                yield return swapElementsIfNeeded;
-                yield return movePointerToNextElement;
-            }
         }
 
         protected void SwapElements(int[] array, int first, int second)
