@@ -54,6 +54,7 @@
     <Compile Include="Implementations\PredefinedPipeline.cs" />
     <Compile Include="Implementations\PostActionProcessor.cs" />
     <Compile Include="Implementations\PostProcessorWrapper.cs" />
+    <Compile Include="Implementations\RepeatingProcessorsWhileConditionPipeline.cs" />
     <Compile Include="IPipeline.cs" />
     <Compile Include="PipelineExecutor.cs" />
     <Compile Include="IProcessor.cs" />

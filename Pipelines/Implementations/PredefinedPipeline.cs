@@ -35,7 +35,7 @@ namespace Pipelines.Implementations
             Processors = processors ?? throw new ArgumentNullException(nameof(processors), ProcessorsMustNotBeNull);
         }
 
-        public IEnumerable<IProcessor> GetProcessors()
+        public virtual IEnumerable<IProcessor> GetProcessors()
         {
             return this.Processors;
         }
