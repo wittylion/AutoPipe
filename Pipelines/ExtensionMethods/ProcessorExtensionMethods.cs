@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Pipelines.Implementations;
 
 namespace Pipelines.ExtensionMethods
@@ -37,7 +38,7 @@ namespace Pipelines.ExtensionMethods
             return new WhileProcessorWrapper<T>(condition, processor);
         }
 
-        public static IProcessor Then(this IProcessor processor, Action<object> action)
+        public static IProcessor ThenActionOf(this IProcessor processor, Action<object> action)
         {
             if (processor.HasNoValue() || action.HasNoValue())
                 return processor;
@@ -45,7 +46,7 @@ namespace Pipelines.ExtensionMethods
             return new PostActionProcessor(processor, action.ToAsync());
         }
 
-        public static SafeTypeProcessor<T> Then<T>(this SafeTypeProcessor<T> processor, Action<T> action)
+        public static SafeTypeProcessor<T> ThenActionOf<T>(this SafeTypeProcessor<T> processor, Action<T> action)
         {
             if (processor.HasNoValue() || action.HasNoValue())
                 return processor;
@@ -53,7 +54,7 @@ namespace Pipelines.ExtensionMethods
             return new PostActionProcessor<T>(processor, action.ToAsync());
         }
 
-        public static IProcessor Then(this IProcessor processor, IProcessor nextProcessor)
+        public static IProcessor ThenActionOf(this IProcessor processor, IProcessor nextProcessor)
         {
             if (processor.HasNoValue() || nextProcessor.HasNoValue())
                 return processor;
@@ -61,12 +62,31 @@ namespace Pipelines.ExtensionMethods
             return new PostProcessorWrapper(processor, nextProcessor);
         }
 
-        public static SafeTypeProcessor<T> Then<T>(this SafeTypeProcessor<T> processor, IProcessor nexProcessor)
+        public static SafeTypeProcessor<T> ThenActionOf<T>(this SafeTypeProcessor<T> processor, IProcessor nexProcessor)
         {
             if (processor.HasNoValue() || nexProcessor.HasNoValue())
                 return processor;
 
             return new PostProcessorWrapper<T>(processor, nexProcessor);
+        }
+
+        public static IEnumerable<IProcessor> ThenProcessor(this IProcessor processor, IProcessor nextProcessor)
+        {
+            return new[]
+            {
+                processor,
+                nextProcessor
+            };
+        }
+
+        public static IEnumerable<SafeTypeProcessor<T>> ThenProcessor<T>(this SafeTypeProcessor<T> processor,
+            SafeTypeProcessor<T> nextProcessor)
+        {
+            return new[]
+            {
+                processor,
+                nextProcessor
+            };
         }
     }
 }

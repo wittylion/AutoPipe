@@ -17,9 +17,9 @@ namespace Pipelines.Tests.Integrations
             var bubbleSortProcessor = ActionProcessor.From<DataContainer>(container =>
                 SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
                 .If(container => container.CurrentElement > container.NextElement)
-                .Then(container => container.GoNextElement())
+                .ThenActionOf(container => container.GoNextElement())
                 .While(container => container.HasNextElement())
-                .Then(container => container.OneMoreTraverse())
+                .ThenActionOf(container => container.OneMoreTraverse())
                 .While(container => container.CanTraverseOneMoreTime());
 
             await bubbleSortProcessor.Execute(new DataContainer() {Array = data});
@@ -44,9 +44,9 @@ namespace Pipelines.Tests.Integrations
                 container.OneMoreTraverse());
             
             var bubbleSortProcessor = 
-                swapElementsIfNeeded.Then(movePointerToNextElement)
+                swapElementsIfNeeded.ThenActionOf(movePointerToNextElement)
                 .While(container => container.HasNextElement())
-                .Then(requestOneMoreTraverse)
+                .ThenActionOf(requestOneMoreTraverse)
                 .While(container => container.CanTraverseOneMoreTime());
 
             await bubbleSortProcessor.Execute(new DataContainer() { Array = data });

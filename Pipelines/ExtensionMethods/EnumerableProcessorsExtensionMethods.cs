@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Pipelines.Implementations;
 
@@ -109,6 +110,26 @@ namespace Pipelines.ExtensionMethods
             {
                 await enumerable.Run(args, runner);
             }
+        }
+
+        public static IEnumerable<IProcessor> ThenProcessor(this IEnumerable<IProcessor> enumerable, IProcessor nextProcessor)
+        {
+            return enumerable.ThenProcessor(new[] {nextProcessor});
+        }
+
+        public static IEnumerable<IProcessor> ThenProcessor(this IEnumerable<IProcessor> enumerable, IEnumerable<IProcessor> nextProcessors)
+        {
+            if (enumerable.HasNoValue())
+            {
+                if (nextProcessors.HasNoValue())
+                {
+                    return Enumerable.Empty<IProcessor>();
+                }
+
+                return nextProcessors;
+            }
+
+            return enumerable.Concat(nextProcessors);
         }
     }
 }
