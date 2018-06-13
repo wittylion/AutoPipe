@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Pipelines.ExtensionMethods;
@@ -69,19 +70,18 @@ namespace Pipelines.Tests.Integrations
 
         protected IEnumerable<IProcessor> GetSortingProcessors(DataContainer stateContainer)
         {
-            yield return GetTraverseProcessors().RepeatProcessorsAsPipelineWhile(stateContainer.HasNextElement).ToProcessor();
-            yield return ActionProcessor.From<DataContainer>(container =>
-                container.OneMoreTraverse());
+            return GetTraverseProcessors().RepeatProcessorsAsPipelineWhile(stateContainer.HasNextElement)
+                .ToProcessor().ThenProcessor(x => x.OneMoreTraverse());
         }
 
         protected IEnumerable<SafeTypeProcessor<DataContainer>> GetTraverseProcessors()
         {
-            yield return ActionProcessor.From<DataContainer>(container =>
-                    SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
-                .If(container => container.CurrentElement > container.NextElement);
+            Action<DataContainer> swap = (container =>
+                SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1));
 
-            yield return ActionProcessor.From<DataContainer>(container =>
-                container.GoNextElement());
+            return swap.ToProcessor()
+                .If(container => container.CurrentElement > container.NextElement)
+                .ThenProcessor(container => container.GoNextElement());
         }
 
         protected void SwapElements(int[] array, int first, int second)
