@@ -76,8 +76,8 @@ namespace Pipelines.Tests.Integrations
 
         protected IEnumerable<SafeTypeProcessor<DataContainer>> GetTraverseProcessors()
         {
-            Action<DataContainer> swap = (container =>
-                SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1));
+            Action<DataContainer> swap = container =>
+                SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1);
 
             return swap.ToProcessor()
                 .If(container => container.CurrentElement > container.NextElement)

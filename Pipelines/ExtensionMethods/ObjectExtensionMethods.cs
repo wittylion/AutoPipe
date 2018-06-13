@@ -27,7 +27,7 @@
             return obj.HasValue() ? obj : value;
         }
 
-        public static T[] ToArray<T>(this T obj)
+        public static T[] ToAnArray<T>(this T obj)
         {
             return new[] {obj};
         }

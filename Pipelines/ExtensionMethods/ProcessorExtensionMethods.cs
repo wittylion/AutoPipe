@@ -80,12 +80,12 @@ namespace Pipelines.ExtensionMethods
 
             if (nextProcessor.HasNoValue() && processor.HasValue())
             {
-                return processor.ToArray();
+                return processor.ToAnArray();
             }
 
             if (nextProcessor.HasValue() && processor.HasNoValue())
             {
-                return nextProcessor.ToArray();
+                return nextProcessor.ToAnArray();
             }
 
             return new[]
@@ -115,12 +115,12 @@ namespace Pipelines.ExtensionMethods
 
             if (nextProcessor.HasNoValue() && processor.HasValue())
             {
-                return processor.ToArray();
+                return processor.ToAnArray();
             }
 
             if (nextProcessor.HasValue() && processor.HasNoValue())
             {
-                return nextProcessor.ToArray();
+                return nextProcessor.ToAnArray();
             }
 
             return new[]
