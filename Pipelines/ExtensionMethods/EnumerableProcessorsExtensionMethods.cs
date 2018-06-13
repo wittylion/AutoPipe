@@ -15,7 +15,7 @@ namespace Pipelines.ExtensionMethods
                 return PredefinedPipeline.Empty;
             }
 
-            return PredefinedPipeline.From(enumerable);
+            return PredefinedPipeline.FromProcessors(enumerable);
         }
 
         public static SafeTypePipeline<T> ToPipeline<T>(this IEnumerable<SafeTypeProcessor<T>> enumerable)
@@ -25,7 +25,7 @@ namespace Pipelines.ExtensionMethods
                 return PredefinedPipeline.GetEmpty<T>();
             }
 
-            return PredefinedPipeline.From(enumerable);
+            return PredefinedPipeline.FromProcessors(enumerable);
         }
 
         public static IEnumerable<IProcessor> RepeatProcessorsWhile(

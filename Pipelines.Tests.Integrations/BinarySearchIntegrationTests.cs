@@ -89,18 +89,18 @@ namespace Pipelines.Tests.Integrations
                 Max = max ?? data.Length - 1
             };
 
-            var setCurrentIndex = ActionProcessor.From<DataContainer>(dataContainer =>
+            var setCurrentIndex = ActionProcessor.FromAction<DataContainer>(dataContainer =>
                 dataContainer.CurrentIndex = (dataContainer.Min + dataContainer.Max) / 2);
 
-            var resizeToLeftPart = ActionProcessor.From<DataContainer>(dataContainer =>
+            var resizeToLeftPart = ActionProcessor.FromAction<DataContainer>(dataContainer =>
                     dataContainer.Max = dataContainer.CurrentIndex - 1)
                 .If(dataContainer => dataContainer.ElementToBeFound < dataContainer.CurrentElement);
 
-            var resizeToRightPart = ActionProcessor.From<DataContainer>(dataContainer =>
+            var resizeToRightPart = ActionProcessor.FromAction<DataContainer>(dataContainer =>
                     dataContainer.Min = dataContainer.CurrentIndex + 1)
                 .If(dataContainer => dataContainer.ElementToBeFound > dataContainer.CurrentElement);
 
-            await PredefinedPipeline.From(setCurrentIndex, resizeToLeftPart, resizeToRightPart).ToProcessor()
+            await PredefinedPipeline.FromProcessors(setCurrentIndex, resizeToLeftPart, resizeToRightPart).ToProcessor()
                 .While(dataContainer => dataContainer.Min <= dataContainer.Max && !dataContainer.ElementFound())
                 .Execute(container);
 

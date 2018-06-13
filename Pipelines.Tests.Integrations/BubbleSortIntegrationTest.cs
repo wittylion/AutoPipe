@@ -15,7 +15,7 @@ namespace Pipelines.Tests.Integrations
         [MemberData(nameof(DataSets.GetIntegerArrayCollection), MemberType = typeof(DataSets))]
         public async Task Should_Sort_The_Data_By_Means_Of_Single_Processor(int[] data)
         {
-            var bubbleSortProcessor = ActionProcessor.From<DataContainer>(container =>
+            var bubbleSortProcessor = ActionProcessor.FromAction<DataContainer>(container =>
                 SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
                 .If(container => container.CurrentElement > container.NextElement)
                 .ThenActionOf(container => container.GoNextElement())
@@ -34,14 +34,14 @@ namespace Pipelines.Tests.Integrations
         [MemberData(nameof(DataSets.GetIntegerArrayCollection), MemberType = typeof(DataSets))]
         public async Task Should_Sort_The_Data_By_Means_Of_Several_Processors(int[] data)
         {
-            var swapElementsIfNeeded = ActionProcessor.From<DataContainer>(container =>
+            var swapElementsIfNeeded = ActionProcessor.FromAction<DataContainer>(container =>
                     SwapElements(container.Array, container.CurrentPointer, container.CurrentPointer + 1))
                 .If(container => container.CurrentElement > container.NextElement);
 
-            var movePointerToNextElement = ActionProcessor.From<DataContainer>(container =>
+            var movePointerToNextElement = ActionProcessor.FromAction<DataContainer>(container =>
                 container.GoNextElement());
 
-            var requestOneMoreTraverse = ActionProcessor.From<DataContainer>(container =>
+            var requestOneMoreTraverse = ActionProcessor.FromAction<DataContainer>(container =>
                 container.OneMoreTraverse());
             
             var bubbleSortProcessor = 

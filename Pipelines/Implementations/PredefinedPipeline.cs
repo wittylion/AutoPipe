@@ -6,24 +6,24 @@ namespace Pipelines.Implementations
 {
     public class PredefinedPipeline : IPipeline
     {
-        public static readonly IPipeline Empty = PredefinedPipeline.From(Enumerable.Empty<IProcessor>());
+        public static readonly IPipeline Empty = PredefinedPipeline.FromProcessors(Enumerable.Empty<IProcessor>());
         public static SafeTypePipeline<T> GetEmpty<T>() => PredefinedPipeline<T>.Empty;
-        public static IPipeline From(params IProcessor[] processors)
+        public static IPipeline FromProcessors(params IProcessor[] processors)
         {
             return new PredefinedPipeline(processors);
         }
 
-        public static IPipeline From(IEnumerable<IProcessor> processors)
+        public static IPipeline FromProcessors(IEnumerable<IProcessor> processors)
         {
             return new PredefinedPipeline(processors);
         }
 
-        public static SafeTypePipeline<T> From<T>(params SafeTypeProcessor<T>[] processors)
+        public static SafeTypePipeline<T> FromProcessors<T>(params SafeTypeProcessor<T>[] processors)
         {
             return new PredefinedPipeline<T>(processors);
         }
 
-        public static SafeTypePipeline<T> From<T>(IEnumerable<SafeTypeProcessor<T>> processors)
+        public static SafeTypePipeline<T> FromProcessors<T>(IEnumerable<SafeTypeProcessor<T>> processors)
         {
             return new PredefinedPipeline<T>(processors);
         }
@@ -46,7 +46,7 @@ namespace Pipelines.Implementations
 
     public class PredefinedPipeline<T> : SafeTypePipeline<T>
     {
-        public static readonly SafeTypePipeline<T> Empty = PredefinedPipeline.From(Enumerable.Empty<SafeTypeProcessor<T>>());
+        public static readonly SafeTypePipeline<T> Empty = PredefinedPipeline.FromProcessors(Enumerable.Empty<SafeTypeProcessor<T>>());
         public IEnumerable<SafeTypeProcessor<T>> Processors { get; }
 
         public PredefinedPipeline(IEnumerable<SafeTypeProcessor<T>> processors)

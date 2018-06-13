@@ -20,7 +20,7 @@ namespace Pipelines.ExtensionMethods
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.From<T>(action);
+            return ActionProcessor.FromAction<T>(action);
         }
 
         public static SafeTypeProcessor<T> ToProcessor<T>(this Action<T> action)
@@ -28,7 +28,7 @@ namespace Pipelines.ExtensionMethods
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.From<T>(action);
+            return ActionProcessor.FromAction<T>(action);
         }
     }
 }
