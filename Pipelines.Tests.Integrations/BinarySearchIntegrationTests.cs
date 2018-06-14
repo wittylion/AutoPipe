@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Pipelines.ExtensionMethods;
@@ -85,26 +86,41 @@ namespace Pipelines.Tests.Integrations
 
             var container = new DataContainer(data, number)
             {
-                Min = min ?? 0,
-                Max = max ?? data.Length - 1
+                StartSearchIndex = min ?? 0,
+                EndSearchIndex = max ?? data.Length - 1
             };
 
-            var setCurrentIndex = ActionProcessor.FromAction<DataContainer>(dataContainer =>
-                dataContainer.CurrentIndex = (dataContainer.Min + dataContainer.Max) / 2);
+            await GetBinarySearchProcessors()
+                .RunProcessorsWhile(container,
+                    dataContainer => dataContainer.StartSearchIndex <= dataContainer.EndSearchIndex && !dataContainer.ElementFound());
+            return container.FoundIndex;
+        }
+        
+        public IEnumerable<SafeTypeProcessor<DataContainer>> GetBinarySearchProcessors()
+        {
+            Action<DataContainer>
 
-            var resizeToLeftPart = ActionProcessor.FromAction<DataContainer>(dataContainer =>
-                    dataContainer.Max = dataContainer.CurrentIndex - 1)
-                .If(dataContainer => dataContainer.ElementToBeFound < dataContainer.CurrentElement);
+                setCurrentIndex = container =>
+                    container.CurrentIndex = (container.StartSearchIndex + container.EndSearchIndex) / 2,
 
-            var resizeToRightPart = ActionProcessor.FromAction<DataContainer>(dataContainer =>
-                    dataContainer.Min = dataContainer.CurrentIndex + 1)
-                .If(dataContainer => dataContainer.ElementToBeFound > dataContainer.CurrentElement);
+                resizeToRightPart = container =>
+                    container.StartSearchIndex = container.CurrentIndex + 1,
 
-            await PredefinedPipeline.FromProcessors(setCurrentIndex, resizeToLeftPart, resizeToRightPart).ToProcessor()
-                .While(dataContainer => dataContainer.Min <= dataContainer.Max && !dataContainer.ElementFound())
-                .Execute(container);
+                resizeToLeftPart = container =>
+                    container.EndSearchIndex = container.CurrentIndex - 1,
 
-            return container.ElementFound() ? container.CurrentIndex : -1;
+                trySetFoundElement = container =>
+                    container.FoundIndex = container.CurrentIndex
+
+                ;
+
+            yield return setCurrentIndex.ToProcessor();
+            yield return resizeToLeftPart.ToProcessor()
+                .If(container => container.ElementToBeFound < container.CurrentElement);
+            yield return resizeToRightPart.ToProcessor()
+                .If(container => container.ElementToBeFound > container.CurrentElement);
+            yield return trySetFoundElement.ToProcessor()
+                .If(container => container.CurrentElement == container.ElementToBeFound);
         }
 
         public class DataContainer
@@ -116,17 +132,18 @@ namespace Pipelines.Tests.Integrations
             }
 
             public int[] Array { get; }
+            public int FoundIndex { get; set; } = -1;
             public int CurrentIndex { get; set; }
             public int CurrentElement => Array[CurrentIndex];
 
-            public int Min { get; set; }
-            public int Max { get; set; }
+            public int StartSearchIndex { get; set; }
+            public int EndSearchIndex { get; set; }
 
             public int ElementToBeFound { get; }
 
             public bool ElementFound()
             {
-                return CurrentElement == ElementToBeFound;
+                return FoundIndex != -1;
             }
         }
     }

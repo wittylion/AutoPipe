@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Pipelines.Implementations;
@@ -45,6 +46,22 @@ namespace Pipelines.ExtensionMethods
         public static Task Run(this IPipeline pipeline, object args, PipelineRunner runner)
         {
             return runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args);
+        }
+
+        public static Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
+            Predicate<TArgs> condition)
+        {
+            return pipeline.RunPipelineWhile(args, condition, PipelineRunner.StaticInstance);
+        }
+
+        public static async Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
+            Predicate<TArgs> condition, PipelineRunner runner)
+        {
+            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            while (condition(args))
+            {
+                await pipeline.Run(args, runner);
+            }
         }
     }
 }
