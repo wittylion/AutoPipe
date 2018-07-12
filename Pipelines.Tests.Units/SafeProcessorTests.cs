@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
-using Moq;
 using Xunit;
 
 namespace Pipelines.Tests.Units

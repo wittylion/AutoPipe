@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipelines.Implementations
+namespace Pipelines.Implementations.Pipelines
 {
     public class PipelineOfState : IPipeline
     {

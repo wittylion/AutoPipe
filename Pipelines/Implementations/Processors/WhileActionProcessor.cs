@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.Implementations
+namespace Pipelines.Implementations.Processors
 {
     public class WhileActionProcessor : WhileProcessorConcept
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Pipelines.Implementations;
+using Pipelines.Implementations.Processors;
 
 namespace Pipelines.ExtensionMethods
 {

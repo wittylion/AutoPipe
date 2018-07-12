@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Pipelines.Implementations;
+using Pipelines.Implementations.Pipelines;
+using Pipelines.Implementations.Processors;
 
 namespace Pipelines.ExtensionMethods
 {

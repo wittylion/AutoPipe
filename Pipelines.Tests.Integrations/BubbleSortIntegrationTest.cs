@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Pipelines.ExtensionMethods;
-using Pipelines.Implementations;
+using Pipelines.Implementations.Processors;
 using Xunit;
 
 namespace Pipelines.Tests.Integrations

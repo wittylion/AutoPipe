@@ -2,28 +2,8 @@
 using System.Threading.Tasks;
 using Pipelines.ExtensionMethods;
 
-namespace Pipelines.Implementations
+namespace Pipelines.Implementations.Processors
 {
-    public class ActionProcessor<T> : SafeTypeProcessor<T>
-    {
-        public static SafeTypeProcessor<T> From(Func<T, Task> action)
-        {
-            return new ActionProcessor<T>(action);
-        }
-
-        public ActionProcessor(Func<T, Task> action)
-        {
-            Action = action ?? throw new ArgumentNullException(ActionProcessor.ActionMustBeSpecifiedInGenericProcessor);
-        }
-
-        private Func<T, Task> Action { get; }
-
-        public override Task SafeExecute(T args)
-        {
-            return this.Action(args);
-        }
-    }
-
     public class ActionProcessor : IProcessor
     {
         public static readonly string ActionMustBeSpecifiedInGenericProcessor = "Creating a generic 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<GenericType, Task>.";
@@ -59,6 +39,26 @@ namespace Pipelines.Implementations
         public Task Execute(object arguments)
         {
             return this.Action(arguments);
+        }
+    }
+
+    public class ActionProcessor<T> : SafeTypeProcessor<T>
+    {
+        public static SafeTypeProcessor<T> From(Func<T, Task> action)
+        {
+            return new ActionProcessor<T>(action);
+        }
+
+        public ActionProcessor(Func<T, Task> action)
+        {
+            Action = action ?? throw new ArgumentNullException(ActionProcessor.ActionMustBeSpecifiedInGenericProcessor);
+        }
+
+        private Func<T, Task> Action { get; }
+
+        public override Task SafeExecute(T args)
+        {
+            return this.Action(args);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipelines.Implementations
+namespace Pipelines.Implementations.Pipelines
 {
     public class PredefinedPipeline : IPipeline
     {

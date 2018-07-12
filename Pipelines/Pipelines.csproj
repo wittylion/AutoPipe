@@ -45,17 +45,18 @@
     <Compile Include="ExtensionMethods\ActionExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\EnumerableProcessorsExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\PipelineExtensionMethods.cs" />
-    <Compile Include="Implementations\ActionProcessor.cs" />
-    <Compile Include="Implementations\ConditionalActionProcessor.cs" />
-    <Compile Include="Implementations\ConditionalProcessor.cs" />
+    <Compile Include="Implementations\Pipelines\RepeatingProcessorsWhileConditionPipeline.cs" />
+    <Compile Include="Implementations\Processors\ActionProcessor.cs" />
+    <Compile Include="Implementations\Processors\ConditionalActionProcessor.cs" />
+    <Compile Include="Implementations\Processors\ConditionalProcessorConcept.cs" />
     <Compile Include="ExtensionMethods\EnumerableExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\NullableBooleanExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\StringExtensionMethods.cs" />
-    <Compile Include="Implementations\PredefinedPipeline.cs" />
-    <Compile Include="Implementations\PostActionProcessor.cs" />
-    <Compile Include="Implementations\PostProcessorWrapper.cs" />
-    <Compile Include="Implementations\RepeatingProcessorsWhileConditionPipeline.cs" />
+    <Compile Include="Implementations\Pipelines\PredefinedPipeline.cs" />
+    <Compile Include="Implementations\Processors\PostActionProcessor.cs" />
+    <Compile Include="Implementations\Processors\PostProcessorWrapper.cs" />
+    <Compile Include="Implementations\Pipelines\RepeatingProcessorsPipelineConcept.cs" />
     <Compile Include="IPipeline.cs" />
     <Compile Include="PipelineExecutor.cs" />
     <Compile Include="IProcessor.cs" />
@@ -64,19 +65,20 @@
     <Compile Include="PipelineContext.cs" />
     <Compile Include="PipelineMessage.cs" />
     <Compile Include="PipelineMessageCollection.cs" />
-    <Compile Include="Implementations\PipelineOfState.cs" />
+    <Compile Include="Implementations\Pipelines\PipelineOfState.cs" />
     <Compile Include="PipelineRunner.cs" />
-    <Compile Include="Implementations\PostProcessorConcept.cs" />
+    <Compile Include="Implementations\Processors\PostProcessorConcept.cs" />
     <Compile Include="ExtensionMethods\ProcessorExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryContext.cs" />
     <Compile Include="SafeProcessor.cs" />
     <Compile Include="SafeTypePipeline.cs" />
     <Compile Include="SafeTypeProcessor.cs" />
-    <Compile Include="Implementations\WhileActionProcessor.cs" />
-    <Compile Include="Implementations\WhileProcessorConcept.cs" />
-    <Compile Include="Implementations\ConditionalProcessorWrapper.cs" />
-    <Compile Include="Implementations\WhileProcessorWrapper.cs" />
+    <Compile Include="Implementations\Processors\WhileActionProcessor.cs" />
+    <Compile Include="Implementations\Processors\WhileProcessorConcept.cs" />
+    <Compile Include="Implementations\Processors\ConditionalProcessorWrapper.cs" />
+    <Compile Include="Implementations\Processors\WhileProcessorWrapper.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
