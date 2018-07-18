@@ -357,7 +357,7 @@ namespace Pipelines.ExtensionMethods
         /// </returns>
         public static IEnumerable<IProcessor> ThenProcessor(this IEnumerable<IProcessor> enumerable, IProcessor nextProcessor)
         {
-            return enumerable.ThenProcessor(new[] {nextProcessor});
+            return enumerable.ThenProcessors(new[] {nextProcessor});
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// Enumerable object with concatenated processors.
         /// </returns>
-        public static IEnumerable<IProcessor> ThenProcessor(this IEnumerable<IProcessor> enumerable, IEnumerable<IProcessor> nextProcessors)
+        public static IEnumerable<IProcessor> ThenProcessors(this IEnumerable<IProcessor> enumerable, IEnumerable<IProcessor> nextProcessors)
         {
             if (enumerable.HasNoValue())
             {
