@@ -192,8 +192,8 @@ namespace Pipelines.ExtensionMethods
         /// extension method call.
         /// </summary>
         /// <remarks>
-        /// If <paramref name="enumerable"/> is null, returns an empty
-        /// pipeline object.
+        /// If <paramref name="enumerable"/> or <paramref name="condition"/> is null,
+        /// returns an empty pipeline object.
         /// </remarks>
         /// <typeparam name="T">
         /// A type that is declared to be handled by processor.
@@ -213,7 +213,7 @@ namespace Pipelines.ExtensionMethods
         public static SafeTypePipeline<T> RepeatProcessorsAsPipelineWhile<T>(
             this IEnumerable<SafeTypeProcessor<T>> enumerable, Func<bool> condition)
         {
-            if (enumerable.IsNull())
+            if (enumerable.IsNull() || condition.IsNull())
             {
                 return PredefinedPipeline.GetEmpty<T>();
             }
@@ -329,7 +329,13 @@ namespace Pipelines.ExtensionMethods
         public static async Task RunProcessorsWhile<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args,
             Predicate<TArgs> condition, PipelineRunner runner)
         {
+            if (condition.HasNoValue())
+            {
+                return;
+            }
+
             runner = runner.Ensure(PipelineRunner.StaticInstance);
+
             while (condition(args))
             {
                 await enumerable.Run(args, runner);
@@ -377,6 +383,11 @@ namespace Pipelines.ExtensionMethods
                 }
 
                 return nextProcessors;
+            }
+
+            if (nextProcessors.HasNoValue())
+            {
+                return enumerable;
             }
 
             return enumerable.Concat(nextProcessors);
