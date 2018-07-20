@@ -30,12 +30,12 @@ namespace Pipelines.Implementations.Pipelines
         }
     }
 
-    public class PipelineOfState<T> : IPipeline
+    public class PipelineOfState<TStateObject> : IPipeline
     {
-        public T State { get; }
-        public Func<T, IEnumerable<IProcessor>> ProcessorsRetriever { get; }
+        public TStateObject State { get; }
+        public Func<TStateObject, IEnumerable<IProcessor>> ProcessorsRetriever { get; }
 
-        public PipelineOfState(T state, Func<T, IEnumerable<IProcessor>> processorsRetriever)
+        public PipelineOfState(TStateObject state, Func<TStateObject, IEnumerable<IProcessor>> processorsRetriever)
         {
             State = state;
             ProcessorsRetriever = processorsRetriever ?? throw new ArgumentNullException(nameof(processorsRetriever));
