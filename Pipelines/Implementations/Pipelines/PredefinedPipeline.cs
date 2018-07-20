@@ -44,17 +44,17 @@ namespace Pipelines.Implementations.Pipelines
         }
     }
 
-    public class PredefinedPipeline<T> : SafeTypePipeline<T>
+    public class PredefinedPipeline<TArgs> : SafeTypePipeline<TArgs>
     {
-        public static readonly SafeTypePipeline<T> Empty = PredefinedPipeline.FromProcessors(Enumerable.Empty<SafeTypeProcessor<T>>());
-        public IEnumerable<SafeTypeProcessor<T>> Processors { get; }
+        public static readonly SafeTypePipeline<TArgs> Empty = PredefinedPipeline.FromProcessors(Enumerable.Empty<SafeTypeProcessor<TArgs>>());
+        public IEnumerable<SafeTypeProcessor<TArgs>> Processors { get; }
 
-        public PredefinedPipeline(IEnumerable<SafeTypeProcessor<T>> processors)
+        public PredefinedPipeline(IEnumerable<SafeTypeProcessor<TArgs>> processors)
         {
             Processors = processors ?? throw new ArgumentNullException(nameof(processors), PredefinedPipeline.ProcessorsMustNotBeNullForGeneric);
         }
 
-        public override IEnumerable<SafeTypeProcessor<T>> GetProcessorsOfType()
+        public override IEnumerable<SafeTypeProcessor<TArgs>> GetProcessorsOfType()
         {
             return this.Processors;
         }

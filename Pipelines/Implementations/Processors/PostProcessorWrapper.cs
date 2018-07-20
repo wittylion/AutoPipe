@@ -18,7 +18,7 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class PostProcessorWrapper<T> : PostProcessorConcept<T>
+    public class PostProcessorWrapper<TArgs> : PostProcessorConcept<TArgs>
     {
         public IProcessor AdditionalProcessor { get; }
 
@@ -27,7 +27,7 @@ namespace Pipelines.Implementations.Processors
             AdditionalProcessor = additionalProcessor ?? throw new ArgumentNullException(nameof(additionalProcessor));
         }
 
-        public override async Task CustomExecute(T arguments)
+        public override async Task CustomExecute(TArgs arguments)
         {
             await AdditionalProcessor.Execute(arguments);
         }

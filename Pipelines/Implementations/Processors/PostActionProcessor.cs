@@ -25,17 +25,17 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class PostActionProcessor<T> : PostProcessorConcept<T>
+    public class PostActionProcessor<TArgs> : PostProcessorConcept<TArgs>
     {
-        public Func<T, Task> Action { get; }
+        public Func<TArgs, Task> Action { get; }
 
-        public PostActionProcessor(IProcessor processor, Func<T, Task> action) : base(processor)
+        public PostActionProcessor(IProcessor processor, Func<TArgs, Task> action) : base(processor)
         {
             Action = action ?? throw new ArgumentNullException(nameof(action),
                          PostActionProcessor.ActionMustBeProvidedInGeneric);
         }
 
-        public override async Task CustomExecute(T arguments)
+        public override async Task CustomExecute(TArgs arguments)
         {
             await this.Action(arguments);
         }

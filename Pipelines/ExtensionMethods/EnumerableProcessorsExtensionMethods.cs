@@ -49,7 +49,7 @@ namespace Pipelines.ExtensionMethods
         /// In case enumerable object is null, an empty
         /// pipeline will be returned.
         /// </remarks>
-        /// <typeparam name="T">
+        /// <typeparam name="TArgs">
         /// A type that is declared to be handled by processor.
         /// </typeparam>
         /// <param name="enumerable">
@@ -58,11 +58,11 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// Pipeline created from enumerable object of <see cref="IProcessor"/>.
         /// </returns>
-        public static SafeTypePipeline<T> ToPipeline<T>(this IEnumerable<SafeTypeProcessor<T>> enumerable)
+        public static SafeTypePipeline<TArgs> ToPipeline<TArgs>(this IEnumerable<SafeTypeProcessor<TArgs>> enumerable)
         {
             if (enumerable.IsNull())
             {
-                return PredefinedPipeline.GetEmpty<T>();
+                return PredefinedPipeline.GetEmpty<TArgs>();
             }
 
             return PredefinedPipeline.FromProcessors(enumerable);
@@ -118,7 +118,7 @@ namespace Pipelines.ExtensionMethods
         /// If <paramref name="enumerable"/> or <paramref name="condition"/>
         /// is null, returns no objects.
         /// </remarks>
-        /// <typeparam name="T">
+        /// <typeparam name="TArgs">
         /// A type that is declared to be handled by processor.
         /// </typeparam>
         /// <param name="enumerable">
@@ -133,8 +133,8 @@ namespace Pipelines.ExtensionMethods
         /// Enumerable object retutning instances of <see cref="IProcessor"/>
         /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
         /// </returns>
-        public static IEnumerable<SafeTypeProcessor<T>> RepeatProcessorsWhile<T>(
-            this IEnumerable<SafeTypeProcessor<T>> enumerable, Func<bool> condition)
+        public static IEnumerable<SafeTypeProcessor<TArgs>> RepeatProcessorsWhile<TArgs>(
+            this IEnumerable<SafeTypeProcessor<TArgs>> enumerable, Func<bool> condition)
         {
             if (condition.HasNoValue() || enumerable.HasNoValue())
             {
@@ -195,7 +195,7 @@ namespace Pipelines.ExtensionMethods
         /// If <paramref name="enumerable"/> or <paramref name="condition"/> is null,
         /// returns an empty pipeline object.
         /// </remarks>
-        /// <typeparam name="T">
+        /// <typeparam name="TArgs">
         /// A type that is declared to be handled by processor.
         /// </typeparam>
         /// <param name="enumerable">
@@ -210,15 +210,15 @@ namespace Pipelines.ExtensionMethods
         /// Pipeline object retutning instances of <see cref="IProcessor"/>
         /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
         /// </returns>
-        public static SafeTypePipeline<T> RepeatProcessorsAsPipelineWhile<T>(
-            this IEnumerable<SafeTypeProcessor<T>> enumerable, Func<bool> condition)
+        public static SafeTypePipeline<TArgs> RepeatProcessorsAsPipelineWhile<TArgs>(
+            this IEnumerable<SafeTypeProcessor<TArgs>> enumerable, Func<bool> condition)
         {
             if (enumerable.IsNull() || condition.IsNull())
             {
-                return PredefinedPipeline.GetEmpty<T>();
+                return PredefinedPipeline.GetEmpty<TArgs>();
             }
 
-            return new RepeatingProcessorsWhileConditionPipeline<T>(enumerable, condition);
+            return new RepeatingProcessorsWhileConditionPipeline<TArgs>(enumerable, condition);
         }
 
         /// <summary>

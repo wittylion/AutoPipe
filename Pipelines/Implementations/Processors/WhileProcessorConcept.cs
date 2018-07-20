@@ -26,17 +26,17 @@ namespace Pipelines.Implementations.Processors
         public abstract Task CustomExecute(object arguments);
     }
 
-    public abstract class WhileProcessorConcept<T> : SafeTypeProcessor<T>
+    public abstract class WhileProcessorConcept<TArgs> : SafeTypeProcessor<TArgs>
     {
-        public Predicate<T> Condition { get; }
+        public Predicate<TArgs> Condition { get; }
 
-        protected WhileProcessorConcept(Predicate<T> condition)
+        protected WhileProcessorConcept(Predicate<TArgs> condition)
         {
             Condition = condition ?? throw new ArgumentNullException(nameof(condition),
                             WhileProcessorConcept.ConditionMustBeSpecifiedInGenericProcessor);
         }
 
-        public override async Task SafeExecute(T arguments)
+        public override async Task SafeExecute(TArgs arguments)
         {
             while (this.Condition(arguments))
             {
@@ -44,6 +44,6 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
-        public abstract Task CustomExecute(T arguments);
+        public abstract Task CustomExecute(TArgs arguments);
     }
 }

@@ -3,16 +3,16 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
-    public abstract class ConditionalProcessorConcept<T> : SafeTypeProcessor<T>
+    public abstract class ConditionalProcessorConcept<TArgs> : SafeTypeProcessor<TArgs>
     {
-        public Predicate<T> Condition { get; }
+        public Predicate<TArgs> Condition { get; }
 
-        protected ConditionalProcessorConcept(Predicate<T> condition)
+        protected ConditionalProcessorConcept(Predicate<TArgs> condition)
         {
             Condition = condition;
         }
 
-        public override async Task SafeExecute(T args)
+        public override async Task SafeExecute(TArgs args)
         {
             if (this.Condition(args))
             {
@@ -20,7 +20,7 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
-        public abstract Task CustomExecute(T arguments);
+        public abstract Task CustomExecute(TArgs arguments);
     }
 
     public abstract class ConditionalProcessorConcept : IProcessor

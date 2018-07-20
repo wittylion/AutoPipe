@@ -24,17 +24,17 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class ConditionalActionProcessor<T> : ConditionalProcessorConcept<T>
+    public class ConditionalActionProcessor<TArgs> : ConditionalProcessorConcept<TArgs>
     {
-        public Func<T, Task> Action { get; }
+        public Func<TArgs, Task> Action { get; }
 
-        public ConditionalActionProcessor(Predicate<T> condition, Func<T, Task> action) : base(condition)
+        public ConditionalActionProcessor(Predicate<TArgs> condition, Func<TArgs, Task> action) : base(condition)
         {
             Action = action ?? throw new ArgumentNullException(
                          ConditionalActionProcessor.ActionMustBeSpecifiedInGenericProcessor);
         }
 
-        public override async Task CustomExecute(T arguments)
+        public override async Task CustomExecute(TArgs arguments)
         {
             await this.Action(arguments);
         }

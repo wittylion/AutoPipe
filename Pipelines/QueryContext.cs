@@ -4,20 +4,20 @@ namespace Pipelines
 {
     /// <summary>
     /// Implementation of the <see cref="PipelineContext"/> class,
-    /// which allows to obtain a result of <see cref="T"/>,
+    /// which allows to obtain a result of <see cref="TResult"/>,
     /// during pipeline execution.
     /// </summary>
-    /// <typeparam name="T">
+    /// <typeparam name="TResult">
     /// Type of the result, which you want to obtain during the request to the pipeline.
     /// Note, that it is a class type, which means that value can be null,
     /// in case something goes wrong.
     /// </typeparam>
-    public class QueryContext<T> : PipelineContext where T : class
+    public class QueryContext<TResult> : PipelineContext where TResult : class
     {
         /// <summary>
         /// Result of the pipeline execution.
         /// </summary>
-        protected T Result { get; set; }
+        protected TResult Result { get; set; }
 
         /// <summary>
         /// Returns a value of the result property.
@@ -27,7 +27,7 @@ namespace Pipelines
         /// or set value was invalid.
         /// </remarks>
         /// <returns>Value of the result property.</returns>
-        public T GetResult()
+        public TResult GetResult()
         {
             return this.Result;
         }
@@ -41,7 +41,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public T GetResultOr(T fallbackValue)
+        public TResult GetResultOr(TResult fallbackValue)
         {
             return this.Result.Ensure(fallbackValue);
         }
@@ -58,7 +58,7 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithInformation(T result, string message)
+        public void SetResultWithInformation(TResult result, string message)
         {
             this.Result = result;
             this.AddInformation(message);
@@ -77,7 +77,7 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithWarning(T result, string message)
+        public void SetResultWithWarning(TResult result, string message)
         {
             this.Result = result;
             this.AddWarning(message);
@@ -96,7 +96,7 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithError(T result, string message)
+        public void SetResultWithError(TResult result, string message)
         {
             this.Result = result;
             this.AddError(message);

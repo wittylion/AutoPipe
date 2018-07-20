@@ -14,7 +14,7 @@ namespace Pipelines.ExtensionMethods
         /// Converts an <see cref="Action{T}"/> to the asyncchronous
         /// function <see cref="Func{T, TResult}"/> where TResult is Task.
         /// </summary>
-        /// <typeparam name="T">
+        /// <typeparam name="TArgs">
         /// Parameter of the action.
         /// </typeparam>
         /// <param name="action">
@@ -24,7 +24,7 @@ namespace Pipelines.ExtensionMethods
         /// Returns a function which is produced from <paramref name="action"/>
         /// or <c>null</c> if action is null.
         /// </returns>
-        internal static Func<T, Task> ToAsync<T>(this Action<T> action)
+        internal static Func<TArgs, Task> ToAsync<TArgs>(this Action<TArgs> action)
         {
             if (action.HasNoValue())
                 return null;
@@ -41,7 +41,7 @@ namespace Pipelines.ExtensionMethods
         /// Helps to write code quickly, without introducing
         /// instance of interface <see cref="IProcessor"/>.
         /// </summary>
-        /// <typeparam name="T">
+        /// <typeparam name="TArgs">
         /// Parameter of the asynchronous function.
         /// </typeparam>
         /// <param name="action">
@@ -51,19 +51,19 @@ namespace Pipelines.ExtensionMethods
         /// Returns a processor which is produced from <paramref name="action"/>
         /// or <c>null</c> if action is null.
         /// </returns>
-        public static SafeTypeProcessor<T> ToProcessor<T>(this Func<T, Task> action)
+        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this Func<TArgs, Task> action)
         {
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.FromAction<T>(action);
+            return ActionProcessor.FromAction<TArgs>(action);
         }
 
         /// <summary>
         /// Converts an action to a processor. Helps to write code quickly,
         /// without introducing instance of interface <see cref="IProcessor"/>.
         /// </summary>
-        /// <typeparam name="T">
+        /// <typeparam name="TArgs">
         /// Parameter of the action.
         /// </typeparam>
         /// <param name="action">
@@ -73,12 +73,12 @@ namespace Pipelines.ExtensionMethods
         /// Returns a processor which is produced from <paramref name="action"/>
         /// or <c>null</c> if action is null.
         /// </returns>
-        public static SafeTypeProcessor<T> ToProcessor<T>(this Action<T> action)
+        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this Action<TArgs> action)
         {
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.FromAction<T>(action);
+            return ActionProcessor.FromAction<TArgs>(action);
         }
     }
 }

@@ -25,17 +25,17 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class ConditionalProcessorWrapper<T> : ConditionalProcessorConcept<T>
+    public class ConditionalProcessorWrapper<TArgs> : ConditionalProcessorConcept<TArgs>
     {
         public IProcessor Processor { get; }
 
-        public ConditionalProcessorWrapper(Predicate<T> condition, IProcessor processor) : base(condition)
+        public ConditionalProcessorWrapper(Predicate<TArgs> condition, IProcessor processor) : base(condition)
         {
             Processor = processor ?? throw new ArgumentNullException(nameof(processor),
                             ConditionalProcessorWrapper.ProcessorMustBeSpecifiedInGeneric);
         }
 
-        public override async Task CustomExecute(T arguments)
+        public override async Task CustomExecute(TArgs arguments)
         {
             await Processor.Execute(arguments);
         }

@@ -24,17 +24,17 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class WhileActionProcessor<T> : WhileProcessorConcept<T>
+    public class WhileActionProcessor<TArgs> : WhileProcessorConcept<TArgs>
     {
-        public Func<T, Task> Action { get; }
+        public Func<TArgs, Task> Action { get; }
 
-        public WhileActionProcessor(Predicate<T> condition, Func<T, Task> action) : base(condition)
+        public WhileActionProcessor(Predicate<TArgs> condition, Func<TArgs, Task> action) : base(condition)
         {
             Action = action ?? throw new ArgumentNullException(
                          WhileActionProcessor.ActionMustBeSpecifiedInGenericProcessor);
         }
 
-        public override async Task CustomExecute(T arguments)
+        public override async Task CustomExecute(TArgs arguments)
         {
             await this.Action(arguments);
         }

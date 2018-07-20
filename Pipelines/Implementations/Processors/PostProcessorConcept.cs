@@ -28,7 +28,7 @@ namespace Pipelines.Implementations.Processors
         public abstract Task CustomExecute(object arguments);
     }
 
-    public abstract class PostProcessorConcept<T> : SafeTypeProcessor<T>
+    public abstract class PostProcessorConcept<TArgs> : SafeTypeProcessor<TArgs>
     {
         public IProcessor ActualProcessor { get; }
 
@@ -38,12 +38,12 @@ namespace Pipelines.Implementations.Processors
                             PostProcessorConcept.ActualProcessorMustBeProvidedInGeneric);
         }
 
-        public override async Task SafeExecute(T arguments)
+        public override async Task SafeExecute(TArgs arguments)
         {
             await this.ActualProcessor.Execute(arguments);
             await this.CustomExecute(arguments);
         }
 
-        public abstract Task CustomExecute(T arguments);
+        public abstract Task CustomExecute(TArgs arguments);
     }
 }

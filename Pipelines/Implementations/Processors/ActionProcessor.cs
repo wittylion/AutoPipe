@@ -42,21 +42,21 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class ActionProcessor<T> : SafeTypeProcessor<T>
+    public class ActionProcessor<TArgs> : SafeTypeProcessor<TArgs>
     {
-        public static SafeTypeProcessor<T> From(Func<T, Task> action)
+        public static SafeTypeProcessor<TArgs> From(Func<TArgs, Task> action)
         {
-            return new ActionProcessor<T>(action);
+            return new ActionProcessor<TArgs>(action);
         }
 
-        public ActionProcessor(Func<T, Task> action)
+        public ActionProcessor(Func<TArgs, Task> action)
         {
             Action = action ?? throw new ArgumentNullException(ActionProcessor.ActionMustBeSpecifiedInGenericProcessor);
         }
 
-        private Func<T, Task> Action { get; }
+        private Func<TArgs, Task> Action { get; }
 
-        public override Task SafeExecute(T args)
+        public override Task SafeExecute(TArgs args)
         {
             return this.Action(args);
         }

@@ -22,13 +22,13 @@ namespace Pipelines.Implementations.Pipelines
         public abstract bool Condition();
     }
 
-    public abstract class RepeatingProcessorsPipelineConcept<T> : PredefinedPipeline<T>
+    public abstract class RepeatingProcessorsPipelineConcept<TArgs> : PredefinedPipeline<TArgs>
     {
-        protected RepeatingProcessorsPipelineConcept(IEnumerable<SafeTypeProcessor<T>> processors) : base(processors)
+        protected RepeatingProcessorsPipelineConcept(IEnumerable<SafeTypeProcessor<TArgs>> processors) : base(processors)
         {
         }
 
-        public override IEnumerable<SafeTypeProcessor<T>> GetProcessorsOfType()
+        public override IEnumerable<SafeTypeProcessor<TArgs>> GetProcessorsOfType()
         {
             while (this.Condition())
             {

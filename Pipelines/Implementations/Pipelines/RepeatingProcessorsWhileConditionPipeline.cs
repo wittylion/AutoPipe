@@ -22,11 +22,11 @@ namespace Pipelines.Implementations.Pipelines
         }
     }
 
-    public class RepeatingProcessorsWhileConditionPipeline<T> : RepeatingProcessorsPipelineConcept<T>
+    public class RepeatingProcessorsWhileConditionPipeline<TArgs> : RepeatingProcessorsPipelineConcept<TArgs>
     {
         public Func<bool> CustomCondition { get; }
 
-        public RepeatingProcessorsWhileConditionPipeline(IEnumerable<SafeTypeProcessor<T>> processors, Func<bool> condition) : base(processors)
+        public RepeatingProcessorsWhileConditionPipeline(IEnumerable<SafeTypeProcessor<TArgs>> processors, Func<bool> condition) : base(processors)
         {
             CustomCondition = condition ?? throw new ArgumentNullException(nameof(condition),
                                   RepeatingProcessorsWhileConditionPipeline.ConditionMustBeSpecifiedGeneric);

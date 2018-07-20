@@ -25,17 +25,17 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
-    public class WhileProcessorWrapper<T> : WhileProcessorConcept<T>
+    public class WhileProcessorWrapper<TArgs> : WhileProcessorConcept<TArgs>
     {
         public IProcessor Processor { get; }
 
-        public WhileProcessorWrapper(Predicate<T> condition, IProcessor processor) : base(condition)
+        public WhileProcessorWrapper(Predicate<TArgs> condition, IProcessor processor) : base(condition)
         {
             Processor = processor ?? throw new ArgumentNullException(nameof(processor),
                             WhileProcessorWrapper.ProcessorMustBeSpecifiedInGeneric);
         }
 
-        public override async Task CustomExecute(T arguments)
+        public override async Task CustomExecute(TArgs arguments)
         {
             await Processor.Execute(arguments);
         }
