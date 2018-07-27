@@ -29,6 +29,63 @@ namespace Pipelines
         protected Lazy<ICollection<PipelineMessage>> Messages { get; } =
             new Lazy<ICollection<PipelineMessage>>(() => new PipelineMessageCollection());
 
+        protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>();
+
+        public virtual void SetOrAddProperty<TValue>(string name, TValue value)
+        {
+            this.UpdateOrAddProperty(name, value);
+        }
+
+        public virtual void UpdateOrAddProperty<TValue>(string name, TValue value)
+        {
+            var dictionary = Properties.Value;
+            if (dictionary.ContainsKey(name))
+            {
+                dictionary[name] = value;
+            }
+            else
+            {
+                dictionary.Add(name, value);
+            }
+        }
+
+        public virtual void AddOrSkipPropertyIfExists<TValue>(string name, TValue value)
+        {
+            var dictionary = Properties.Value;
+            if (!dictionary.ContainsKey(name))
+            {
+                dictionary.Add(name, value);
+            }
+        }
+
+        public virtual TValue GetPropertyValueOrDefault<TValue>(string name, TValue defaultValue)
+        {
+            if (Properties.IsValueCreated)
+            {
+                var dictionary = Properties.Value;
+                if (dictionary.ContainsKey(name))
+                {
+                    return (TValue) dictionary[name];
+                }
+            }
+
+            return defaultValue;
+        }
+
+        public virtual TValue GetPropertyValueOrNull<TValue>(string name) where TValue: class
+        {
+            if (Properties.IsValueCreated)
+            {
+                var dictionary = Properties.Value;
+                if (dictionary.ContainsKey(name))
+                {
+                    return (TValue) dictionary[name];
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Method returns messages of the context according to the passed
         /// parameter <paramref name="filter"/>. This method is more flexible
