@@ -29,7 +29,8 @@ namespace Pipelines
         protected Lazy<ICollection<PipelineMessage>> Messages { get; } =
             new Lazy<ICollection<PipelineMessage>>(() => new PipelineMessageCollection());
 
-        protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>();
+        protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>(() =>
+            new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
 
         public virtual void SetOrAddProperty<TValue>(string name, TValue value)
         {
@@ -275,6 +276,17 @@ namespace Pipelines
         /// </summary>
         public PipelineContext()
         {
+        }
+        
+        public PipelineContext(object propertyContainer)
+        {
+            if (propertyContainer.HasValue())
+            {
+                foreach (var prop in propertyContainer.GetType().GetProperties())
+                {
+                    this.Properties.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
+                }
+            }
         }
 
         /// <summary>

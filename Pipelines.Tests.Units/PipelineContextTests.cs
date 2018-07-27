@@ -58,6 +58,20 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
+        public void GetPropertyValueOrNull_Retrieves_A_Proper_Value_Regardless_Name_Case()
+        {
+            var pipelineContext = new PipelineContext();
+            var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
+            var key = nameof(PipelineContextTests);
+
+            pipelineContext.SetOrAddProperty(key, expectedValue);
+
+            pipelineContext.GetPropertyValueOrNull<string>(key.ToUpperInvariant())
+                .Should()
+                .Be(expectedValue, "because method must return value regardless case of the property name");
+        }
+
+        [Fact]
         public void GetPropertyValueOrNull_Retrieves_Null_When_Value_Is_Not_Set()
         {
             var pipelineContext = new PipelineContext();

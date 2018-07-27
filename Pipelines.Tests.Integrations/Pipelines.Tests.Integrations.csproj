@@ -66,6 +66,7 @@
     <Compile Include="BubbleSortIntegrationTest.cs" />
     <Compile Include="DataSets.cs" />
     <Compile Include="HelloWorldIntegrationTest.cs" />
+    <Compile Include="PipelineContextPropertiesUsageTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

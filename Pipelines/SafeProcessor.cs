@@ -31,4 +31,12 @@
             return base.SafeCondition(args) && !args.IsAborted;
         }
     }
+
+    public abstract class SafeProcessor : SafeTypeProcessor<PipelineContext>
+    {
+        public override bool SafeCondition(PipelineContext args)
+        {
+            return base.SafeCondition(args) && !args.IsAborted;
+        }
+    }
 }
