@@ -72,6 +72,26 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
+        public void ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection()
+        {
+            var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
+            var pipelineContext = new PipelineContext(new {PipelineContextTests = expectedValue});
+
+            pipelineContext.GetPropertyValueOrNull<string>("PipelineContextTests")
+                .Should()
+                .Be(expectedValue, "because method must return value of the property passed in constructor with an object");
+        }
+
+
+        [Fact]
+        public void ObjectConstructor_Does_Not_Throw_An_Exception_When_Object_Is_Null()
+        {
+            var pipelineContext = new PipelineContext(null);
+            pipelineContext.Should().NotBeNull();
+        }
+
+
+        [Fact]
         public void GetPropertyValueOrNull_Retrieves_Null_When_Value_Is_Not_Set()
         {
             var pipelineContext = new PipelineContext();
