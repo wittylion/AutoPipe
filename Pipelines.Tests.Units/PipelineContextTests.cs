@@ -58,10 +58,39 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
+        public void GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type()
+        {
+            var pipelineContext = new PipelineContext();
+            var value = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type);
+            var key = nameof(PipelineContextTests);
+
+            pipelineContext.SetOrAddProperty(key, value);
+
+            pipelineContext.GetPropertyValueOrNull<IAsyncLifetime>(key)
+                .Should()
+                .BeNull("because method must check a type before value is convertedinto this type");
+        }
+        
+        [Fact]
+        public void GetPropertyValueOrDefault_Retrieves_Default_Value_When_Requested_An_Incorrect_Type()
+        {
+            var pipelineContext = new PipelineContext();
+            var value = nameof(GetPropertyValueOrDefault_Retrieves_Default_Value_When_Requested_An_Incorrect_Type);
+            var key = nameof(PipelineContextTests);
+            var expectedValue = 3;
+
+            pipelineContext.SetOrAddProperty(key, value);
+
+            pipelineContext.GetPropertyValueOrDefault<int>(key, expectedValue)
+                .Should()
+                .Be(expectedValue, "because method must check a type before value is convertedinto this type");
+        }
+
+        [Fact]
         public void GetPropertyValueOrNull_Retrieves_A_Proper_Value_Regardless_Name_Case()
         {
             var pipelineContext = new PipelineContext();
-            var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
+            var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value_Regardless_Name_Case);
             var key = nameof(PipelineContextTests);
 
             pipelineContext.SetOrAddProperty(key, expectedValue);
@@ -74,7 +103,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection()
         {
-            var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
+            var expectedValue = nameof(ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection);
             var pipelineContext = new PipelineContext(new {PipelineContextTests = expectedValue});
 
             pipelineContext.GetPropertyValueOrNull<string>("PipelineContextTests")

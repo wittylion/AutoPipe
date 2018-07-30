@@ -29,14 +29,57 @@ namespace Pipelines
         protected Lazy<ICollection<PipelineMessage>> Messages { get; } =
             new Lazy<ICollection<PipelineMessage>>(() => new PipelineMessageCollection());
 
+        /// <summary>
+        /// Collection of the properties that contains all the collected
+        /// or obtained values during pipeline execution or before
+        /// execution is started <see cref="PipelineContext(object)"/>.
+        /// </summary>
         protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>(() =>
             new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
 
+        /// <summary>
+        /// Adds the property to the collection <see cref="Properties"/>
+        /// or updates the value if key of parameter <paramref name="name"/>
+        /// has been added previously (alias to <see cref="UpdateOrAddProperty{TValue}"/>).
+        /// </summary>
+        /// <remarks>
+        /// Parameter name will be used in case-insensetive way.
+        /// It means that if you previously added property name "MESSAGE"
+        /// it will be updated if you pass to this method property name "message".
+        /// </remarks>
+        /// <typeparam name="TValue">
+        /// The type of the added value.
+        /// </typeparam>
+        /// <param name="name">
+        /// Key to identify the property (case-insensetive).
+        /// </param>
+        /// <param name="value">
+        /// The value to be kept under the <paramref name="name"/> of the property.
+        /// </param>
         public virtual void SetOrAddProperty<TValue>(string name, TValue value)
         {
             this.UpdateOrAddProperty(name, value);
         }
-
+        
+        /// <summary>
+        /// Adds the property to the collection <see cref="Properties"/>
+        /// or updates the value if key of parameter <paramref name="name"/>
+        /// has been added previously.
+        /// </summary>
+        /// <remarks>
+        /// Parameter name will be used in case-insensetive way.
+        /// It means that if you previously added property name "MESSAGE"
+        /// it will be updated if you pass to this method property name "message".
+        /// </remarks>
+        /// <typeparam name="TValue">
+        /// The type of the added value.
+        /// </typeparam>
+        /// <param name="name">
+        /// Key to identify the property (case-insensetive).
+        /// </param>
+        /// <param name="value">
+        /// The value to be kept under the <paramref name="name"/> of the property.
+        /// </param>
         public virtual void UpdateOrAddProperty<TValue>(string name, TValue value)
         {
             var dictionary = Properties.Value;
@@ -49,7 +92,26 @@ namespace Pipelines
                 dictionary.Add(name, value);
             }
         }
-
+        
+        /// <summary>
+        /// Adds the property to the collection <see cref="Properties"/>
+        /// or if the key of the parameter <paramref name="name"/>
+        /// has been added previously skips adding.
+        /// </summary>
+        /// <remarks>
+        /// Parameter name will be used in case-insensetive way.
+        /// It means that if you previously added property name "MESSAGE"
+        /// it will be skipped if you pass to this method property name "message".
+        /// </remarks>
+        /// <typeparam name="TValue">
+        /// The type of the added value.
+        /// </typeparam>
+        /// <param name="name">
+        /// Key to identify the property (case-insensetive).
+        /// </param>
+        /// <param name="value">
+        /// The value to be kept under the <paramref name="name"/> of the property.
+        /// </param>
         public virtual void AddOrSkipPropertyIfExists<TValue>(string name, TValue value)
         {
             var dictionary = Properties.Value;
@@ -59,6 +121,27 @@ namespace Pipelines
             }
         }
 
+        /// <summary>
+        /// Retrieves the value that is defined under the property
+        /// of parameter <paramref name="name"/> or if was not added
+        /// or the type of the contained property is different than
+        /// <see cref="TValue"/>, the <paramref name="defaultValue"/> will be retrieved.
+        /// </summary>
+        /// <typeparam name="TValue">
+        /// The type of the retrieved value.
+        /// </typeparam>
+        /// <param name="name">
+        /// Key to identify the property (case-insensetive).
+        /// </param>
+        /// <param name="defaultValue">
+        /// Default value to be retrieved if the value of the property
+        /// was not added or the type of the value is different than <see cref="TValue"/>.
+        /// </param>
+        /// <returns>
+        /// The value kept under the <paramref name="name"/> of the property
+        /// or <paramref name="defaultValue"/> if property was not added or the type
+        /// of the value is different than <see cref="TValue"/>.
+        /// </returns>
         public virtual TValue GetPropertyValueOrDefault<TValue>(string name, TValue defaultValue)
         {
             if (Properties.IsValueCreated)
@@ -66,13 +149,34 @@ namespace Pipelines
                 var dictionary = Properties.Value;
                 if (dictionary.ContainsKey(name))
                 {
-                    return (TValue) dictionary[name];
+                    var property = dictionary[name];
+                    if (property is TValue value)
+                    {
+                        return value;
+                    }
                 }
             }
 
             return defaultValue;
         }
-
+        
+        /// <summary>
+        /// Retrieves the value that is defined under the property
+        /// of parameter <paramref name="name"/> or if was not added
+        /// or the type of the contained property is different than
+        /// <see cref="TValue"/>, the <c>null</c> will be retrieved.
+        /// </summary>
+        /// <typeparam name="TValue">
+        /// The type of the retrieved value.
+        /// </typeparam>
+        /// <param name="name">
+        /// Key to identify the property (case-insensetive).
+        /// </param>
+        /// <returns>
+        /// The value kept under the <paramref name="name"/> of the property
+        /// or <c>null</c> if property was not added or the type
+        /// of the value is different than <see cref="TValue"/>.
+        /// </returns>
         public virtual TValue GetPropertyValueOrNull<TValue>(string name) where TValue: class
         {
             if (Properties.IsValueCreated)
@@ -80,7 +184,11 @@ namespace Pipelines
                 var dictionary = Properties.Value;
                 if (dictionary.ContainsKey(name))
                 {
-                    return (TValue) dictionary[name];
+                    var property = dictionary[name];
+                    if (property is TValue value)
+                    {
+                        return value;
+                    }
                 }
             }
 
