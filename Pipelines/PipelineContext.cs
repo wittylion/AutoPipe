@@ -179,20 +179,7 @@ namespace Pipelines
         /// </returns>
         public virtual TValue GetPropertyValueOrNull<TValue>(string name) where TValue: class
         {
-            if (Properties.IsValueCreated)
-            {
-                var dictionary = Properties.Value;
-                if (dictionary.ContainsKey(name))
-                {
-                    var property = dictionary[name];
-                    if (property is TValue value)
-                    {
-                        return value;
-                    }
-                }
-            }
-
-            return null;
+            return this.GetPropertyValueOrDefault<TValue>(name, null);
         }
 
         /// <summary>
