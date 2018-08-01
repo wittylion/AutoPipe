@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Abstract processor that executes action, while condition method returns true.
+    /// </summary>
     public abstract class WhileProcessorConcept : IProcessor
     {
         public static readonly string ConditionMustBeSpecifiedInGenericProcessor = "Creating a generic 'while' processor, you have to provide condition of the loop.";
@@ -26,6 +29,12 @@ namespace Pipelines.Implementations.Processors
         public abstract Task CustomExecute(object arguments);
     }
 
+    /// <summary>
+    /// Abstract processor that executes action, while condition method returns true.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public abstract class WhileProcessorConcept<TArgs> : SafeTypeProcessor<TArgs>
     {
         public Predicate<TArgs> Condition { get; }

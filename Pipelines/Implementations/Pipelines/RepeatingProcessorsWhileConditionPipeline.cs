@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Pipelines.Implementations.Pipelines
 {
+    /// <summary>
+    /// Pipeline that repeats processors, according to the passed condition function.
+    /// </summary>
     public class RepeatingProcessorsWhileConditionPipeline : RepeatingProcessorsPipelineConcept
     {
         public static readonly string ConditionMustBeSpecified = "Creating a pipeline that repeats processor, you have to provide condition of the loop.";
@@ -22,6 +25,12 @@ namespace Pipelines.Implementations.Pipelines
         }
     }
 
+    /// <summary>
+    /// Pipeline that repeats processors, according to the passed condition function.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which has to be handled by each processor of this pipeline.
+    /// </typeparam>
     public class RepeatingProcessorsWhileConditionPipeline<TArgs> : RepeatingProcessorsPipelineConcept<TArgs>
     {
         public Func<bool> CustomCondition { get; }

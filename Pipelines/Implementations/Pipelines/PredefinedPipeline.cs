@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
 {
+    /// <summary>
+    /// Pipeline with processors specified once in a constructor.
+    /// </summary>
     public class PredefinedPipeline : IPipeline
     {
         public static readonly IPipeline Empty = PredefinedPipeline.FromProcessors(Enumerable.Empty<IProcessor>());
@@ -44,6 +47,12 @@ namespace Pipelines.Implementations.Pipelines
         }
     }
 
+    /// <summary>
+    /// Pipeline with processors specified once in a constructor.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which has to be handled by each processor of this pipeline.
+    /// </typeparam>
     public class PredefinedPipeline<TArgs> : SafeTypePipeline<TArgs>
     {
         public static readonly SafeTypePipeline<TArgs> Empty = PredefinedPipeline.FromProcessors(Enumerable.Empty<SafeTypeProcessor<TArgs>>());

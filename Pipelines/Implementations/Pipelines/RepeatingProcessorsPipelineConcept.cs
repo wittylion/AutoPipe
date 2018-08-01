@@ -2,6 +2,9 @@
 
 namespace Pipelines.Implementations.Pipelines
 {
+    /// <summary>
+    /// Abstract pipeline class that repeats processors, according to the condition.
+    /// </summary>
     public abstract class RepeatingProcessorsPipelineConcept : PredefinedPipeline
     {
         protected RepeatingProcessorsPipelineConcept(IEnumerable<IProcessor> processors) : base(processors)
@@ -22,6 +25,12 @@ namespace Pipelines.Implementations.Pipelines
         public abstract bool Condition();
     }
 
+    /// <summary>
+    /// Abstract pipeline class that repeats processors, according to the condition.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which has to be handled by each processor of this pipeline.
+    /// </typeparam>
     public abstract class RepeatingProcessorsPipelineConcept<TArgs> : PredefinedPipeline<TArgs>
     {
         protected RepeatingProcessorsPipelineConcept(IEnumerable<SafeTypeProcessor<TArgs>> processors) : base(processors)

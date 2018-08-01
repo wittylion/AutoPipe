@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Processor that executes action, while a passed condition returns true.
+    /// </summary>
     public class WhileActionProcessor : WhileProcessorConcept
     {
         public static readonly string ActionMustBeSpecifiedInGenericProcessor =
@@ -24,6 +27,12 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
+    /// <summary>
+    /// Processor that executes action, while a passed condition returns true.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public class WhileActionProcessor<TArgs> : WhileProcessorConcept<TArgs>
     {
         public Func<TArgs, Task> Action { get; }

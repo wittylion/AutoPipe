@@ -3,6 +3,12 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Abstract processor which is constructed from conditional function, that defines whether action should be executed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public abstract class ConditionalProcessorConcept<TArgs> : SafeTypeProcessor<TArgs>
     {
         public Predicate<TArgs> Condition { get; }
@@ -23,6 +29,9 @@ namespace Pipelines.Implementations.Processors
         public abstract Task CustomExecute(TArgs arguments);
     }
 
+    /// <summary>
+    /// Abstract processor which is constructed from conditional function, that defines whether action should be executed.
+    /// </summary>
     public abstract class ConditionalProcessorConcept : IProcessor
     {
         public Predicate<object> Condition { get; }

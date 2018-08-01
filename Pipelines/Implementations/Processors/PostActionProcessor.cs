@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Processor with predefined action, that will be executed after the main one.
+    /// </summary>
     public class PostActionProcessor : PostProcessorConcept
     {
         public static readonly string ActionMustBeProvided =
@@ -25,6 +28,12 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
+    /// <summary>
+    /// Processor with predefined action, that will be executed after the main one.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public class PostActionProcessor<TArgs> : PostProcessorConcept<TArgs>
     {
         public Func<TArgs, Task> Action { get; }

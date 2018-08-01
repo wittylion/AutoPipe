@@ -4,6 +4,9 @@ using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Processor constructed from action or function.
+    /// </summary>
     public class ActionProcessor : IProcessor
     {
         public static readonly string ActionMustBeSpecifiedInGenericProcessor = "Creating a generic 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<GenericType, Task>.";
@@ -42,6 +45,12 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
+    /// <summary>
+    /// Processor constructed from action or function
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public class ActionProcessor<TArgs> : SafeTypeProcessor<TArgs>
     {
         public static SafeTypeProcessor<TArgs> From(Func<TArgs, Task> action)

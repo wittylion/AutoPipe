@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Pipelines.Implementations.Pipelines
 {
+    /// <summary>
+    /// Specifies state object which will control retrieved processors.
+    /// </summary>
     public class PipelineOfState : IPipeline
     {
         public static IPipeline From<T>(T state, Func<T, IEnumerable<IProcessor>> processorsRetriever)
@@ -30,6 +33,12 @@ namespace Pipelines.Implementations.Pipelines
         }
     }
 
+    /// <summary>
+    /// Specifies state object which will control retrieved processors.
+    /// </summary>
+    /// <typeparam name="TStateObject">
+    /// Type of the state object which will be passed to the function retrieving processors.
+    /// </typeparam>
     public class PipelineOfState<TStateObject> : IPipeline
     {
         public TStateObject State { get; }

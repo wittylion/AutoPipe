@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Processor, that wraps an existing processor with conditional function, that defines whether action should be executed.
+    /// </summary>
     public class ConditionalProcessorWrapper : ConditionalProcessorConcept
     {
         public static readonly string ProcessorMustBeSpecifiedInGeneric =
@@ -25,6 +28,12 @@ namespace Pipelines.Implementations.Processors
         }
     }
 
+    /// <summary>
+    /// Processor, that wraps an existing processor with conditional function, that defines whether action should be executed.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public class ConditionalProcessorWrapper<TArgs> : ConditionalProcessorConcept<TArgs>
     {
         public IProcessor Processor { get; }

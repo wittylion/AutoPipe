@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Implementations.Processors
 {
+    /// <summary>
+    /// Abstract processor with action method, that will be executed after the main one.
+    /// </summary>
     public abstract class PostProcessorConcept : IProcessor
     {
         public static readonly string ActualProcessorMustBeProvided =
@@ -28,6 +31,12 @@ namespace Pipelines.Implementations.Processors
         public abstract Task CustomExecute(object arguments);
     }
 
+    /// <summary>
+    /// Abstract processor with action method, that will be executed after the main one.
+    /// </summary>
+    /// <typeparam name="TArgs">
+    /// Type of arguments which will be processed by this processor.
+    /// </typeparam>
     public abstract class PostProcessorConcept<TArgs> : SafeTypeProcessor<TArgs>
     {
         public IProcessor ActualProcessor { get; }
