@@ -11,54 +11,19 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-	
-New in this version:
 
-- Added bunch of extension methods to quickly manipulate pipelines and processors:
+      New in this version:
 
-* action.ToProcessor
+      - Added properties notion to the PipelineContext, so you can use it as a bag with key-value pairs, by using whese methods:
 
-* processor.If
-* processor.While
-* processor.ThenActionOf
-* processor.ThenProcessor
+      * SetOrAddProperty - Adds the property to the collection or updates the value if key has been added previously. (alias UpdateOrAddProperty)
+      * AddOrSkipPropertyIfExists - Adds the property to the collection or if the key has been added previously skips adding.
+      * GetPropertyValueOrDefault - Retrieves the value that is defined under the property or if was not added or the type of the contained property is different then requested, the default value will be retrieved.
+      * GetPropertyValueOrNull - same as GetPropertyValueOrDefault but returns null as a default value.
 
-* processors.ToPipeline
-* processors.RepeatProcessorsWhile
-* processors.RepeatProcessorsAsPipelineWhile
-* processors.Run
-* processors.RunProcessorsWhile
-* processors.ThenProcessor
-* processors.ThenProcessors
+      - Added a bit more documentation.
 
-* pipeline.ToProcessor
-* pipeline.RepeatProcessorsAsPipelineWhile
-* pipeline.Run
-* pipeline.RunPipelineWhile
-
-
-- Added useful implementation classes which are also used in extension methods:
-
-* PipelineOfState - Specifies state object which will control retrieved processors;
-* PredefinedPipeline - Pipeline with processors specified once in a constructor;
-* RepeatingProcessorsPipelineConcept - Abstract pipeline class that repeats processors, according to the condition;
-* RepeatingProcessorsWhileConditionPipeline - Pipeline that repeats processors, according to the passed condition function;
-
-* ActionProcessor - Processor constructed from action or function;
-* ConditionalActionProcessor - Processor which constructed from action and condition defining whether action should be executed.
-* ConditionalProcessorConcept - Abstract processor which is constructed from conditional function, that defines whether action should be executed.
-* ConditionalProcessorWrapper - Processor, that wraps an existing processor with conditional function, that defines whether action should be executed.
-* PostActionProcessor - Processor with predefined action, that will be executed after the main one.
-* PostProcessorConcept - Abstract processor with action method, that will be executed after the main one.
-* PostProcessorWrapper - Processor that combines two methods together to execute processors one by one.
-* WhileActionProcessor - Processor that executes action, while a passed condition returns true.
-* WhileProcessorConcept - Abstract processor that executes action, while condition method returns true.
-* WhileProcessorWrapper - Processor that wraps another one and executes its action, while a passed condition returns true.
-
-
-- Added documentation to some methods.
-
-	</releaseNotes>
+    </releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Pipelines SOLID Processors Chain</tags>
   </metadata>
