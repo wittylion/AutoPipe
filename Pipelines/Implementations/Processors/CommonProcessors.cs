@@ -19,5 +19,11 @@ namespace Pipelines.Implementations.Processors
         {
             return new EnsurePropertyProcessor<TValue>(name, value);
         }
+
+        public static ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
+            Action<TElement> action, string propertyName)
+        {
+            return new ExecuteForEachElementInPropertyProcessor<TElement>(action, propertyName);
+        }
     }
 }

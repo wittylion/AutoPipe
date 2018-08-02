@@ -2,6 +2,11 @@
 {
     internal static class ObjectExtensionMethods
     {
+        public static bool Is<T>(this T obj, T reference) where T : class
+        {
+            return obj == reference;
+        }
+
         public static bool IsNull<T>(this T obj) where T : class
         {
             return obj == null;
