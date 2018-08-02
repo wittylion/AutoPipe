@@ -51,6 +51,8 @@
     <Compile Include="Implementations\Pipelines\PredefinedPipeline.cs" />
     <Compile Include="Implementations\Processors\EnsurePropertyProcessor.cs" />
     <Compile Include="Implementations\Processors\EnsurePropertyProcessorConcept.cs" />
+    <Compile Include="Implementations\Processors\ExecuteForEachElementInPropertyProcessor.cs" />
+    <Compile Include="Implementations\Processors\ExecuteForEachElementInPropertyProcessorConcept.cs" />
     <Compile Include="Implementations\Processors\PostActionProcessor.cs" />
     <Compile Include="Implementations\Processors\PostProcessorWrapper.cs" />
     <Compile Include="Implementations\Pipelines\RepeatingProcessorsPipelineConcept.cs" />
