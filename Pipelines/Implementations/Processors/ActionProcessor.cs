@@ -12,24 +12,24 @@ namespace Pipelines.Implementations.Processors
         public static readonly string ActionMustBeSpecifiedInGenericProcessor = "Creating a generic 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<GenericType, Task>.";
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
         
-        public static IProcessor FromAction(Action<object> action)
+        public static ActionProcessor FromAction(Action<object> action)
         {
             return new ActionProcessor(action.ToAsync());
         }
 
-        public static SafeTypeProcessor<T> FromAction<T>(Action<T> action)
+        public static ActionProcessor<TArgs> FromAction<TArgs>(Action<TArgs> action)
         {
-            return new ActionProcessor<T>(action.ToAsync());
+            return new ActionProcessor<TArgs>(action.ToAsync());
         }
 
-        public static IProcessor FromAction(Func<object, Task> action)
+        public static ActionProcessor FromAction(Func<object, Task> action)
         {
             return new ActionProcessor(action);
         }
 
-        public static SafeTypeProcessor<T> FromAction<T>(Func<T, Task> action)
+        public static ActionProcessor<TArgs> FromAction<TArgs>(Func<TArgs, Task> action)
         {
-            return new ActionProcessor<T>(action);
+            return new ActionProcessor<TArgs>(action);
         }
 
         public ActionProcessor(Func<object, Task> action)

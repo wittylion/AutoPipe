@@ -41,6 +41,7 @@
     <Compile Include="ExtensionMethods\PipelineExtensionMethods.cs" />
     <Compile Include="Implementations\Pipelines\RepeatingProcessorsWhileConditionPipeline.cs" />
     <Compile Include="Implementations\Processors\ActionProcessor.cs" />
+    <Compile Include="Implementations\Processors\CommonProcessors.cs" />
     <Compile Include="Implementations\Processors\ConditionalActionProcessor.cs" />
     <Compile Include="Implementations\Processors\ConditionalProcessorConcept.cs" />
     <Compile Include="ExtensionMethods\EnumerableExtensionMethods.cs" />
@@ -48,6 +49,8 @@
     <Compile Include="ExtensionMethods\ObjectExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\StringExtensionMethods.cs" />
     <Compile Include="Implementations\Pipelines\PredefinedPipeline.cs" />
+    <Compile Include="Implementations\Processors\EnsurePropertyProcessor.cs" />
+    <Compile Include="Implementations\Processors\EnsurePropertyProcessorConcept.cs" />
     <Compile Include="Implementations\Processors\PostActionProcessor.cs" />
     <Compile Include="Implementations\Processors\PostProcessorWrapper.cs" />
     <Compile Include="Implementations\Pipelines\RepeatingProcessorsPipelineConcept.cs" />
