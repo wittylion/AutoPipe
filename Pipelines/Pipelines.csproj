@@ -39,6 +39,7 @@
     <Compile Include="ExtensionMethods\ActionExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\EnumerableProcessorsExtensionMethods.cs" />
     <Compile Include="ExtensionMethods\PipelineExtensionMethods.cs" />
+    <Compile Include="Implementations\Pipelines\ConstructablePipeline.cs" />
     <Compile Include="Implementations\Pipelines\RepeatingProcessorsWhileConditionPipeline.cs" />
     <Compile Include="Implementations\Processors\ActionProcessor.cs" />
     <Compile Include="Implementations\Processors\CommonProcessors.cs" />

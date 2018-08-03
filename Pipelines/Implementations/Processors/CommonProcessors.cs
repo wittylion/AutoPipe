@@ -21,9 +21,27 @@ namespace Pipelines.Implementations.Processors
         }
 
         public static ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
+            Action<PipelineContext, TElement> action, string propertyName)
+        {
+            return new ExecuteForEachElementInPropertyProcessor<TElement>(action, propertyName);
+        }
+
+        public static ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
             Action<TElement> action, string propertyName)
         {
             return new ExecuteForEachElementInPropertyProcessor<TElement>(action, propertyName);
+        }
+
+        public static ExecuteForEachElementInPropertyProcessor<TContext, TElement> ExecuteForEachElementInProperty<TContext, TElement>(
+            Action<TContext, TElement> action, string propertyName) where TContext : PipelineContext
+        {
+            return new ExecuteForEachElementInPropertyProcessor<TContext, TElement>(action, propertyName);
+        }
+
+        public static ExecuteForEachElementInPropertyProcessor<TContext, TElement> ExecuteForEachElementInProperty<TContext, TElement>(
+            Action<TElement> action, string propertyName) where TContext : PipelineContext
+        {
+            return new ExecuteForEachElementInPropertyProcessor<TContext, TElement>(action, propertyName);
         }
     }
 }

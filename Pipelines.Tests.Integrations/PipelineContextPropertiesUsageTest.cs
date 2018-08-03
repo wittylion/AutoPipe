@@ -36,12 +36,13 @@ namespace Pipelines.Tests.Integrations
         {
             var name = nameof(When_Using_An_Object_Constructor_Of_Pipeline_Context_Greeting_Message_Is_Retrieved);
 
-            var context = new PipelineContext(new { Name = name });
+            var context = new PipelineContext(new {Name = name});
             await new SetMessage().Execute(context);
 
             context.GetPropertyValueOrNull<string>(GreeterProperties.Message)
                 .Should()
-                .Be(string.Format(GreeterValues.WelcomeAboard, name), "because name is set through object constructor in the context");
+                .Be(string.Format(GreeterValues.WelcomeAboard, name),
+                    "because name is set through object constructor in the context");
         }
 
         [Fact]
@@ -56,7 +57,8 @@ namespace Pipelines.Tests.Integrations
         }
 
         [Fact]
-        public async void When_Using_An_Intermediate_Processor_Its_Message__Must_Be_Returned_Even_When_Custom_Message_Is_Set()
+        public async void
+            When_Using_An_Intermediate_Processor_Its_Message__Must_Be_Returned_Even_When_Custom_Message_Is_Set()
         {
             var context = new PipelineContext(new {Message = "DEFAULT"});
             await new DefaultMessageSetter().Execute(context);
@@ -65,47 +67,47 @@ namespace Pipelines.Tests.Integrations
                 .Should()
                 .Be(GreeterValues.IntermediateMessage, "because intermediate processor should set its own message");
         }
-    }
 
-    public class GreeterProperties
-    {
-        public static readonly string Name = "Name";
-        public static readonly string Message = "Message";
-    }
-
-    public class GreeterValues
-    {
-        public static readonly string HelloWorld = "Hello world!";
-        public static readonly string WelcomeAboard = "Welcome aboard {0}!";
-        public static readonly string IntermediateMessage = "This message is from intermediate processor";
-    }
-
-    public class DefaultMessageSetter : SafeProcessor
-    {
-        public override Task SafeExecute(PipelineContext args)
+        public class GreeterProperties
         {
-            args.UpdateOrAddProperty(GreeterProperties.Message, GreeterValues.IntermediateMessage); 
-            return new SetMessage().Execute(args);
+            public static readonly string Name = "Name";
+            public static readonly string Message = "Message";
         }
-    }
 
-    public class SetMessage : SafeProcessor
-    {
-        public override Task SafeExecute(PipelineContext args)
+        public class GreeterValues
         {
-            var name = args.GetPropertyValueOrNull<string>(GreeterProperties.Name);
+            public static readonly string HelloWorld = "Hello world!";
+            public static readonly string WelcomeAboard = "Welcome aboard {0}!";
+            public static readonly string IntermediateMessage = "This message is from intermediate processor";
+        }
 
-            if (string.IsNullOrWhiteSpace(name))
+        public class DefaultMessageSetter : SafeProcessor
+        {
+            public override Task SafeExecute(PipelineContext args)
             {
-                args.AddOrSkipPropertyIfExists(GreeterProperties.Message, GreeterValues.HelloWorld);
+                args.UpdateOrAddProperty(GreeterProperties.Message, GreeterValues.IntermediateMessage);
+                return new SetMessage().Execute(args);
             }
-            else
-            {
-                args.AddOrSkipPropertyIfExists(GreeterProperties.Message,
-                    string.Format(GreeterValues.WelcomeAboard, name));
-            }
+        }
 
-            return Task.CompletedTask;
+        public class SetMessage : SafeProcessor
+        {
+            public override Task SafeExecute(PipelineContext args)
+            {
+                var name = args.GetPropertyValueOrNull<string>(GreeterProperties.Name);
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    args.AddOrSkipPropertyIfExists(GreeterProperties.Message, GreeterValues.HelloWorld);
+                }
+                else
+                {
+                    args.AddOrSkipPropertyIfExists(GreeterProperties.Message,
+                        string.Format(GreeterValues.WelcomeAboard, name));
+                }
+
+                return Task.CompletedTask;
+            }
         }
     }
 }
