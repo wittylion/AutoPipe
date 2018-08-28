@@ -13,7 +13,7 @@ namespace Pipelines
         {
             if (pipeline.HasNoValue())
             {
-                return Task.CompletedTask;
+                return PipelineTask.CompletedTask;
             }
 
             return RunProcessors(pipeline.GetProcessors(), args);
