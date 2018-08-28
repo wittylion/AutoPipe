@@ -48,7 +48,7 @@ namespace Pipelines.Tests.Units
 
             var executionSequence = new MockSequence();
             processor.InSequence(executionSequence).Setup(x => x.SafeCondition(It.IsAny<string>())).Returns(true);
-            processor.InSequence(executionSequence).Setup(x => x.SafeExecute(It.IsAny<string>())).Returns(Task.CompletedTask);
+            processor.InSequence(executionSequence).Setup(x => x.SafeExecute(It.IsAny<string>())).Returns(Task.Delay(0));
 
             await processor.Object.Execute(string.Empty);
         }

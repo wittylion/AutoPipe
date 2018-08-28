@@ -105,7 +105,7 @@ namespace Pipelines.Tests.Integrations
                     string.Format(GreeterValues.WelcomeAboard, name));
             }
 
-            return Task.CompletedTask;
+            return Task.Delay(0);
         }
     }
 }

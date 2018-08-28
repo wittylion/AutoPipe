@@ -132,7 +132,7 @@ namespace Pipelines.Tests.Integrations
                 if (container.Array != null)
                     Array.Sort(container.Array);
 
-                return Task.CompletedTask;
+                return Task.Delay(0);
             }
 
             private SafeTypeProcessor<DataContainer> RunSearch =>
@@ -143,7 +143,7 @@ namespace Pipelines.Tests.Integrations
                 Finder.RunPipelineWhile(container,
                         context => context.StartSearchIndex <= context.EndSearchIndex && !context.ElementFound());
 
-                return Task.CompletedTask;
+                return Task.Delay(0);
             }
         }
 
@@ -163,7 +163,7 @@ namespace Pipelines.Tests.Integrations
             private Task SetCurrentIndexImplementation(DataContainer container)
             {
                 container.CurrentIndex = (container.StartSearchIndex + container.EndSearchIndex) / 2;
-                return Task.CompletedTask;
+                return Task.Delay(0);
             }
 
             private SafeTypeProcessor<DataContainer> ResizeToRightPartProcessor =>
@@ -174,7 +174,7 @@ namespace Pipelines.Tests.Integrations
                 if (container.ElementToBeFound > container.CurrentElement)
                     container.StartSearchIndex = container.CurrentIndex + 1;
 
-                return Task.CompletedTask;
+                return Task.Delay(0);
             }
 
             private SafeTypeProcessor<DataContainer> ResizeToLeftPartProcessor =>
@@ -185,7 +185,7 @@ namespace Pipelines.Tests.Integrations
                 if (container.ElementToBeFound < container.CurrentElement)
                     container.EndSearchIndex = container.CurrentIndex - 1;
 
-                return Task.CompletedTask;
+                return Task.Delay(0);
             }
 
             private SafeTypeProcessor<DataContainer> TrySetFoundIndexProcessor =>
@@ -196,7 +196,7 @@ namespace Pipelines.Tests.Integrations
                 if (container.CurrentElement == container.ElementToBeFound)
                     container.FoundIndex = container.CurrentIndex;
 
-                return Task.CompletedTask;
+                return Task.Delay(0);
             }
         }
     }
