@@ -65,12 +65,12 @@ namespace Pipelines
         {
             if (!(arguments is TArgs))
             {
-                return Task.CompletedTask;
+                return PipelineTask.CompletedTask;
             }
 
             if (!SafeCondition((TArgs)arguments))
             {
-                return Task.CompletedTask;
+                return PipelineTask.CompletedTask;
             }
 
             return SafeExecute((TArgs)arguments);

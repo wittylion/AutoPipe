@@ -43,9 +43,9 @@ namespace Pipelines.Tests.Units
             var b = mockRepository.Create<IProcessor>();
             var c = mockRepository.Create<IProcessor>();
 
-            a.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(Task.CompletedTask);
-            b.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(Task.CompletedTask);
-            c.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(Task.CompletedTask);
+            a.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(Task.Delay(0));
+            b.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(Task.Delay(0));
+            c.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(Task.Delay(0));
 
             var pipeline = new Mock<IPipeline>();
             pipeline.Setup(x => x.GetProcessors()).Returns(new [] { a.Object, b.Object, c.Object });

@@ -48,7 +48,7 @@ namespace Pipelines.Implementations.Processors
         public override Task ElementExecution(TContext context, TElement element)
         {
             this._action(context, element);
-            return Task.CompletedTask;
+            return PipelineTask.CompletedTask;
         }
 
         public override string GetPropertyName(TContext context)

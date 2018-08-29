@@ -11,7 +11,7 @@ namespace Pipelines.Implementations.Processors
 
             args.AddOrSkipPropertyIfExists(name, value);
 
-            return Task.CompletedTask;
+            return PipelineTask.CompletedTask;
         }
 
         public abstract string GetName();

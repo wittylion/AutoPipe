@@ -32,7 +32,7 @@ namespace Pipelines.ExtensionMethods
             return args =>
             {
                 action(args);
-                return Task.CompletedTask;
+                return PipelineTask.CompletedTask;
             };
         }
 
