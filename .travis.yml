@@ -3,6 +3,6 @@ mono: none
 dotnet: 2.0.0
 script:
   - dotnet restore
-  - dotnet build ./Pipelines/
+  - dotnet build ./Pipelines/ --framework netstandard2.0
   - dotnet test ./Pipelines.Tests.Units/
   - dotnet test ./Pipelines.Tests.Integrations/
