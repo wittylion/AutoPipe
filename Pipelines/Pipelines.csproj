@@ -1,6 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net461</TargetFrameworks>
-	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+	<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	<PackageId>Pipelines.Net</PackageId>
+	<Authors>Sergey Solomentsev</Authors>
+	<Company>Witty Lion</Company>
+	<Description>Library that exposes SOLID principles by introducing pipelines.</Description>
+	<Copyright>Witty Lion © 2018</Copyright>
+	<PackageLicenseUrl>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicenseUrl>
+	<PackageProjectUrl>https://github.com/wittylion/Pipelines.Net</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageReleaseNotes>
+      New in this version:
+
+      - Added properties notion to the PipelineContext, so you can use it as a bag with key-value pairs, by using whese methods:
+
+      * SetOrAddProperty - Adds the property to the collection or updates the value if key has been added previously. (alias UpdateOrAddProperty)
+      * AddOrSkipPropertyIfExists - Adds the property to the collection or if the key has been added previously skips adding.
+      * GetPropertyValueOrDefault - Retrieves the value that is defined under the property or if was not added or the type of the contained property is different then requested, the default value will be retrieved.
+      * GetPropertyValueOrNull - same as GetPropertyValueOrDefault but returns null as a default value.
+
+      - Added a bit more documentation.
+	</PackageReleaseNotes>
+	<NeutralLanguage>English</NeutralLanguage>
+	<PackageTags>Pipelines SOLID Processors Chain</PackageTags>
+	<Version>1.1.1</Version>
+	<AssemblyVersion>1.1.1.0</AssemblyVersion>
   </PropertyGroup>
 </Project>
