@@ -34,8 +34,8 @@ namespace Pipelines
         /// or obtained values during pipeline execution or before
         /// execution is started <see cref="PipelineContext(object)"/>.
         /// </summary>
-        protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>(() =>
-            new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
+        protected Lazy<Dictionary<string, PipelineProperty>> Properties { get; } = new Lazy<Dictionary<string, PipelineProperty>>(() =>
+            new Dictionary<string, PipelineProperty>(StringComparer.InvariantCultureIgnoreCase));
 
         /// <summary>
         /// Adds the property to the collection <see cref="Properties"/>
@@ -82,14 +82,15 @@ namespace Pipelines
         /// </param>
         public virtual void UpdateOrAddProperty<TValue>(string name, TValue value)
         {
+            var property = new PipelineProperty(name, value);
             var dictionary = Properties.Value;
             if (dictionary.ContainsKey(name))
             {
-                dictionary[name] = value;
+                dictionary[name] = property;
             }
             else
             {
-                dictionary.Add(name, value);
+                dictionary.Add(name, property);
             }
         }
         
@@ -117,7 +118,30 @@ namespace Pipelines
             var dictionary = Properties.Value;
             if (!dictionary.ContainsKey(name))
             {
-                dictionary.Add(name, value);
+                var property = new PipelineProperty(name, value);
+                dictionary.Add(name, property);
+            }
+        }
+
+        /// <summary>
+        /// Adds the property to the collection <see cref="Properties"/>
+        /// or if the key of the parameter <paramref name="property"/>
+        /// has been added previously skips adding.
+        /// </summary>
+        /// <remarks>
+        /// Parameter name will be used in case-insensetive way.
+        /// It means that if you previously added property name "MESSAGE"
+        /// it will be skipped if you pass to this method property name "message".
+        /// </remarks>
+        /// <param name="property">
+        /// The property object to be added to the collection.
+        /// </param>
+        public virtual void AddOrSkipPropertyIfExists(PipelineProperty property)
+        {
+            var dictionary = Properties.Value;
+            if (!dictionary.ContainsKey(property.Name))
+            {
+                dictionary.Add(property.Name, property);
             }
         }
 
@@ -144,22 +168,94 @@ namespace Pipelines
         /// </returns>
         public virtual TValue GetPropertyValueOrDefault<TValue>(string name, TValue defaultValue)
         {
-            if (Properties.IsValueCreated)
+            var propertyHolder = GetPropertyObjectOrNull(name);
+            if (propertyHolder.HasValue)
             {
-                var dictionary = Properties.Value;
-                if (dictionary.ContainsKey(name))
+                if (propertyHolder.Value.Value is TValue value)
                 {
-                    var property = dictionary[name];
-                    if (property is TValue value)
-                    {
-                        return value;
-                    }
+                    return value;
                 }
             }
 
             return defaultValue;
         }
-        
+
+        /// <summary>
+        /// Retrieves a <see cref="PipelineProperty"/> that
+        /// is kept in this context or if property does not
+        /// exist retrieves <c>null</c>.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the property to be retrieved.
+        /// </param>
+        /// <returns>
+        /// Pipeline property object of the requested
+        /// <paramref name="name"/> or null if property does not exist.
+        /// </returns>
+        public virtual PipelineProperty? GetPropertyObjectOrNull(string name)
+        {
+            if (Properties.IsValueCreated)
+            {
+                var dictionary = Properties.Value;
+                if (dictionary.ContainsKey(name))
+                {
+                    return dictionary[name];
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// The function returns boolean value that defines
+        /// whether property was added to the context or not.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the property to be checked for presence.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case property exists,
+        /// otherwise returns <c>false</c>.
+        /// </returns>
+        public virtual bool ContainsProperty(string name)
+        {
+            return GetPropertyObjectOrNull(name) != null;
+        }
+
+        /// <summary>
+        /// Deletes a property with the
+        /// specified <paramref name="name"/> from the context.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the property to be deleted.
+        /// </param>
+        public virtual void DeleteProperty(string name)
+        {
+            if (Properties.IsValueCreated)
+            {
+                var dictionary = Properties.Value;
+                dictionary.Remove(name);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all the property objects
+        /// contained in the context.
+        /// </summary>
+        /// <returns>
+        /// An array of property objects that
+        /// are contained in context.
+        /// </returns>
+        public virtual PipelineProperty[] GetAllPropertyObjects()
+        {
+            if (this.Properties.IsValueCreated)
+            {
+                return this.Properties.Value.Values.ToArray();
+            }
+
+            return new PipelineProperty[0];
+        }
+
         /// <summary>
         /// Retrieves the value that is defined under the property
         /// of parameter <paramref name="name"/> or if was not added
@@ -379,7 +475,8 @@ namespace Pipelines
             {
                 foreach (var prop in propertyContainer.GetType().GetProperties())
                 {
-                    this.Properties.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
+                    var contextProperty = new PipelineProperty(prop.Name, prop.GetValue(propertyContainer, null));
+                    this.Properties.Value.Add(contextProperty.Name, contextProperty);
                 }
             }
         }

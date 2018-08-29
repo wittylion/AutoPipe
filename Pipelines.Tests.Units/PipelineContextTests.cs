@@ -175,6 +175,54 @@ namespace Pipelines.Tests.Units
                 .Should()
                 .Be(expectedValue, "because method must skip a value if it previously was set");
         }
+
+        [Fact]
+        public void DeleteProperty_Should_Not_Throw_Exception_When_Property_Does_Not_Exists()
+        {
+            var pipelineContext = new PipelineContext();
+            var property = nameof(DeleteProperty_Should_Not_Throw_Exception_When_Property_Does_Not_Exists);
+            pipelineContext.DeleteProperty(property);
+        }
+
+        [Fact]
+        public void DeleteProperty_Should_Delete_Property_If_It_Is_Existing()
+        {
+            var pipelineContext = new PipelineContext();
+            var property = nameof(DeleteProperty_Should_Delete_Property_If_It_Is_Existing);
+            pipelineContext.AddOrSkipPropertyIfExists(property, nameof(PipelineContextTests));
+
+            pipelineContext.DeleteProperty(property);
+
+            pipelineContext.GetPropertyValueOrNull<string>(property)
+                .Should()
+                .BeNull("because value has been deleted by 'DeleteProperty' method");
+        }
+
+        [Fact]
+        public void GetAllPropertyObjects_Retrieves_Empty_Array_By_Default()
+        {
+            var pipelineContext = new PipelineContext();
+            
+            pipelineContext.GetAllPropertyObjects()
+                .Should()
+                .BeEmpty("because by default there are no properties");
+        }
+        
+        [Fact]
+        public void GetAllPropertyObjects_Contains_An_Element_That_Was_Added()
+        {
+            var pipelineContext = new PipelineContext();
+
+            var property = new PipelineProperty(
+                nameof(GetAllPropertyObjects_Contains_An_Element_That_Was_Added),
+                nameof(PipelineContextTests));
+
+            pipelineContext.AddOrSkipPropertyIfExists(property);
+
+            pipelineContext.GetAllPropertyObjects()
+                .Should()
+                .Contain(property, "because by default there are no properties");
+        }
     }
 
     public class PipelineContextTestObject : PipelineContext
