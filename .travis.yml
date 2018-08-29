@@ -1,2 +1,8 @@
 language: csharp
-solution: Pipelines.Net.sln
+mono: none
+dotnet: 2.0.0
+script:
+  - dotnet restore
+  - dotnet build ./Pipelines/
+  - dotnet test ./Pipelines.Tests.Units/
+  - dotnet test ./Pipelines.Tests.Integrations/
