@@ -20,6 +20,13 @@ namespace Pipelines.Implementations.Processors
             return new EnsurePropertyProcessor<TValue>(name, value);
         }
 
+        public static ExecuteActionForPropertyProcessor<TContext, TProperty>
+            ExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
+        }
+
         public static ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
             Action<PipelineContext, TElement> action, string propertyName)
         {

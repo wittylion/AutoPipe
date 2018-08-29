@@ -24,6 +24,13 @@ namespace Pipelines.Implementations.Pipelines
             return CommonProcessors.EnsureProperty<TValue>(name, value);
         }
 
+        public virtual ExecuteActionForPropertyProcessor<TContext, TProperty>
+            ExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName) where TContext : PipelineContext
+        {
+            return CommonProcessors.ExecuteActionForProperty(action, propertyName);
+        }
+
         public virtual ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
             Action<PipelineContext, TElement> action, string propertyName)
         {
