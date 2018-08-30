@@ -68,7 +68,7 @@ namespace Pipelines.Tests.Integrations
         public override Task SafeExecute(HelloWorldArguments args)
         {
             args.AbortPipelineWithErrorMessage(HelloWorldPipelineMessages.NameMustBeProvided);
-            return Task.Delay(0);
+            return PipelineTask.CompletedTask;
         }
 
         public override bool SafeCondition(HelloWorldArguments args)
@@ -82,7 +82,7 @@ namespace Pipelines.Tests.Integrations
         public override Task SafeExecute(HelloWorldArguments args)
         {
             args.Result = "Hello, " + args.Name + "!";
-            return Task.Delay(0);
+            return PipelineTask.CompletedTask;
         }
     }
 

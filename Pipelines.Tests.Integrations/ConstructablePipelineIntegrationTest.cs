@@ -52,7 +52,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override IEnumerable<IProcessor> GetProcessors()
             {
-                yield return this.Action<PipelineContext>(x =>
+                yield return Constructor.Action<PipelineContext>(x =>
                     x.AddMessage(nameof(ConstructablePipelineIntegrationTest)));
             }
         }
@@ -61,7 +61,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override IEnumerable<IProcessor> GetProcessors()
             {
-                yield return this.ExecuteForEachElementInProperty<string>(
+                yield return Constructor.ExecuteForEachElementInProperty<string>(
                     (ctx, x) => ctx.AddMessage(x), ContextProperties.Messages);
             }
         }
@@ -70,7 +70,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override IEnumerable<IProcessor> GetProcessors()
             {
-                yield return this.EnsureProperty<IEnumerable<string>>(ContextProperties.Messages,
+                yield return Constructor.EnsureProperty<IEnumerable<string>>(ContextProperties.Messages,
                     ContextValues.Messages);
 
                 yield return new AddMessagesFromPropertyPipeline().ToProcessor();

@@ -12,7 +12,8 @@ namespace Pipelines.Implementations.Processors
             "Creating a generic class used to execute action for property, you have to specify property name of the enumerable of elements.";
     }
 
-    public class ExecuteActionForPropertyProcessor<TContext, TProperty> : ExecuteActionForPropertyProcessorConcept<TContext, TProperty> where TContext : PipelineContext
+    public class ExecuteActionForPropertyProcessor<TContext, TProperty> 
+        : ExecuteActionForPropertyProcessorConcept<TContext, TProperty> where TContext : PipelineContext
     {
         public string PropertyName { get; }
         public Func<TContext, TProperty, Task> Action { get; }

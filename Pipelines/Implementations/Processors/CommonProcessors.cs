@@ -27,6 +27,13 @@ namespace Pipelines.Implementations.Processors
             return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
         }
 
+        public static ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
+            ExecuteActionForPropertyOrAbort<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>(action, propertyName, abortMessage, messageType);
+        }
+
         public static ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
             Action<PipelineContext, TElement> action, string propertyName)
         {

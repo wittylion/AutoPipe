@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Processors
 {
@@ -9,34 +8,35 @@ namespace Pipelines.Implementations.Processors
         public override Task SafeExecute(TContext args)
         {
             var propertyName = this.GetPropertyName(args);
-            if (!args.ContainsProperty(propertyName))
+            var propertyHolder = args.GetPropertyObjectOrNull(propertyName);
+            if (!propertyHolder.HasValue)
             {
-                return PipelineTask.CompletedTask;
+                return this.MissingPropertyHandler(args);
             }
 
-            var property = args.GetPropertyValueOrDefault(propertyName, default(TProperty));
-            return this.PropertyExecution(args, property);
+            if (!(propertyHolder.Value.Value is TProperty propertyValue))
+            {
+                return this.WrongPropertyTypeHandler(args, propertyHolder.Value);
+            }
+
+            return this.PropertyExecution(args, propertyValue);
+        }
+
+        public virtual Task MissingPropertyHandler(TContext args)
+        {
+            return PipelineTask.CompletedTask;
+        }
+
+        public virtual Task WrongPropertyTypeHandler(TContext args, PipelineProperty property)
+        {
+            return PipelineTask.CompletedTask;
         }
 
         public abstract Task PropertyExecution(TContext args, TProperty property);
         public abstract string GetPropertyName(TContext args);
     }
 
-    public abstract class ExecuteActionForPropertyProcessorConcept : SafeProcessor<PipelineContext>
+    public abstract class ExecuteActionForPropertyProcessorConcept : ExecuteActionForPropertyProcessorConcept<PipelineContext, object>
     {
-        public override Task SafeExecute(PipelineContext args)
-        {
-            var propertyName = this.GetPropertyName(args);
-            if (!args.ContainsProperty(propertyName))
-            {
-                return PipelineTask.CompletedTask;
-            }
-
-            var property = args.GetPropertyValueOrNull<object>(propertyName);
-            return this.PropertyExecution(args, property);
-        }
-
-        public abstract Task PropertyExecution(PipelineContext args, object property);
-        public abstract string GetPropertyName(PipelineContext args);
     }
 }
