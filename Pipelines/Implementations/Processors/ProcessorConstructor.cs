@@ -27,11 +27,53 @@ namespace Pipelines.Implementations.Processors
             return CommonProcessors.ExecuteActionForProperty(action, propertyName);
         }
 
+        public virtual ExecuteActionForPropertyProcessor<TContext, TProperty>
+            ExecuteActionForProperty<TContext, TProperty>(Action<TContext, TProperty> action,
+                string propertyName) where TContext : PipelineContext
+        {
+            return CommonProcessors.ExecuteActionForProperty(action, propertyName);
+        }
+
         public virtual ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Func<TContext, TProperty, Task> action,
                 string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
         {
             return CommonProcessors.ExecuteActionForPropertyOrAbort(action, propertyName, abortMessage, messageType);
+        }
+
+        public virtual ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
+            ExecuteActionForPropertyOrAbort<TContext, TProperty>(Action<TContext, TProperty> action,
+                string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
+        {
+            return CommonProcessors.ExecuteActionForPropertyOrAbort(action, propertyName, abortMessage, messageType);
+        }
+
+        public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<TContext, TProperty, Exception> exceptionHandler) where TContext : PipelineContext
+        {
+            return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
+        }
+
+        public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<TContext, Exception> exceptionHandler) where TContext : PipelineContext
+        {
+            return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
+        }
+
+        public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<Exception> exceptionHandler) where TContext : PipelineContext
+        {
+            return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
+        }
+
+        public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<TContext> exceptionHandler) where TContext : PipelineContext
+        {
+            return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
         }
 
         public virtual ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(

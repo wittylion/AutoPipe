@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Processors
 {
@@ -8,6 +9,11 @@ namespace Pipelines.Implementations.Processors
     {
         public string AbortMessage { get; }
         public MessageType MessageType { get; }
+
+        public ExecuteActionForPropertyOrAbortProcessor(Action<TContext, TProperty> action, string propertyName,
+            string abortMessage, MessageType messageType) : this(action.ToAsync(), propertyName, abortMessage, messageType)
+        {
+        }
 
         public ExecuteActionForPropertyOrAbortProcessor(Func<TContext, TProperty, Task> action, string propertyName,
             string abortMessage, MessageType messageType) : base(action, propertyName)

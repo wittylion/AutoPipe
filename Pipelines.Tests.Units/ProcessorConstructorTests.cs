@@ -40,13 +40,38 @@ namespace Pipelines.Tests.Units
             };
 
             var processor = constructor.ExecuteActionForPropertyOrAbort<PipelineContext, string>(
-                setSuccessFunction.ToAsync(), propertyName, abortMessage, MessageType.Error);
+                setSuccessFunction, propertyName, abortMessage, MessageType.Error);
             var context = new PipelineContext();
             context.AddOrSkipPropertyIfExists(propertyName, nameof(ProcessorConstructorTests));
 
             await processor.Execute(context);
 
             context.GetPropertyValueOrDefault(successProperty, false)
+                .Should()
+                .BeTrue("because property is defined in the context and the action must have been set a success property");
+        }
+
+        [Fact]
+        public async void TryExecuteActionForProperty_When_Property_Is_Provided_And_Exception_Is_Thrown_Should_Execute_An_Exception_Handler()
+        {
+            var constructor = new ProcessorConstructor();
+            var propertyName = nameof(TryExecuteActionForProperty_When_Property_Is_Provided_And_Exception_Is_Thrown_Should_Execute_An_Exception_Handler);
+
+
+            var exceptionHandlerProperty = "TryExecuteActionForPropertyExceptionHandler";
+            Action<PipelineContext> exceptionHandlerFunction = (pipelineContext) =>
+            {
+                pipelineContext.AddOrSkipPropertyIfExists(exceptionHandlerProperty, true);
+            };
+
+            var processor = constructor.TryExecuteActionForProperty<PipelineContext, string>(
+                (x, y) => throw new NotImplementedException(), propertyName, exceptionHandlerFunction);
+            var context = new PipelineContext();
+            context.AddOrSkipPropertyIfExists(propertyName, nameof(ProcessorConstructorTests));
+
+            await processor.Execute(context);
+
+            context.GetPropertyValueOrDefault(exceptionHandlerProperty, false)
                 .Should()
                 .BeTrue("because property is defined in the context and the action must have been set a success property");
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Processors
 {
@@ -17,6 +18,11 @@ namespace Pipelines.Implementations.Processors
     {
         public string PropertyName { get; }
         public Func<TContext, TProperty, Task> Action { get; }
+
+        public ExecuteActionForPropertyProcessor(Action<TContext, TProperty> action, string propertyName)
+            : this(action.ToAsync(), propertyName)
+        {
+        }
 
         public ExecuteActionForPropertyProcessor(Func<TContext, TProperty, Task> action, string propertyName)
         {

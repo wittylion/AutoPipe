@@ -27,11 +27,53 @@ namespace Pipelines.Implementations.Processors
             return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
         }
 
+        public static ExecuteActionForPropertyProcessor<TContext, TProperty>
+            ExecuteActionForProperty<TContext, TProperty>(Action<TContext, TProperty> action,
+                string propertyName) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
+        }
+
         public static ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Func<TContext, TProperty, Task> action,
                 string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
         {
             return new ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>(action, propertyName, abortMessage, messageType);
+        }
+
+        public static ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
+            ExecuteActionForPropertyOrAbort<TContext, TProperty>(Action<TContext, TProperty> action,
+                string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>(action, propertyName, abortMessage, messageType);
+        }
+
+        public static TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<TContext, TProperty, Exception> exceptionHandler) where TContext : PipelineContext
+        {
+            return new TryExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName, exceptionHandler);
+        }
+
+        public static TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<TContext, Exception> exceptionHandler) where TContext : PipelineContext
+        {
+            return new TryExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName, exceptionHandler);
+        }
+
+        public static TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<Exception> exceptionHandler) where TContext : PipelineContext
+        {
+            return new TryExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName, exceptionHandler);
+        }
+
+        public static TryExecuteActionForPropertyProcessor<TContext, TProperty>
+            TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
+                string propertyName, Action<TContext> exceptionHandler) where TContext : PipelineContext
+        {
+            return new TryExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName, exceptionHandler);
         }
 
         public static ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
