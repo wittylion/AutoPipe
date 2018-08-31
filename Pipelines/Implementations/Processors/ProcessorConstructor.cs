@@ -15,33 +15,33 @@ namespace Pipelines.Implementations.Processors
             return CommonProcessors.Action<TArgs>(action);
         }
 
-        public virtual EnsurePropertyProcessor<TValue> EnsureProperty<TValue>(string name, TValue value)
+        public virtual EnsurePropertyProcessorConcept<TValue> EnsureProperty<TValue>(string name, TValue value)
         {
             return CommonProcessors.EnsureProperty<TValue>(name, value);
         }
 
-        public virtual ExecuteActionForPropertyProcessor<TContext, TProperty>
+        public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
                 string propertyName) where TContext : PipelineContext
         {
             return CommonProcessors.ExecuteActionForProperty(action, propertyName);
         }
 
-        public virtual ExecuteActionForPropertyProcessor<TContext, TProperty>
+        public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForProperty<TContext, TProperty>(Action<TContext, TProperty> action,
                 string propertyName) where TContext : PipelineContext
         {
             return CommonProcessors.ExecuteActionForProperty(action, propertyName);
         }
 
-        public virtual ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
+        public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Func<TContext, TProperty, Task> action,
                 string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
         {
             return CommonProcessors.ExecuteActionForPropertyOrAbort(action, propertyName, abortMessage, messageType);
         }
 
-        public virtual ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
+        public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Action<TContext, TProperty> action,
                 string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
         {

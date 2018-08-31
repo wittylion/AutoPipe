@@ -15,18 +15,25 @@
 	<PackageReleaseNotes>
       New in this version:
 
-      - Added properties notion to the PipelineContext, so you can use it as a bag with key-value pairs, by using whese methods:
+      - Added new processors:
 
-      * SetOrAddProperty - Adds the property to the collection or updates the value if key has been added previously. (alias UpdateOrAddProperty)
-      * AddOrSkipPropertyIfExists - Adds the property to the collection or if the key has been added previously skips adding.
-      * GetPropertyValueOrDefault - Retrieves the value that is defined under the property or if was not added or the type of the contained property is different then requested, the default value will be retrieved.
-      * GetPropertyValueOrNull - same as GetPropertyValueOrDefault but returns null as a default value.
+      * EnsurePropertyProcessor - processor that simply gets a key of the property and value to be added then adds key and value to the PipelineContext if the key doesn't exist;
+      * ExecuteActionForPropertyProcessor - processor that executes action for property if it is found in the PipelineContext;
+      * ExecuteActionForPropertyOrAbortProcessor - processor that executes action for property if it is found in the PipelineContext, or if property was not found aborts the pipeline;
+      * ExecuteForEachElementInPropertyProcessor - processor that tries to get a collection of elements in property and then execute and action for each element;
+	  * TryExecuteActionForPropertyProcessor - processor that tries to find a given property and if it is found executes a given action, if action fails exception handler (that can be passed to class) will be executed.
+	  
+	  - Added new helpful classes:
+	  
+	  * CommonProcessors - pack of static methods that simply provide you a needed processor;
+	  * ProcessorConstructor - an adjustable constructor, which can be injected to other instances and provide a variety of processors;
+	  * ConstructablePipeline - a pipeline with an instance of ProcessorConstructor, allows to faster create processors from provided templates.
 
-      - Added a bit more documentation.
+      - Added new frameworks: .net core v2+, .net v4.5+
 	</PackageReleaseNotes>
 	<NeutralLanguage>English</NeutralLanguage>
 	<PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-	<Version>1.1.1</Version>
-	<AssemblyVersion>1.1.1.0</AssemblyVersion>
+	<Version>1.1.2</Version>
+	<AssemblyVersion>1.1.2.0</AssemblyVersion>
   </PropertyGroup>
 </Project>
