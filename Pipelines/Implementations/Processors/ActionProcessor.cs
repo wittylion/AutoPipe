@@ -11,7 +11,17 @@ namespace Pipelines.Implementations.Processors
     {
         public static readonly string ActionMustBeSpecifiedInGenericProcessor = "Creating a generic 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<GenericType, Task>.";
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
-        
+
+        public static ActionProcessor FromAction(Action action)
+        {
+            return new ActionProcessor(action.ToAsync<object>());
+        }
+
+        public static ActionProcessor<TArgs> FromAction<TArgs>(Action action)
+        {
+            return new ActionProcessor<TArgs>(action.ToAsync<TArgs>());
+        }
+
         public static ActionProcessor FromAction(Action<object> action)
         {
             return new ActionProcessor(action.ToAsync());
