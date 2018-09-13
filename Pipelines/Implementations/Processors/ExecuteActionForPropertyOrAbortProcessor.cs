@@ -10,8 +10,18 @@ namespace Pipelines.Implementations.Processors
         public string AbortMessage { get; }
         public MessageType MessageType { get; }
 
+        public ExecuteActionForPropertyOrAbortProcessor(string propertyName, Action<TContext, TProperty> action,
+            string abortMessage, MessageType messageType) : this(action.ToAsync(), propertyName, abortMessage, messageType)
+        {
+        }
+
         public ExecuteActionForPropertyOrAbortProcessor(Action<TContext, TProperty> action, string propertyName,
             string abortMessage, MessageType messageType) : this(action.ToAsync(), propertyName, abortMessage, messageType)
+        {
+        }
+
+        public ExecuteActionForPropertyOrAbortProcessor(string propertyName, Func<TContext, TProperty, Task> action,
+            string abortMessage, MessageType messageType) : this(action, propertyName, abortMessage, messageType)
         {
         }
 
