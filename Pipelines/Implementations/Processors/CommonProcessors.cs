@@ -127,5 +127,10 @@ namespace Pipelines.Implementations.Processors
         {
             return new ExecuteForEachElementInPropertyProcessor<TContext, TElement>(action, propertyName);
         }
+
+        public static DisposeProcessorConcept<PipelineContext> DisposeProperties(params string[] properties)
+        {
+            return new DisposePropertiesProcessor(properties);
+        }
     }
 }
