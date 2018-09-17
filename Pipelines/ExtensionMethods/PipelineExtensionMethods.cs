@@ -42,7 +42,7 @@ namespace Pipelines.ExtensionMethods
         /// or if it is not specified, with a static
         /// instance of <see cref="PipelineRunner"/> - <see cref="PipelineRunner.StaticInstance"/>.
         /// </returns>
-        public static IProcessor ToProcessor(this IPipeline pipeline, PipelineRunner runner)
+        public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
             return ActionProcessor.FromAction(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
         }
@@ -84,7 +84,7 @@ namespace Pipelines.ExtensionMethods
         /// or if it is not specified, with a static
         /// instance of <see cref="PipelineRunner"/> - <see cref="PipelineRunner.StaticInstance"/>.
         /// </returns>
-        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, PipelineRunner runner)
+        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
         {
             return ActionProcessor.FromAction<TArgs>(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
         }
@@ -185,7 +185,7 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IPipeline pipeline, object args, PipelineRunner runner)
+        public static Task Run(this IPipeline pipeline, object args, IPipelineRunner runner)
         {
             return runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args);
         }
@@ -242,7 +242,7 @@ namespace Pipelines.ExtensionMethods
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
         public static async Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
-            Predicate<TArgs> condition, PipelineRunner runner)
+            Predicate<TArgs> condition, IPipelineRunner runner)
         {
             runner = runner.Ensure(PipelineRunner.StaticInstance);
             while (condition(args))

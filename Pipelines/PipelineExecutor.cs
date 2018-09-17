@@ -10,13 +10,13 @@ namespace Pipelines
         public static readonly string RunnerIsNotSetError = "Pipeline runner is not specified, provide an instance of pipeline runner or use a default constructor.";
 
         public IPipeline Pipeline { get; }
-        public PipelineRunner Runner { get; }
+        public IPipelineRunner Runner { get; }
 
         public PipelineExecutor(IPipeline pipeline) : this(pipeline, PipelineRunner.StaticInstance)
         {
         }
 
-        public PipelineExecutor(IPipeline pipeline, PipelineRunner runner)
+        public PipelineExecutor(IPipeline pipeline, IPipelineRunner runner)
         {
             if (pipeline.HasNoValue())
             {

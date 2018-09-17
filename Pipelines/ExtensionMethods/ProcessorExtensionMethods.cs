@@ -141,7 +141,7 @@ namespace Pipelines.ExtensionMethods
             return processor.Run(args, PipelineRunner.StaticInstance);
         }
 
-        public static Task Run(this IProcessor processor, object args, PipelineRunner runner)
+        public static Task Run(this IProcessor processor, object args, IProcessorRunner runner)
         {
             return runner.Ensure(PipelineRunner.StaticInstance).RunProcessor(processor, args);
         }
