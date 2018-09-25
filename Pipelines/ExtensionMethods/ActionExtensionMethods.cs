@@ -29,11 +29,7 @@ namespace Pipelines.ExtensionMethods
             if (action.HasNoValue())
                 return null;
 
-            return args =>
-            {
-                action();
-                return PipelineTask.CompletedTask;
-            };
+            return args => Task.Run(action);
         }
 
         /// <summary>
@@ -55,11 +51,7 @@ namespace Pipelines.ExtensionMethods
             if (action.HasNoValue())
                 return null;
 
-            return args =>
-            {
-                action(args);
-                return PipelineTask.CompletedTask;
-            };
+            return args => Task.Run(() => action(args));
         }
 
         /// <summary>
@@ -84,11 +76,7 @@ namespace Pipelines.ExtensionMethods
             if (action.HasNoValue())
                 return null;
 
-            return (arg1, arg2) =>
-            {
-                action(arg1, arg2);
-                return PipelineTask.CompletedTask;
-            };
+            return (arg1, arg2) => Task.Run(() => action(arg1, arg2));
         }
 
         /// <summary>
