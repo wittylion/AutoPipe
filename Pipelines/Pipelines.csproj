@@ -26,12 +26,15 @@
 		
 	  - Added new DisposePropertiesProcessor:
 	    As many other predefined processor it is available through ProcessorConstrucor in ConstructablePipeline.
+		
+	  - Fixed the way of transforming Action to Func, so now when you pass sync action it becomes async, and not stucking the thread.
 	  
 	  
 	</PackageReleaseNotes>
 	<NeutralLanguage>English</NeutralLanguage>
 	<PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-	<Version>1.1.2</Version>
-	<AssemblyVersion>1.1.2.0</AssemblyVersion>
+	<Version>1.1.3</Version>
+	<AssemblyVersion>1.1.3.0</AssemblyVersion>
+	<PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
   </PropertyGroup>
 </Project>
