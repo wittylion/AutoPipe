@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Moq;
 using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Processors;
 using Xunit;
@@ -74,6 +75,23 @@ namespace Pipelines.Tests.Units
             context.GetPropertyValueOrDefault(exceptionHandlerProperty, false)
                 .Should()
                 .BeTrue("because property is defined in the context and the action must have been set a success property");
+        }
+
+        [Fact]
+        public async void DisposeProperties_Should_Dispose_The_Specified_Property_Of_Type_Disposable()
+        {
+            var completed = false;
+            var constructor = new ProcessorConstructor();
+            var propertyName = nameof(DisposeProperties_Should_Dispose_The_Specified_Property_Of_Type_Disposable);
+            Mock<IDisposable> disposable = new Mock<IDisposable>();
+            disposable.Setup(x => x.Dispose()).Callback(() => completed = true);
+            var context = new PipelineContext();
+            context.AddOrSkipPropertyIfExists(propertyName, disposable.Object);
+
+            var proocessor = constructor.DisposeProperties(propertyName);
+            await proocessor.Execute(context);
+
+            completed.Should().BeTrue("because the processor supposed to call dispose on each specified property");
         }
     }
 }

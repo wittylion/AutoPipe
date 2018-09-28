@@ -24,6 +24,16 @@ namespace Pipelines.Implementations.Processors
         {
         }
 
+        public ExecuteActionForPropertyProcessor(string propertyName, Action<TContext, TProperty> action)
+            : this(action.ToAsync(), propertyName)
+        {
+        }
+
+        public ExecuteActionForPropertyProcessor(string propertyName, Func<TContext, TProperty, Task> action)
+            : this(action, propertyName)
+        {
+        }
+
         public ExecuteActionForPropertyProcessor(Func<TContext, TProperty, Task> action, string propertyName)
         {
             PropertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName),

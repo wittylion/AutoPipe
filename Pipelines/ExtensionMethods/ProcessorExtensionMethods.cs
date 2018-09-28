@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Pipelines.Implementations.Processors;
 
 namespace Pipelines.ExtensionMethods
@@ -128,6 +129,21 @@ namespace Pipelines.ExtensionMethods
                 processor,
                 nextProcessor
             };
+        }
+
+        public static Task Run(this IProcessor processor)
+        {
+            return processor.Run(null, PipelineRunner.StaticInstance);
+        }
+
+        public static Task Run(this IProcessor processor, object args)
+        {
+            return processor.Run(args, PipelineRunner.StaticInstance);
+        }
+
+        public static Task Run(this IProcessor processor, object args, IProcessorRunner runner)
+        {
+            return runner.Ensure(PipelineRunner.StaticInstance).RunProcessor(processor, args);
         }
     }
 }

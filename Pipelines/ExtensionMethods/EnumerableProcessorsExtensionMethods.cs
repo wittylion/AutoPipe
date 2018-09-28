@@ -262,10 +262,18 @@ namespace Pipelines.ExtensionMethods
         /// Returns <see cref="Task"/> object, which indicates a status
         /// of execution of processors.
         /// </returns>
-        public static Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args, PipelineRunner runner)
+        public static async Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args, IProcessorRunner runner)
         {
             runner = runner.Ensure(PipelineRunner.StaticInstance);
-            return runner.RunProcessors(enumerable, args);
+            if (enumerable.HasNoValue())
+            {
+                return;
+            }
+
+            foreach (var processor in enumerable)
+            {
+                await runner.RunProcessor(processor, args);
+            }
         }
 
         /// <summary>
@@ -327,7 +335,7 @@ namespace Pipelines.ExtensionMethods
         /// of execution of processors.
         /// </returns>
         public static async Task RunProcessorsWhile<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args,
-            Predicate<TArgs> condition, PipelineRunner runner)
+            Predicate<TArgs> condition, IProcessorRunner runner)
         {
             if (condition.HasNoValue())
             {

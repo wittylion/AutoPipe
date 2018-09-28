@@ -15,25 +15,26 @@
 	<PackageReleaseNotes>
       New in this version:
 
-      - Added new processors:
-
-      * EnsurePropertyProcessor - processor that simply gets a key of the property and value to be added then adds key and value to the PipelineContext if the key doesn't exist;
-      * ExecuteActionForPropertyProcessor - processor that executes action for property if it is found in the PipelineContext;
-      * ExecuteActionForPropertyOrAbortProcessor - processor that executes action for property if it is found in the PipelineContext, or if property was not found aborts the pipeline;
-      * ExecuteForEachElementInPropertyProcessor - processor that tries to get a collection of elements in property and then execute and action for each element;
-	  * TryExecuteActionForPropertyProcessor - processor that tries to find a given property and if it is found executes a given action, if action fails exception handler (that can be passed to class) will be executed.
+      - Added new abstractions:
+	    Previously there was implemented only instance of PipelineRunner, which was used in some extensions and PipelineExecutor class to run a predefined pipeline with a predefined runner. Now there are implemented abstractions to run processor and pipeline: IPipelineRunner and IProcessorRunner. Both are implemented by PipelineRunner, so you still can use all the extensions and even more, you can create your own implementations of pipeline runner and processor runner.
+		
+	  - Added new ObservablePipelineRunner:
+	    Implementing observable pattern, the ObservablePipelineRunner class accepts observers and pushes information each time the pipeline starts, throws exception or ends.
+		
+	  - Added new ObservableProcessorRunner:
+	    Similar to observable pipeline runner, it implements observable pattern and allows to subsribe on events of the runner like: on processor starting, on processor exception thrown and on processor ended.
+		
+	  - Added new DisposePropertiesProcessor:
+	    As many other predefined processor it is available through ProcessorConstrucor in ConstructablePipeline.
+		
+	  - Fixed the way of transforming Action to Func, so now when you pass sync action it becomes async, and not stucking the thread.
 	  
-	  - Added new helpful classes:
 	  
-	  * CommonProcessors - pack of static methods that simply provide you a needed processor;
-	  * ProcessorConstructor - an adjustable constructor, which can be injected to other instances and provide a variety of processors;
-	  * ConstructablePipeline - a pipeline with an instance of ProcessorConstructor, allows to faster create processors from provided templates.
-
-      - Added new frameworks: .net core v2+, .net v4.5+
 	</PackageReleaseNotes>
 	<NeutralLanguage>English</NeutralLanguage>
 	<PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-	<Version>1.1.2</Version>
-	<AssemblyVersion>1.1.2.0</AssemblyVersion>
+	<Version>1.1.3</Version>
+	<AssemblyVersion>1.1.3.0</AssemblyVersion>
+	<PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
   </PropertyGroup>
 </Project>

@@ -28,8 +28,22 @@ namespace Pipelines.Implementations.Processors
         }
 
         public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            ExecuteActionForProperty<TContext, TProperty>(string propertyName,
+                Func<TContext, TProperty, Task> action) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
+        }
+
+        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForProperty<TContext, TProperty>(Action<TContext, TProperty> action,
                 string propertyName) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
+        }
+
+        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            ExecuteActionForProperty<TContext, TProperty>(string propertyName,
+                Action<TContext, TProperty> action) where TContext : PipelineContext
         {
             return new ExecuteActionForPropertyProcessor<TContext, TProperty>(action, propertyName);
         }
@@ -44,6 +58,20 @@ namespace Pipelines.Implementations.Processors
         public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Action<TContext, TProperty> action,
                 string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>(action, propertyName, abortMessage, messageType);
+        }
+
+        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            ExecuteActionForPropertyOrAbort<TContext, TProperty>(string propertyName,
+                Func<TContext, TProperty, Task> action, string abortMessage, MessageType messageType) where TContext : PipelineContext
+        {
+            return new ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>(action, propertyName, abortMessage, messageType);
+        }
+
+        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            ExecuteActionForPropertyOrAbort<TContext, TProperty>(string propertyName,
+                Action<TContext, TProperty> action, string abortMessage, MessageType messageType) where TContext : PipelineContext
         {
             return new ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>(action, propertyName, abortMessage, messageType);
         }
@@ -98,6 +126,11 @@ namespace Pipelines.Implementations.Processors
             Action<TElement> action, string propertyName) where TContext : PipelineContext
         {
             return new ExecuteForEachElementInPropertyProcessor<TContext, TElement>(action, propertyName);
+        }
+
+        public static DisposeProcessorConcept<PipelineContext> DisposeProperties(params string[] properties)
+        {
+            return new DisposePropertiesProcessor(properties);
         }
     }
 }

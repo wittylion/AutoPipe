@@ -5,7 +5,7 @@ using Pipelines.ExtensionMethods;
 
 namespace Pipelines
 {
-    public class PipelineRunner
+    public class PipelineRunner : IPipelineRunner, IProcessorRunner
     {
         public static readonly PipelineRunner StaticInstance = new PipelineRunner();
 

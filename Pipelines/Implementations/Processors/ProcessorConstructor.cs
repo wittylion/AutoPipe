@@ -81,5 +81,10 @@ namespace Pipelines.Implementations.Processors
         {
             return CommonProcessors.ExecuteForEachElementInProperty<TElement>(action, propertyName);
         }
+
+        public DisposeProcessorConcept<PipelineContext> DisposeProperties(params string[] properties)
+        {
+            return CommonProcessors.DisposeProperties(properties);
+        }
     }
 }
