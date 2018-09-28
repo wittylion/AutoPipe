@@ -1,8 +1,16 @@
 language: csharp
-mono: none
+mono: latest
 dotnet: 2.0.0
 script:
-  - dotnet restore
-  - dotnet build ./Pipelines/ --framework netstandard2.0
+  - msbuild /t:Restore
+  - msbuild
   - dotnet test ./Pipelines.Tests.Units/
   - dotnet test ./Pipelines.Tests.Integrations/
+  - msbuild /t:pack
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: 
+    - nuget push ./Pipelines/bin/Debug/Pipelines.Net.*.nupkg -Verbosity detailed -ApiKey $NugetApiKey -Source https://api.nuget.org/v3/index.json
+  on:
+    branch: master
