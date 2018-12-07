@@ -90,7 +90,7 @@ namespace Pipelines.ExtensionMethods
         }
 
         /// <summary>
-        /// Use this mthod in case you need to repeat pipeline's processors several times. 
+        /// Use this method in case you need to repeat pipeline's processors several times. 
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline which processors must be repeated.
@@ -109,7 +109,7 @@ namespace Pipelines.ExtensionMethods
 
 
         /// <summary>
-        /// Use this mthod in case you need to repeat pipeline's processors several times. 
+        /// Use this method in case you need to repeat pipeline's processors several times. 
         /// </summary>
         /// <typeparam name="TArgs">
         /// The type of the arguments that are used during pipeline execution.
@@ -130,49 +130,12 @@ namespace Pipelines.ExtensionMethods
         }
 
         /// <summary>
-        /// Runs a pipeline with <c>null</c> context and <see cref="PipelineRunner.StaticInstance"/>.
-        /// </summary>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="PipelineRunner.RunPipeline{TArgs}"/>
-        /// method with <c>null</c> passed.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static Task Run(this IPipeline pipeline)
-        {
-            return pipeline.Run(null, PipelineRunner.StaticInstance);
-        }
-
-        /// <summary>
-        /// Runs a pipeline with <paramref name="args"/> context
-        /// and <see cref="PipelineRunner.StaticInstance"/>.
-        /// </summary>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="PipelineRunner.RunPipeline{TArgs}"/>
-        /// method with <paramref name="args"/> passed.
-        /// </param>
-        /// <param name="args">
-        /// The context which will be passed to each processor of
-        /// the pipeline during execution.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static Task Run(this IPipeline pipeline, object args)
-        {
-            return pipeline.Run(args, PipelineRunner.StaticInstance);
-        }
-
-        /// <summary>
         /// Runs a pipeline with <paramref name="args"/> context
         /// and <paramref name="runner"/>.
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="PipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -185,9 +148,31 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IPipeline pipeline, object args, IPipelineRunner runner)
+        public static Task Run(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
         {
             return runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args);
+        }
+
+        /// <summary>
+        /// Runs a pipeline with <paramref name="args"/> context
+        /// and <paramref name="runner"/> synchronously, waiting until
+        /// all processors of the pipeline will be executed.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline to be executed. Each processor of this pipeline
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// method with <paramref name="args"/> passed.
+        /// </param>
+        /// <param name="args">
+        /// The context which will be passed to each processor of
+        /// the pipeline during execution.
+        /// </param>
+        /// <param name="runner">
+        /// The runner which will be used to run the wrapped pipeline.
+        /// </param>
+        public static void RunSync(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
+        {
+            runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args).Wait();
         }
 
         /// <summary>
@@ -198,7 +183,7 @@ namespace Pipelines.ExtensionMethods
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="PipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -225,7 +210,7 @@ namespace Pipelines.ExtensionMethods
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="PipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
