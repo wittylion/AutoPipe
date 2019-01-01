@@ -25,12 +25,12 @@ namespace Pipelines
         public IPipeline Pipeline { get; }
 
         /// <summary>
-        /// The pipeline runner that is hold to be used when <see cref="Execute"/> method is used.
+        /// The pipeline runner that is hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used.
         /// </summary>
         public IPipelineRunner Runner { get; }
 
         /// <summary>
-        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Execute"/> method is used.
+        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used.
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline that is hold to be executed later.
@@ -40,14 +40,14 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Execute"/> method is used
+        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used
         /// and <see cref="runner"/> that runs a pipeline.
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline that is hold to be executed later.
         /// </param>
         /// <param name="runner">
-        /// The pipeline runner that is hold to be used when <see cref="Execute"/> method is used.
+        /// The pipeline runner that is hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used.
         /// </param>
         public PipelineExecutor(IPipeline pipeline, IPipelineRunner runner)
         {
@@ -68,15 +68,36 @@ namespace Pipelines
         /// <summary>
         /// Executes a method with predefined <see cref="Pipeline"/> and <see cref="Runner"/>.
         /// </summary>
+        /// <typeparam name="TContext">
+        /// The type of the context that is used during pipeline execution.
+        /// </typeparam>
         /// <param name="arguments">
         /// The arguments that are passed to each executed processor in pipeline.
         /// </param>
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task Execute(object arguments)
+        public async Task Execute<TContext>(TContext arguments)
         {
             await this.Runner.RunPipeline(this.Pipeline, arguments);
+        }
+
+        /// <summary>
+        /// Executes a method with predefined <see cref="Pipeline"/> and <see cref="Runner"/>.
+        /// </summary>
+        /// <typeparam name="TResult">
+        /// The type of the result that is supposed to be returned from the method.
+        /// </typeparam>
+        /// <param name="arguments">
+        /// The arguments that are passed to each executed processor in pipeline.
+        /// </param>
+        /// <returns>
+        /// Returns a promise of the executed pipeline.
+        /// </returns>
+        public async Task<TResult> Execute<TResult>(QueryContext<TResult> arguments) where TResult : class
+        {
+            await this.Runner.RunPipeline(this.Pipeline, arguments);
+            return arguments.GetResult();
         }
     }
 }

@@ -107,7 +107,6 @@ namespace Pipelines.ExtensionMethods
             return new RepeatingProcessorsWhileConditionPipeline(pipeline.GetProcessors(), condition);
         }
 
-
         /// <summary>
         /// Use this method in case you need to repeat pipeline's processors several times. 
         /// </summary>
@@ -133,6 +132,9 @@ namespace Pipelines.ExtensionMethods
         /// Runs a pipeline with <paramref name="args"/> context
         /// and <paramref name="runner"/>.
         /// </summary>
+        /// <typeparam name="TContext">
+        /// The type of the context that is used during pipeline execution.
+        /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
         /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
@@ -148,9 +150,37 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
+        public static Task Run<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
         {
             return runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args);
+        }
+
+        /// <summary>
+        /// Runs a pipeline with <paramref name="args"/> context
+        /// and <paramref name="runner"/>, and then returns a result.
+        /// </summary>
+        /// <typeparam name="TResult">
+        /// The type of the result that is supposed to be returned from the method.
+        /// </typeparam>
+        /// <param name="pipeline">
+        /// The pipeline to be executed. Each processor of this pipeline
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// method with <paramref name="args"/> passed.
+        /// </param>
+        /// <param name="args">
+        /// The context which will be passed to each processor of
+        /// the pipeline during execution.
+        /// </param>
+        /// <param name="runner">
+        /// The runner which will be used to run the wrapped pipeline.
+        /// </param>
+        /// <returns>
+        /// The task object indicating the status of an executing pipeline.
+        /// </returns>
+        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, QueryContext<TResult> args, IPipelineRunner runner = null) where TResult : class
+        {
+            await pipeline.Run<QueryContext<TResult>>(args, runner);
+            return args.GetResult();
         }
 
         /// <summary>
@@ -170,9 +200,38 @@ namespace Pipelines.ExtensionMethods
         /// <param name="runner">
         /// The runner which will be used to run the wrapped pipeline.
         /// </param>
-        public static void RunSync(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
+        public static void RunSync<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
         {
             runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args).Wait();
+        }
+
+        /// <summary>
+        /// Runs a pipeline with <paramref name="args"/> context
+        /// and <paramref name="runner"/> synchronously, waiting until
+        /// all processors of the pipeline will be executed
+        /// and then returns a result.
+        /// </summary>
+        /// <typeparam name="TResult">
+        /// The type of the result that is supposed to be returned from the method.
+        /// </typeparam>
+        /// <param name="pipeline">
+        /// The pipeline to be executed. Each processor of this pipeline
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// method with <paramref name="args"/> passed.
+        /// </param>
+        /// <param name="args">
+        /// The context which will be passed to each processor of
+        /// the pipeline during execution.
+        /// </param>
+        /// <param name="runner">
+        /// The runner which will be used to run the wrapped pipeline.
+        /// </param>
+        /// <returns>
+        /// The task object indicating the status of an executing pipeline.
+        /// </returns>
+        public static TResult RunSync<TResult>(this IPipeline pipeline, QueryContext<TResult> args, IPipelineRunner runner = null) where TResult : class
+        {
+            return pipeline.Run(args, runner).Result;
         }
 
         /// <summary>
