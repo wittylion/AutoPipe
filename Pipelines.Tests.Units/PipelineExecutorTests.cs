@@ -1,5 +1,8 @@
 ﻿using System.Linq;
+using FluentAssertions;
 using Moq;
+using Pipelines.Implementations.Pipelines;
+using Pipelines.Implementations.Processors;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -23,5 +26,35 @@ namespace Pipelines.Tests.Units
                 ), Times.AtLeastOnce);
         }
 
+        [Fact]
+        public async void PipelineExecutor_Passes_Exact_Parameters_When_Executed()
+        {
+            var property = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
+            var processor = ActionProcessor.FromAction<PipelineContext>(ctx => ctx.SetOrAddProperty(property, true));
+            var pipeline = PredefinedPipeline.FromProcessors(processor);
+            var pipelineExecutor = new PipelineExecutor(pipeline);
+
+            var args = new PipelineContext();
+            await pipelineExecutor.Execute(args);
+
+            args.GetPropertyValueOrDefault(property, false)
+                .Should()
+                .BeTrue("context should have set up a property in passed context");
+        }
+
+        [Fact]
+        public async void PipelineExecutor_Returns_Exact_Value_When_Query_Is_Executed()
+        {
+            var propertyValue = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
+            var processor = ActionProcessor.FromAction<QueryContext<string>>(ctx =>
+                ctx.SetResultWithInformation(propertyValue, "Result is set."));
+            var pipeline = PredefinedPipeline.FromProcessors(processor);
+            var pipelineExecutor = new PipelineExecutor(pipeline);
+            var args = new QueryContext<string>();
+
+            (await pipelineExecutor.Execute(args))
+                .Should()
+                .Be(propertyValue);
+        }
     }
 }

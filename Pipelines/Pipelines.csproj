@@ -7,7 +7,7 @@
 	<Authors>Sergey Solomentsev</Authors>
 	<Company>Witty Lion</Company>
 	<Description>Library that exposes SOLID principles by introducing pipelines.</Description>
-	<Copyright>Witty Lion © 2018</Copyright>
+	<Copyright>Witty Lion © 2019</Copyright>
 	<PackageLicenseUrl>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicenseUrl>
 	<PackageProjectUrl>https://github.com/wittylion/Pipelines.Net</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
@@ -15,26 +15,23 @@
 	<PackageReleaseNotes>
       New in this version:
 
-      - Added new abstractions:
-	    Previously there was implemented only instance of PipelineRunner, which was used in some extensions and PipelineExecutor class to run a predefined pipeline with a predefined runner. Now there are implemented abstractions to run processor and pipeline: IPipelineRunner and IProcessorRunner. Both are implemented by PipelineRunner, so you still can use all the extensions and even more, you can create your own implementations of pipeline runner and processor runner.
-		
-	  - Added new ObservablePipelineRunner:
-	    Implementing observable pattern, the ObservablePipelineRunner class accepts observers and pushes information each time the pipeline starts, throws exception or ends.
-		
-	  - Added new ObservableProcessorRunner:
-	    Similar to observable pipeline runner, it implements observable pattern and allows to subsribe on events of the runner like: on processor starting, on processor exception thrown and on processor ended.
-		
-	  - Added new DisposePropertiesProcessor:
-	    As many other predefined processor it is available through ProcessorConstrucor in ConstructablePipeline.
-		
-	  - Fixed the way of transforming Action to Func, so now when you pass sync action it becomes async, and not stucking the thread.
+      - Added possibility to run processors and pipelines synchroniously from extension methods like 
 	  
+	       pipeline.RunSync();
+	  
+	  - Added methods for executing pipeline with query context like 
+	  
+	       var result = await pipeline.Run(queryContext);
+
+      - Added class ContextConstructor that allows faster creating PipelineContext;
+	  
+	  - Added extension methods to PipelineContext: IfHasProperty and IfHasNoProperty.
 	  
 	</PackageReleaseNotes>
 	<NeutralLanguage>English</NeutralLanguage>
 	<PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-	<Version>1.1.3</Version>
-	<AssemblyVersion>1.1.3.0</AssemblyVersion>
+	<Version>1.1.4</Version>
+	<AssemblyVersion>1.1.4.0</AssemblyVersion>
 	<PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
   </PropertyGroup>
 </Project>

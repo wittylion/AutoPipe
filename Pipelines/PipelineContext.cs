@@ -208,6 +208,22 @@ namespace Pipelines
 
         /// <summary>
         /// The function returns boolean value that defines
+        /// whether property was added to the context or not (analog to <see cref="ContainsProperty"/>).
+        /// </summary>
+        /// <param name="name">
+        /// The name of the property to be checked for presence.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case property exists,
+        /// otherwise returns <c>false</c>.
+        /// </returns>
+        public virtual bool HasProperty(string name)
+        {
+            return ContainsProperty(name);
+        }
+
+        /// <summary>
+        /// The function returns boolean value that defines
         /// whether property was added to the context or not.
         /// </summary>
         /// <param name="name">

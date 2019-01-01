@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
+using Pipelines.Implementations.Contexts;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -46,7 +47,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrNull_Retrieves_A_Proper_Value()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = ContextConstructor.Create();
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
             var key = nameof(PipelineContextTests);
 
@@ -60,7 +61,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = ContextConstructor.Create();
             var value = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type);
             var key = nameof(PipelineContextTests);
 
