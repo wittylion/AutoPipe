@@ -310,5 +310,49 @@ namespace Pipelines.Implementations.Processors
         {
             return CommonProcessors.DisposeProperties(properties);
         }
+        
+        public ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
+                Func<TContext, TProperty, TNewProperty> transformFunction, string transformToProperty)
+            where TContext : PipelineContext
+        {
+            return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction, transformToProperty);
+        }
+
+        public ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
+                Func<TProperty, TNewProperty> transformFunction, string transformToProperty)
+            where TContext : PipelineContext
+        {
+            return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction, transformToProperty);
+        }
+
+        public ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform, string transformToProperty,
+                Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+        {
+            return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformToProperty, transformFunction);
+        }
+
+        public ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform, string transformToProperty,
+                Func<TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+        {
+            return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformToProperty, transformFunction);
+        }
+
+        public ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
+                Func<TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+        {
+            return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction);
+        }
+
+        public ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+            TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
+                Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+        {
+            return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction);
+        }
     }
 }
