@@ -14,15 +14,15 @@ namespace Pipelines.Implementations.Processors
     {
         public override Task SafeExecute(PipelineContext args)
         {
-            var name = this.GetName();
-            var value = this.GetValue();
+            var name = this.GetName(args);
+            var value = this.GetValue(args);
 
             args.AddOrSkipPropertyIfExists(name, value);
 
             return PipelineTask.CompletedTask;
         }
 
-        public abstract string GetName();
-        public abstract TValue GetValue();
+        public abstract string GetName(PipelineContext args);
+        public abstract TValue GetValue(PipelineContext args);
     }
 }
