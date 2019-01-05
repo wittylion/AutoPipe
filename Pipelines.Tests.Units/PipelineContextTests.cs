@@ -224,6 +224,26 @@ namespace Pipelines.Tests.Units
                 .Should()
                 .Contain(property, "because by default there are no properties");
         }
+        
+        [Fact]
+        public void ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property()
+        {
+            var name = nameof(ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property);
+            var context = ContextConstructor.Create(new {Message = name});
+            context.ApplyProperty("Message", "test", PropertyModificator.SkipIfExists);
+            context.GetPropertyValueOrNull<string>("Message")
+                .Should().Be(name);
+        }
+
+        [Fact]
+        public void ApplyProperty_With_UpdateValue_Overwrites_The_Existing_Property()
+        {
+            var name = nameof(ApplyProperty_With_UpdateValue_Overwrites_The_Existing_Property);
+            var context = ContextConstructor.Create(new { Message = name });
+            context.ApplyProperty("Message", "test", PropertyModificator.UpdateValue);
+            context.GetPropertyValueOrNull<string>("Message")
+                .Should().Be("test");
+        }
     }
 
     public class PipelineContextTestObject : PipelineContext

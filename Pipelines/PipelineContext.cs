@@ -38,6 +38,41 @@ namespace Pipelines
             new Dictionary<string, PipelineProperty>(StringComparer.InvariantCultureIgnoreCase));
 
         /// <summary>
+        /// Applies property to the context. Depending on
+        /// <paramref name="modificator"/> adds or updates
+        /// value of the property.
+        /// </summary>
+        /// <typeparam name="TValue">
+        /// Parameter of the value to be applied.
+        /// </typeparam>
+        /// <param name="name">
+        /// The name of the property to be applied.
+        /// </param>
+        /// <param name="value">
+        /// The value of the property to be applied.
+        /// </param>
+        /// <param name="modificator">
+        /// Modificator that specifies whether the property has to be
+        /// just added without overwriting the existing one or updated
+        /// with a new value.
+        /// </param>
+        public virtual void ApplyProperty<TValue>(string name, TValue value, PropertyModificator modificator)
+        {
+            switch (modificator)
+            {
+                case PropertyModificator.SkipIfExists:
+                    this.AddOrSkipPropertyIfExists(name, value);
+                    break;
+                case PropertyModificator.UpdateValue:
+                    this.UpdateOrAddProperty(name, value);
+                    break;
+                default:
+                    this.AddOrSkipPropertyIfExists(name, value);
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Adds the property to the collection <see cref="Properties"/>
         /// or updates the value if key of parameter <paramref name="name"/>
         /// has been added previously (alias to <see cref="UpdateOrAddProperty{TValue}"/>).
