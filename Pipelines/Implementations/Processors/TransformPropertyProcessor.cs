@@ -48,7 +48,7 @@ namespace Pipelines.Implementations.Processors
 
         public override Task SafeExecute(TContext args)
         {
-            args.TransformProperty(PropertyToTransform, TransformToProperty, TransformFunction);
+            args.TransformProperty(PropertyToTransform, TransformToProperty, TransformFunction, PropertyModificator.UpdateValue);
             return PipelineTask.CompletedTask;
         }
     }
