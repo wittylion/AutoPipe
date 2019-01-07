@@ -8,7 +8,7 @@ namespace Pipelines.ExtensionMethods
     public static class PipelineContextExtensionMethods
     {
         public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string fromProperty,
-            string toProperty, Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator = PropertyModificator.SkipIfExists)
+            string toProperty, Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
             where TContext : PipelineContext
         {
             if (context.HasNoValue() || transformFunction.HasNoValue())
@@ -27,6 +27,24 @@ namespace Pipelines.ExtensionMethods
                 var newValue = transformFunction(context, value);
                 context.ApplyProperty(toProperty, newValue, modificator);
             }
+        }
+
+        public static void ApplyProperty<TContext, TValue>(this TContext context,
+            string propertyName, Func<TContext, TValue> createValueFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            if (context.HasNoValue() || createValueFunction.HasNoValue())
+            {
+                return;
+            }
+
+            if (modificator == PropertyModificator.SkipIfExists && context.HasProperty(propertyName))
+            {
+                return;
+            }
+
+            var newValue = createValueFunction(context);
+            context.ApplyProperty(propertyName, newValue, modificator);
         }
 
         /// <summary>
