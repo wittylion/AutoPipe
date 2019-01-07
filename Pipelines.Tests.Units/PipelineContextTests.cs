@@ -69,7 +69,7 @@ namespace Pipelines.Tests.Units
 
             pipelineContext.GetPropertyValueOrNull<IAsyncLifetime>(key)
                 .Should()
-                .BeNull("because method must check a type before value is convertedinto this type");
+                .BeNull("because method must check a type before value is converted into this type");
         }
         
         [Fact]
@@ -84,7 +84,7 @@ namespace Pipelines.Tests.Units
 
             pipelineContext.GetPropertyValueOrDefault<int>(key, expectedValue)
                 .Should()
-                .Be(expectedValue, "because method must check a type before value is convertedinto this type");
+                .Be(expectedValue, "because method must check a type before value is converted into this type");
         }
 
         [Fact]
@@ -146,11 +146,11 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
-        public void SetOrAddProperty_Shoul_Update_Value_When_It_Has_Already_Been_Set()
+        public void SetOrAddProperty_Should_Update_Value_When_It_Has_Already_Been_Set()
         {
             var pipelineContext = new PipelineContext();
             var value = 234;
-            var expectedValue = nameof(SetOrAddProperty_Shoul_Update_Value_When_It_Has_Already_Been_Set);
+            var expectedValue = nameof(SetOrAddProperty_Should_Update_Value_When_It_Has_Already_Been_Set);
             var key = nameof(PipelineContextTests);
 
             pipelineContext.SetOrAddProperty(nameof(PipelineContextTests), value);
@@ -162,11 +162,11 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
-        public void AddOrSkipPropertyIfExists_Shoul_Skip_Property_When_It_Has_Already_Been_Set()
+        public void AddOrSkipPropertyIfExists_Should_Skip_Property_When_It_Has_Already_Been_Set()
         {
             var pipelineContext = new PipelineContext();
             var value = 234;
-            var expectedValue = nameof(AddOrSkipPropertyIfExists_Shoul_Skip_Property_When_It_Has_Already_Been_Set);
+            var expectedValue = nameof(AddOrSkipPropertyIfExists_Should_Skip_Property_When_It_Has_Already_Been_Set);
             var key = nameof(PipelineContextTests);
 
             pipelineContext.AddOrSkipPropertyIfExists(nameof(PipelineContextTests), expectedValue);

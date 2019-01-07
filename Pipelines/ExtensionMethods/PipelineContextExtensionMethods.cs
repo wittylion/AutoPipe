@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Pipelines.ExtensionMethods
 {
@@ -45,6 +46,16 @@ namespace Pipelines.ExtensionMethods
 
             var newValue = createValueFunction(context);
             context.ApplyProperty(propertyName, newValue, modificator);
+        }
+
+        public static Task RunWithPipeline<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
+        {
+            return pipeline.Run(context, runner);
+        }
+
+        public static Task ExecuteWithProcessor<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
+        {
+            return processor.Run(context, runner);
         }
 
         /// <summary>
