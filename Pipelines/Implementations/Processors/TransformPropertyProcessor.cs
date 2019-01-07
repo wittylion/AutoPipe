@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Processors
 {
-    public class TransformPropertyProcessor<TContext, TProperty, TNewProperty> 
-        : ExecuteActionForPropertyProcessorConcept<TContext, TProperty> where TContext : PipelineContext
+    public class TransformPropertyProcessor<TContext, TProperty, TNewProperty>
+        :  SafeProcessor<TContext> where TContext : PipelineContext
     {
         public string PropertyToTransform { get; }
         public Func<TContext, TProperty, TNewProperty> TransformFunction { get; }
@@ -45,16 +46,10 @@ namespace Pipelines.Implementations.Processors
             TransformToProperty = transformToProperty;
         }
 
-        public override Task PropertyExecution(TContext args, TProperty property)
+        public override Task SafeExecute(TContext args)
         {
-            var newValue = this.TransformFunction(args, property);
-            args.SetOrAddProperty(TransformToProperty, newValue);
+            args.TransformProperty(PropertyToTransform, TransformToProperty, TransformFunction);
             return PipelineTask.CompletedTask;
-        }
-
-        public override string GetPropertyName(TContext args)
-        {
-            return this.PropertyToTransform;
         }
     }
 }

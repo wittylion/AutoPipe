@@ -146,7 +146,7 @@ namespace Pipelines.Implementations.Processors
             return new DisposePropertiesProcessor(properties);
         }
 
-        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+        public static SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TContext, TProperty, TNewProperty> transformFunction, string transformToProperty)
             where TContext : PipelineContext
@@ -155,7 +155,7 @@ namespace Pipelines.Implementations.Processors
                 transformFunction, transformToProperty);
         }
 
-        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+        public static SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TProperty, TNewProperty> transformFunction, string transformToProperty)
             where TContext : PipelineContext
@@ -164,7 +164,7 @@ namespace Pipelines.Implementations.Processors
                 transformFunction, transformToProperty);
         }
 
-        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+        public static SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform, string transformToProperty,
                 Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
         {
@@ -172,7 +172,7 @@ namespace Pipelines.Implementations.Processors
                 transformToProperty, transformFunction);
         }
 
-        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+        public static SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform, string transformToProperty,
                 Func<TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
         {
@@ -180,7 +180,7 @@ namespace Pipelines.Implementations.Processors
                 transformToProperty, transformFunction);
         }
 
-        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+        public static SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
         {
@@ -188,7 +188,7 @@ namespace Pipelines.Implementations.Processors
                 transformFunction);
         }
 
-        public static ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
+        public static SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
         {

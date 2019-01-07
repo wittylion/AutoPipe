@@ -7,6 +7,28 @@ namespace Pipelines.ExtensionMethods
     /// </summary>
     public static class PipelineContextExtensionMethods
     {
+        public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string fromProperty,
+            string toProperty, Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator = PropertyModificator.SkipIfExists)
+            where TContext : PipelineContext
+        {
+            if (context.HasNoValue() || transformFunction.HasNoValue())
+            {
+                return;
+            }
+
+            if (modificator == PropertyModificator.SkipIfExists && context.HasProperty(toProperty))
+            {
+                return;
+            }
+
+            var property = context.GetPropertyObjectOrNull(fromProperty);
+            if (property.HasValue && property.Value.Value is TValue value)
+            {
+                var newValue = transformFunction(context, value);
+                context.ApplyProperty(toProperty, newValue, modificator);
+            }
+        }
+
         /// <summary>
         /// Executes an action for pipeline context in case there is a property
         /// passed by <paramref name="property"/> exists.
@@ -24,7 +46,7 @@ namespace Pipelines.ExtensionMethods
         public static void IfHasProperty<TContext>(this TContext context, string property, Action<TContext> action)
             where TContext : PipelineContext
         {
-            if (context.HasProperty(property))
+            if (context.HasValue() && context.HasProperty(property))
             {
                 action(context);
             }
@@ -47,7 +69,7 @@ namespace Pipelines.ExtensionMethods
         public static void IfHasNoProperty<TContext>(this TContext context, string property, Action<TContext> action)
             where TContext : PipelineContext
         {
-            if (!context.HasProperty(property))
+            if (context.HasValue() && !context.HasProperty(property))
             {
                 action(context);
             }
