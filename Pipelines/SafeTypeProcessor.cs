@@ -14,6 +14,8 @@ namespace Pipelines
     /// </typeparam>
     public abstract class SafeTypeProcessor<TArgs> : IProcessor
     {
+        protected readonly Task Done = PipelineTask.CompletedTask;
+
         /// <summary>
         /// Method which will be only executed in case
         /// <paramref name="args"/> parameter passes

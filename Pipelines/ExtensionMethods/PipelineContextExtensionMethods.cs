@@ -8,6 +8,20 @@ namespace Pipelines.ExtensionMethods
     /// </summary>
     public static class PipelineContextExtensionMethods
     {
+        public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string property,
+            Func<TValue, TNewValue> transformFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            context.TransformProperty<TContext, TValue, TNewValue>(property, property, (ctx, val) => transformFunction(val), modificator);
+        }
+
+        public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string property,
+            Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            context.TransformProperty(property, property, transformFunction, modificator);
+        }
+
         public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string fromProperty,
             string toProperty, Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
             where TContext : PipelineContext
