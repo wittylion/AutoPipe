@@ -13,7 +13,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void RunWith_Should_Run_The_Passed_Pipeline_With_Preset_Properties()
         {
-            var context = await ContextConstructor.NewContext
+            var context = await ContextConstructor.BuildContext()
                 .Use("one", 1)
                 .Use("two", 2)
                 .Use("string", "aqwe")
@@ -31,7 +31,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void RunWith_Should_Run_The_Passed_Pipeline()
         {
-            var context = await ContextConstructor.NewContext
+            var context = await ContextConstructor.BuildContext()
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
                         new EnsureName(),
@@ -48,7 +48,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Template_That_Will_Not_Be_Overriden()
         {
-            var context = await ContextConstructor.NewContext
+            var context = await ContextConstructor.BuildContext()
                 .Use("message", "Hola, {name}!")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
@@ -65,7 +65,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_Up_A_Name_That_Will_Not_Be_Overriden()
         {
-            var context = await ContextConstructor.NewContext
+            var context = await ContextConstructor.BuildContext()
                 .Use("name", "Bob")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
@@ -84,7 +84,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Name_That_Will_Be_Set_In_QueryContext_Result()
         {
-            var context = await ContextConstructor.NewQueryContext<string>()
+            var context = await ContextConstructor.BuildQueryContext<string>()
                 .Use("name", "Bob")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
