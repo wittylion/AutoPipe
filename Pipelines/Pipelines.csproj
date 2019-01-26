@@ -1,37 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net461</TargetFrameworks>
-	<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-	<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-	<PackageId>Pipelines.Net</PackageId>
-	<Authors>Sergey Solomentsev</Authors>
-	<Company>Witty Lion</Company>
-	<Description>Library that exposes SOLID principles by introducing pipelines.</Description>
-	<Copyright>Witty Lion © 2019</Copyright>
-	<PackageLicenseUrl>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicenseUrl>
-	<PackageProjectUrl>https://github.com/wittylion/Pipelines.Net</PackageProjectUrl>
-	<RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
-	<RepositoryType>git</RepositoryType>
-	<PackageReleaseNotes>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>Pipelines.Net</PackageId>
+    <Authors>Sergey Solomentsev</Authors>
+    <Company>Witty Lion</Company>
+    <Description>Library that exposes SOLID principles by introducing pipelines.</Description>
+    <Copyright>Witty Lion © 2019</Copyright>
+    <PackageLicenseUrl>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://wittylion.github.io/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>
       New in this version:
 
-      - Added possibility to run processors and pipelines synchroniously from extension methods like 
-	  
-	       pipeline.RunSync();
-	  
-	  - Added methods for executing pipeline with query context like 
-	  
-	       var result = await pipeline.Run(queryContext);
-
-      - Added class ContextConstructor that allows faster creating PipelineContext;
-	  
-	  - Added extension methods to PipelineContext: IfHasProperty and IfHasNoProperty.
-	  
-	</PackageReleaseNotes>
-	<NeutralLanguage>English</NeutralLanguage>
-	<PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-	<Version>1.1.4</Version>
-	<AssemblyVersion>1.1.4.0</AssemblyVersion>
-	<PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
+      1) Added transform property processor in predefined processors.
+      
+        Examples:
+        
+        - From property pattern create property message: CommonProcessors.TransformProperty("pattern", fillPattern, "message");
+        
+        - Modify property: CommonProcessors.TransformProperty("money", UAHtoGBP).
+        
+        Learn more about transform property processor on: https://wittylion.github.io/2019/01/23/transform-property-processor.html
+      
+      2) Added pipeline repository for pipeline providers implementations. Pipeline repository has two methods: GetSingle - when querying one pipeline and GetMany in case all pipelines are needed or pipelines that are filtered by some condition.
+      
+        Learn more about pipeline repository on: https://wittylion.github.io/2019/01/24/pipeline-repository.html
+      
+      3) Added methods to context constructor that allow to build context in fluent way: BuildContext and BuildQueryContext - have methods Use() to add properties and RunWith to run a processor with a pipeline.
+      
+        Learn more about context constructor on: https://wittylion.github.io/2019/01/25/ways-to-create-context.html
+      
+      4) Added overload of method PredefinedPipeline.FromProcessors, that allow to pass to generic parameters classes that should be instantiated and used in pipeline. 
+      
+      5) Added ApplyProperty method to context constructor, so user can manually provide a property modificator.
+      
+      6) Added RunWithPipeline and ExecuteWithProcessor extension methods to the pipeline context.
+      
+      7) Added property called Done to processor for faster indication of processor execution completion.
+      
+    </PackageReleaseNotes>
+    <NeutralLanguage>English</NeutralLanguage>
+    <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
+    <Version>1.1.5</Version>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
   </PropertyGroup>
 </Project>
