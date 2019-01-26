@@ -129,6 +129,23 @@ namespace Pipelines.ExtensionMethods
         }
 
         /// <summary>
+        /// Runs a pipeline with no arguments (null)
+        /// and default runner.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline to be executed. Each processor of this pipeline
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// method with null arguments passed.
+        /// </param>
+        /// <returns>
+        /// The task object indicating the status of an executing pipeline.
+        /// </returns>
+        public static Task Run(this IPipeline pipeline)
+        {
+            return pipeline.Run<object>();
+        }
+
+        /// <summary>
         /// Runs a pipeline with <paramref name="args"/> context
         /// and <paramref name="runner"/>.
         /// </summary>
@@ -181,6 +198,21 @@ namespace Pipelines.ExtensionMethods
         {
             await pipeline.Run<QueryContext<TResult>>(args, runner);
             return args.GetResult();
+        }
+
+        /// <summary>
+        /// Runs a pipeline with no arguments (null)
+        /// and default runner synchronously, waiting until
+        /// all processors of the pipeline will be executed.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline to be executed. Each processor of this pipeline
+        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// method with null arguments passed.
+        /// </param>
+        public static void RunSync(this IPipeline pipeline)
+        {
+            pipeline.RunSync<object>();
         }
 
         /// <summary>

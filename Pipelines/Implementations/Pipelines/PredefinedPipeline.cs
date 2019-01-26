@@ -21,14 +21,38 @@ namespace Pipelines.Implementations.Pipelines
             return new PredefinedPipeline(processors);
         }
 
-        public static SafeTypePipeline<T> FromProcessors<T>(params SafeTypeProcessor<T>[] processors)
+        public static SafeTypePipeline<TArgs> FromProcessors<TArgs>(params SafeTypeProcessor<TArgs>[] processors)
         {
-            return new PredefinedPipeline<T>(processors);
+            return new PredefinedPipeline<TArgs>(processors);
         }
 
-        public static SafeTypePipeline<T> FromProcessors<T>(IEnumerable<SafeTypeProcessor<T>> processors)
+        public static SafeTypePipeline<TArgs> FromProcessors<TArgs>(IEnumerable<SafeTypeProcessor<TArgs>> processors)
         {
-            return new PredefinedPipeline<T>(processors);
+            return new PredefinedPipeline<TArgs>(processors);
+        }
+
+        public static IPipeline FromProcessors<TProcessor1, TProcessor2>()
+            where TProcessor1 : IProcessor, new()
+            where TProcessor2 : IProcessor, new()
+        {
+            return FromProcessors(new TProcessor1(), new TProcessor2());
+        }
+
+        public static IPipeline FromProcessors<TProcessor1, TProcessor2, TProcessor3>() 
+            where TProcessor1 : IProcessor, new() 
+            where TProcessor2 : IProcessor, new()
+            where TProcessor3 : IProcessor, new()
+        {
+            return FromProcessors(new TProcessor1(), new TProcessor2(), new TProcessor3());
+        }
+
+        public static IPipeline FromProcessors<TProcessor1, TProcessor2, TProcessor3, TProcessor4>()
+            where TProcessor1 : IProcessor, new()
+            where TProcessor2 : IProcessor, new()
+            where TProcessor3 : IProcessor, new()
+            where TProcessor4 : IProcessor, new()
+        {
+            return FromProcessors(new TProcessor1(), new TProcessor2(), new TProcessor3(), new TProcessor4());
         }
 
         public static readonly string ProcessorsMustNotBeNull = "Creating a pipeline with predefined processor, be sure to pass a not null list of processors.";

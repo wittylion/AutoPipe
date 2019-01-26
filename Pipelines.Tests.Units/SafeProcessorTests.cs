@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
+using Pipelines.ExtensionMethods;
+using Pipelines.Implementations.Contexts;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -23,12 +25,8 @@ namespace Pipelines.Tests.Units
         public async Task Safe_Execution_Is_Reached_When_Pipeline_Context_Has_Aborted_Parameter_Set_To_False()
         {
             var reachedExecution = false;
-            var args = new PipelineContext()
-            {
-                IsAborted = false
-            };
             var processor = new TestProcessor(() => reachedExecution = true);
-            await processor.Execute(args);
+            await ContextConstructor.Create().ExecuteWithProcessor(processor);
             reachedExecution.Should().BeTrue("pipeline was not aborted");
         }
     }

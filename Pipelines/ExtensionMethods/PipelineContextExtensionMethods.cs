@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Pipelines.ExtensionMethods
 {
@@ -7,6 +8,70 @@ namespace Pipelines.ExtensionMethods
     /// </summary>
     public static class PipelineContextExtensionMethods
     {
+        public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string property,
+            Func<TValue, TNewValue> transformFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            context.TransformProperty<TContext, TValue, TNewValue>(property, property, (ctx, val) => transformFunction(val), modificator);
+        }
+
+        public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string property,
+            Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            context.TransformProperty(property, property, transformFunction, modificator);
+        }
+
+        public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string fromProperty,
+            string toProperty, Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            if (context.HasNoValue() || transformFunction.HasNoValue())
+            {
+                return;
+            }
+
+            if (modificator == PropertyModificator.SkipIfExists && context.HasProperty(toProperty))
+            {
+                return;
+            }
+
+            var property = context.GetPropertyObjectOrNull(fromProperty);
+            if (property.HasValue && property.Value.Value is TValue value)
+            {
+                var newValue = transformFunction(context, value);
+                context.ApplyProperty(toProperty, newValue, modificator);
+            }
+        }
+
+        public static void ApplyProperty<TContext, TValue>(this TContext context,
+            string propertyName, Func<TContext, TValue> createValueFunction, PropertyModificator modificator)
+            where TContext : PipelineContext
+        {
+            if (context.HasNoValue() || createValueFunction.HasNoValue())
+            {
+                return;
+            }
+
+            if (modificator == PropertyModificator.SkipIfExists && context.HasProperty(propertyName))
+            {
+                return;
+            }
+
+            var newValue = createValueFunction(context);
+            context.ApplyProperty(propertyName, newValue, modificator);
+        }
+
+        public static Task RunWithPipeline<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
+        {
+            return pipeline.Run(context, runner);
+        }
+
+        public static Task ExecuteWithProcessor<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
+        {
+            return processor.Run(context, runner);
+        }
+
         /// <summary>
         /// Executes an action for pipeline context in case there is a property
         /// passed by <paramref name="property"/> exists.
@@ -24,7 +89,7 @@ namespace Pipelines.ExtensionMethods
         public static void IfHasProperty<TContext>(this TContext context, string property, Action<TContext> action)
             where TContext : PipelineContext
         {
-            if (context.HasProperty(property))
+            if (context.HasValue() && context.HasProperty(property))
             {
                 action(context);
             }
@@ -47,7 +112,7 @@ namespace Pipelines.ExtensionMethods
         public static void IfHasNoProperty<TContext>(this TContext context, string property, Action<TContext> action)
             where TContext : PipelineContext
         {
-            if (!context.HasProperty(property))
+            if (context.HasValue() && !context.HasProperty(property))
             {
                 action(context);
             }
