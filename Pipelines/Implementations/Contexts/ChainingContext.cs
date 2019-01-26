@@ -27,7 +27,7 @@ namespace Pipelines.Implementations.Contexts
             return this;
         }
 
-        public virtual async Task<ChainingContext<TContext>> RunWith(IPipeline pipeline, IPipelineRunner runner)
+        public virtual async Task<ChainingContext<TContext>> RunWith(IPipeline pipeline, IPipelineRunner runner = null)
         {
             await OriginalContext.RunWithPipeline(pipeline, runner);
             return this;
