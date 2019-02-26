@@ -326,5 +326,72 @@ namespace Pipelines.ExtensionMethods
                 await pipeline.Run(args, runner);
             }
         }
+
+        /// <summary>
+        /// Returns pipeline wrapper that caches processors for the specified <paramref name="period"/>.
+        /// The period starts at the moment you request processors from <paramref name="pipeline"/>
+        /// and updates on next processors request when period is over.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline which processors should be cached in memory.
+        /// </param>
+        /// <param name="period">
+        /// The TimeSpan period that defines how long processors will be cached.
+        /// </param>
+        /// <returns>
+        /// Returns pipeline wrapper that caches processors for the specified <paramref name="period"/>.
+        /// </returns>
+        public static IPipeline CacheInMemoryForPeriod(this IPipeline pipeline, TimeSpan period)
+        {
+            DateTime? startedTime = null;
+            return new MemoryCachePipelineWrapper(pipeline, () =>
+            {
+                if (!startedTime.HasValue || DateTime.Now - startedTime > period)
+                {
+                    startedTime = DateTime.Now;
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        /// <summary>
+        /// Returns pipeline wrapper that caches processors for the specified <paramref name="minutes"/>.
+        /// The period starts at the moment you request processors from <paramref name="pipeline"/>
+        /// and updates on next processors request when period is over.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline which processors should be cached in memory.
+        /// </param>
+        /// <param name="minutes">
+        /// The period in minutes that defines how long processors will be cached.
+        /// </param>
+        /// <returns>
+        /// Returns pipeline wrapper that caches processors for the specified <paramref name="minutes"/>.
+        /// </returns>
+        public static IPipeline CacheInMemoryForMinutes(this IPipeline pipeline, int minutes)
+        {
+            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromMinutes(minutes));
+        }
+
+        /// <summary>
+        /// Returns pipeline wrapper that caches processors for the specified <paramref name="hours"/>.
+        /// The period starts at the moment you request processors from <paramref name="pipeline"/>
+        /// and updates on next processors request when period is over.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline which processors should be cached in memory.
+        /// </param>
+        /// <param name="hours">
+        /// The period in hours that defines how long processors will be cached.
+        /// </param>
+        /// <returns>
+        /// Returns pipeline wrapper that caches processors for the specified <paramref name="hours"/>.
+        /// </returns>
+        public static IPipeline CacheInMemoryForHours(this IPipeline pipeline, int hours)
+        {
+            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromHours(hours));
+        }
     }
 }
