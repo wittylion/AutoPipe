@@ -10,10 +10,16 @@ namespace Pipelines.Implementations.Contexts
     public static class ContextConstructor
     {
         public static ChainingContext<PipelineContext> BuildContext() =>
-            new ChainingContext<PipelineContext>(ContextConstructor.Create());
+            BuildContext<PipelineContext>();
+
+        public static ChainingContext<TContext> BuildContext<TContext>() where TContext : PipelineContext, new() =>
+            BuildContext(new TContext());
+
+        public static ChainingContext<TContext> BuildContext<TContext>(TContext context) where TContext : PipelineContext =>
+            new ChainingContext<TContext>(context);
 
         public static ChainingContext<QueryContext<TValue>> BuildQueryContext<TValue>() where TValue : class =>
-            new ChainingContext<QueryContext<TValue>>(ContextConstructor.Create<QueryContext<TValue>>());
+            BuildContext<QueryContext<TValue>>();
 
         /// <summary>
         /// Creates a new PipelineContext that has a parameter-less constructor.
@@ -25,7 +31,7 @@ namespace Pipelines.Implementations.Contexts
         {
             return new PipelineContext();
         }
-        
+
         /// <summary>
         /// Creates a new <see cref="PipelineContext"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
