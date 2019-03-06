@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Pipelines.Implementations.Reflection;
+using Pipelines.Implementations.Processors;
 
 namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest
 {

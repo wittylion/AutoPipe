@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Pipelines.Implementations.Processors;
 
-namespace Pipelines.Implementations.Reflection
+namespace Pipelines.Implementations.Pipelines
 {
     public class NamespaceBasedPipeline : IPipeline
     {
@@ -23,17 +24,6 @@ namespace Pipelines.Implementations.Reflection
                 let orderAttribute = type.GetCustomAttributes().OfType<ProcessorOrderAttribute>().FirstOrDefault()
                 orderby orderAttribute?.Order ?? Int32.MaxValue
                 select constructor.Invoke(new object[0]) as IProcessor;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class ProcessorOrderAttribute : Attribute
-    {
-        public int Order { get; }
-
-        public ProcessorOrderAttribute(int order)
-        {
-            Order = order;
         }
     }
 }
