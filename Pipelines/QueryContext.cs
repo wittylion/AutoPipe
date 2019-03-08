@@ -47,6 +47,31 @@ namespace Pipelines
         }
 
         /// <summary>
+        /// Returns value indicating whether result is set.
+        /// </summary>
+        /// <returns>
+        /// Returns <c>true</c> in case value exists,
+        /// otherwise <c>false</c>.
+        /// </returns>
+        public virtual bool ContainsResult()
+        {
+            return GetResult() != null;
+        }
+
+        /// <summary>
+        /// Returns value indicating whether result is missing,
+        /// the value may be not specified or reset.
+        /// </summary>
+        /// <returns>
+        /// Returns <c>true</c> in case result is missing,
+        /// otherwise <c>false</c>.
+        /// </returns>
+        public virtual bool DoesNotContainResult()
+        {
+            return !ContainsResult();
+        }
+
+        /// <summary>
         /// Provide a result and some information about the result
         /// or about the process of getting this result.
         /// </summary>
