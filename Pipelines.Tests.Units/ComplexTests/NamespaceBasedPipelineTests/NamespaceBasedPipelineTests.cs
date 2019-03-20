@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentAssertions;
+using Moq;
+using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest;
 using Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest;
@@ -60,6 +63,18 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
             new NamespaceBasedPipeline("Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.NamespaceDoesNotExist")
                 .GetProcessors()
                 .Should().BeEmpty("the namespace does not exist");
+        }
+
+        [Fact]
+        public void NamespaceBasedPipeline_Should_Run_With_Extension_Methods_Without_Errors()
+        {
+            var mockRunner = new Mock<PipelineRunner> {CallBase = true};
+
+            new NamespaceBasedPipeline(OrderTestFolder).Run<PipelineContext>(runner: mockRunner.Object);
+            var expectedCount = new NamespaceBasedPipeline(OrderTestFolder).GetProcessors().Count();
+
+            mockRunner.Verify(x => x.RunProcessor(It.IsAny<IProcessor>(), It.IsAny<PipelineContext>()),
+                Times.Exactly(expectedCount), "Method run processor should be executed, since pipeline has processors");
         }
     }
 }
