@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Pipelines.Implementations.Processors;
 
 namespace Pipelines.Implementations.Pipelines
@@ -26,11 +28,11 @@ namespace Pipelines.Implementations.Pipelines
                 if (types.Any())
                 {
                     return from type in types
-                        let constructor = type.GetConstructor(Type.EmptyTypes)
-                        where constructor != null
-                        let orderAttribute = type.GetCustomAttributes().OfType<ProcessorOrderAttribute>().FirstOrDefault()
-                        orderby orderAttribute?.Order ?? Int32.MaxValue
-                        select constructor.Invoke(new object[0]) as IProcessor;
+                           let constructor = type.GetConstructor(Type.EmptyTypes)
+                           where constructor != null
+                           let orderAttribute = type.GetCustomAttributes().OfType<ProcessorOrderAttribute>().FirstOrDefault()
+                           orderby orderAttribute?.Order ?? Int32.MaxValue
+                           select constructor.Invoke(new object[0]) as IProcessor;
                 }
             }
 
@@ -39,9 +41,35 @@ namespace Pipelines.Implementations.Pipelines
 
         public virtual IEnumerable<Type> GetTypesInNamespace(Assembly assembly)
         {
-            return from type in assembly.GetTypes()
-                where type.Namespace == Namespace && typeof(IProcessor).IsAssignableFrom(type)
-                select type;
+            try
+            {
+                var types = assembly.GetTypes();
+
+                return from type in types
+                       where type.Namespace == Namespace && typeof(IProcessor).IsAssignableFrom(type)
+                       select type;
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (Exception exSub in ex.LoaderExceptions)
+                {
+                    sb.AppendLine(exSub.Message);
+                    FileNotFoundException exFileNotFound = exSub as FileNotFoundException;
+                    if (exFileNotFound != null)
+                    {
+                        if (!string.IsNullOrEmpty(exFileNotFound.FusionLog))
+                        {
+                            sb.AppendLine("Fusion Log:");
+                            sb.AppendLine(exFileNotFound.FusionLog);
+                        }
+                    }
+                    sb.AppendLine();
+                }
+                string errorMessage = sb.ToString();
+                Console.WriteLine(errorMessage);
+                return Enumerable.Empty<Type>();
+            }
         }
 
         public virtual IEnumerable<Assembly> GetAssembliesThatMayContainProcessors()
