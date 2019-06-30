@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +24,7 @@ namespace Pipelines.Implementations.Pipelines
 
             foreach (var assembly in assemblies)
             {
-                var types = GetTypesInNamespace(assembly);
+                var types = GetTypesInNamespaceSafe(assembly);
 
                 if (types.Any())
                 {
@@ -31,23 +32,21 @@ namespace Pipelines.Implementations.Pipelines
                            let constructor = type.GetConstructor(Type.EmptyTypes)
                            where constructor != null
                            let orderAttribute = type.GetCustomAttributes().OfType<ProcessorOrderAttribute>().FirstOrDefault()
-                           orderby orderAttribute?.Order ?? Int32.MaxValue
+                           orderby orderAttribute?.Order ?? Int32.MaxValue, type.Name
                            select constructor.Invoke(new object[0]) as IProcessor;
                 }
             }
 
             return Enumerable.Empty<IProcessor>();
         }
-
-        public virtual IEnumerable<Type> GetTypesInNamespace(Assembly assembly)
+        
+        public virtual IEnumerable<Type> GetTypesInNamespaceSafe(Assembly assembly)
         {
+            IEnumerable<Type> result;
+
             try
             {
-                var types = assembly.GetTypes();
-
-                return from type in types
-                       where type.Namespace == Namespace && typeof(IProcessor).IsAssignableFrom(type)
-                       select type;
+                result = GetTypesInNamespace(assembly);
             }
             catch (ReflectionTypeLoadException ex)
             {
@@ -67,9 +66,20 @@ namespace Pipelines.Implementations.Pipelines
                     sb.AppendLine();
                 }
                 string errorMessage = sb.ToString();
-                Console.WriteLine(errorMessage);
-                return Enumerable.Empty<Type>();
+                Trace.TraceError(errorMessage);
+                result = Enumerable.Empty<Type>();
             }
+
+            return result;
+        }
+
+        public virtual IEnumerable<Type> GetTypesInNamespace(Assembly assembly)
+        {
+            var types = assembly.GetTypes();
+
+            return from type in types
+                    where type.Namespace == Namespace && typeof(IProcessor).IsAssignableFrom(type)
+                    select type;
         }
 
         public virtual IEnumerable<Assembly> GetAssembliesThatMayContainProcessors()
