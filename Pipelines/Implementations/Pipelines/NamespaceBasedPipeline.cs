@@ -39,8 +39,8 @@ namespace Pipelines.Implementations.Pipelines
 
             return Enumerable.Empty<IProcessor>();
         }
-        
-        public virtual IEnumerable<Type> GetTypesInNamespaceSafe(Assembly assembly)
+
+        protected virtual IEnumerable<Type> GetTypesInNamespaceSafe(Assembly assembly)
         {
             IEnumerable<Type> result;
 
@@ -73,7 +73,7 @@ namespace Pipelines.Implementations.Pipelines
             return result;
         }
 
-        public virtual IEnumerable<Type> GetTypesInNamespace(Assembly assembly)
+        protected virtual IEnumerable<Type> GetTypesInNamespace(Assembly assembly)
         {
             var types = assembly.GetTypes();
 
@@ -82,7 +82,7 @@ namespace Pipelines.Implementations.Pipelines
                     select type;
         }
 
-        public virtual IEnumerable<Assembly> GetAssembliesThatMayContainProcessors()
+        protected virtual IEnumerable<Assembly> GetAssembliesThatMayContainProcessors()
         {
             return AppDomain.CurrentDomain.GetAssemblies();
         }
