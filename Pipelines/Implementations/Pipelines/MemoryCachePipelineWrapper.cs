@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
 {
@@ -12,24 +13,34 @@ namespace Pipelines.Implementations.Pipelines
         public Func<IPipeline, IEnumerable<IProcessor>, bool> RenewCondition { get; }
         protected IEnumerable<IProcessor> CachedProcessors { get; set; }
 
-        public MemoryCachePipelineWrapper(IPipeline pipelineToCache, Func<bool> renewCondition) : this(pipelineToCache, (pipe, _) => renewCondition())
+        public MemoryCachePipelineWrapper(IPipeline pipelineToCache, Func<bool> renewCondition, bool useLazyLoading) 
+            : this(pipelineToCache, (pipe, _) => renewCondition(), useLazyLoading)
         {
         }
 
-        public MemoryCachePipelineWrapper(IPipeline pipelineToCache, Func<IPipeline, IEnumerable<IProcessor>, bool> renewCondition)
+        public MemoryCachePipelineWrapper(IPipeline pipelineToCache, Func<IPipeline, IEnumerable<IProcessor>, bool> renewCondition, bool useLazyLoading)
         {
             PipelineToCache = pipelineToCache ?? throw new ArgumentException(PipelineToCacheIsNull, nameof(pipelineToCache));
             RenewCondition = renewCondition ?? throw new ArgumentException(RenewConditionIsNull, nameof(renewCondition));
+
+            if (!useLazyLoading)
+            {
+                TryUpdatingProcessors();
+            }
         }
 
-        public IEnumerable<IProcessor> GetProcessors()
+        public virtual IEnumerable<IProcessor> GetProcessors()
+        {
+            TryUpdatingProcessors();
+            return CachedProcessors;
+        }
+
+        protected void TryUpdatingProcessors()
         {
             if (RenewCondition(PipelineToCache, CachedProcessors))
             {
-                CachedProcessors = PipelineToCache.GetProcessors();
+                CachedProcessors = PipelineToCache.GetProcessors().ToList().AsReadOnly();
             }
-
-            return CachedProcessors;
         }
     }
 }

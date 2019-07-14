@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Implementations.Processors;
@@ -328,6 +329,32 @@ namespace Pipelines.ExtensionMethods
         }
 
         /// <summary>
+        /// Returns pipeline wrapper that caches processors after the moment 
+        /// of processors first request from <paramref name="pipeline"/>.
+        /// The processors will never be updated after first request.
+        /// </summary>
+        /// <param name="pipeline">
+        /// The pipeline which processors should be cached in memory.
+        /// </param>
+        /// <param name="useLazyLoading">
+        /// Defines whether processors should be cached after 
+        /// first request (true) or if processors should be 
+        /// cached during the call of this method (false).
+        /// </param>
+        /// <returns>
+        /// Returns pipeline wrapper that caches processors.
+        /// </returns>
+        public static IPipeline CacheInMemory(this IPipeline pipeline, bool useLazyLoading = true)
+        {
+            var loaded = false;
+            return new MemoryCachePipelineWrapper(pipeline, () => {
+                var result = !loaded;
+                loaded = true;
+                return result;
+            }, useLazyLoading);
+        }
+
+        /// <summary>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="period"/>.
         /// The period starts at the moment you request processors from <paramref name="pipeline"/>
         /// and updates on next processors request when period is over.
@@ -338,10 +365,15 @@ namespace Pipelines.ExtensionMethods
         /// <param name="period">
         /// The TimeSpan period that defines how long processors will be cached.
         /// </param>
+        /// <param name="useLazyLoading">
+        /// Defines whether processors should be cached after 
+        /// first request (true) or if processors should be 
+        /// cached during the call of this method (false).
+        /// </param>
         /// <returns>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="period"/>.
         /// </returns>
-        public static IPipeline CacheInMemoryForPeriod(this IPipeline pipeline, TimeSpan period)
+        public static IPipeline CacheInMemoryForPeriod(this IPipeline pipeline, TimeSpan period, bool useLazyLoading = true)
         {
             DateTime? startedTime = null;
             return new MemoryCachePipelineWrapper(pipeline, () =>
@@ -353,7 +385,7 @@ namespace Pipelines.ExtensionMethods
                 }
 
                 return false;
-            });
+            }, useLazyLoading);
         }
 
         /// <summary>
@@ -367,12 +399,17 @@ namespace Pipelines.ExtensionMethods
         /// <param name="minutes">
         /// The period in minutes that defines how long processors will be cached.
         /// </param>
+        /// <param name="useLazyLoading">
+        /// Defines whether processors should be cached after 
+        /// first request (true) or if processors should be 
+        /// cached during the call of this method (false).
+        /// </param>
         /// <returns>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="minutes"/>.
         /// </returns>
-        public static IPipeline CacheInMemoryForMinutes(this IPipeline pipeline, int minutes)
+        public static IPipeline CacheInMemoryForMinutes(this IPipeline pipeline, int minutes, bool useLazyLoading = true)
         {
-            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromMinutes(minutes));
+            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromMinutes(minutes), useLazyLoading);
         }
 
         /// <summary>
@@ -386,12 +423,17 @@ namespace Pipelines.ExtensionMethods
         /// <param name="hours">
         /// The period in hours that defines how long processors will be cached.
         /// </param>
+        /// <param name="useLazyLoading">
+        /// Defines whether processors should be cached after 
+        /// first request (true) or if processors should be 
+        /// cached during the call of this method (false).
+        /// </param>
         /// <returns>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="hours"/>.
         /// </returns>
-        public static IPipeline CacheInMemoryForHours(this IPipeline pipeline, int hours)
+        public static IPipeline CacheInMemoryForHours(this IPipeline pipeline, int hours, bool useLazyLoading = true)
         {
-            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromHours(hours));
+            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromHours(hours), useLazyLoading);
         }
     }
 }
