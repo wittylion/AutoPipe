@@ -8,6 +8,7 @@
     <Company>Witty Lion</Company>
     <Description>Library that exposes SOLID principles by introducing pipelines.</Description>
     <Copyright>Witty Lion © 2019</Copyright>
+    <PackageLicense>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicense>
     <PackageLicenseUrl>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://wittylion.github.io/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
@@ -37,6 +38,7 @@
     <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
     <Version>1.1.6</Version>
     <AssemblyVersion>1.1.6.0</AssemblyVersion>
+    <PackageIcon>https://wittylion.github.io/assets/pipelines-icon.png</PackageIcon>
     <PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
   </PropertyGroup>
 </Project>

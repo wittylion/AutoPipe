@@ -2,11 +2,11 @@ language: csharp
 mono: latest
 dotnet: 2.0.0
 script:
-  - msbuild /t:Restore
-  - msbuild
+  - dotnet restore
+  - dotnet build
   - dotnet test ./Pipelines.Tests.Units/
   - dotnet test ./Pipelines.Tests.Integrations/
-  - msbuild /t:pack
+  - dotnet pack
 deploy:
   skip_cleanup: true
   provider: script
