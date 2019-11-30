@@ -15,37 +15,28 @@
     <PackageReleaseNotes>
       New in this version:
 
-      1) Added transform property processor in predefined processors.
-      
-        Examples:
-        
-        - From property pattern create property message: CommonProcessors.TransformProperty("pattern", fillPattern, "message");
-        
-        - Modify property: CommonProcessors.TransformProperty("money", UAHtoGBP).
-        
-        Learn more about transform property processor on: https://wittylion.github.io/2019/01/23/transform-property-processor.html
-      
-      2) Added pipeline repository for pipeline providers implementations. Pipeline repository has two methods: GetSingle - when querying one pipeline and GetMany in case all pipelines are needed or pipelines that are filtered by some condition.
-      
-        Learn more about pipeline repository on: https://wittylion.github.io/2019/01/24/pipeline-repository.html
-      
-      3) Added methods to context constructor that allow to build context in fluent way: BuildContext and BuildQueryContext - have methods Use() to add properties and RunWith to run a processor with a pipeline.
-      
-        Learn more about context constructor on: https://wittylion.github.io/2019/01/25/ways-to-create-context.html
-      
-      4) Added overload of method PredefinedPipeline.FromProcessors, that allow to pass to generic parameters classes that should be instantiated and used in pipeline. 
-      
-      5) Added ApplyProperty method to context constructor, so user can manually provide a property modificator.
-      
-      6) Added RunWithPipeline and ExecuteWithProcessor extension methods to the pipeline context.
-      
-      7) Added property called Done to processor for faster indication of processor execution completion.
-      
+      1) Added NamespaceBasedPipeline and ProcessorOrder that allow to create a pipeline from processors in a namespace.
+
+        Example: https://wittylion.github.io/2019/07/13/namespace-based-pipeline.html
+
+      2) Added new methods that allow to cache processors for a period of time: CacheInMemoryForPeriod, CacheInMemoryForHours, CacheInMemoryForMinutes. These methods will be helpful in case you have a dynamic pipeline which processors can change.
+
+      3) Added methods ContainsProperty, DoesNotContainProperty to PipelineContext and ContainsResult, DoesNotContainResult to QueryContext.
+
+      4) Added generic constructors for one and five processors in PredefinedPipeline.
+
+      Also check out new Pipelines.Net.Xml library: https://www.nuget.org/packages/Pipelines.Net.Xml/
+      More information on using Pipelines.Net.Xml library you can find here: https://wittylion.github.io/2019/11/22/pipelines-net-xml.html
+
+      Please take the survey:
+      https://forms.gle/Y8aogzwPQ3sLKXMCA
+      This inspires and helps wittylion get better.
+
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-    <Version>1.1.5</Version>
-    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <Version>1.1.6</Version>
+    <AssemblyVersion>1.1.6.0</AssemblyVersion>
     <PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
   </PropertyGroup>
 </Project>

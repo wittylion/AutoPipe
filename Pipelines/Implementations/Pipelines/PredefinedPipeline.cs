@@ -31,6 +31,12 @@ namespace Pipelines.Implementations.Pipelines
             return new PredefinedPipeline<TArgs>(processors);
         }
 
+        public static IPipeline FromProcessor<TProcessor>()
+            where TProcessor : IProcessor, new()
+        {
+            return FromProcessors(new TProcessor());
+        }
+
         public static IPipeline FromProcessors<TProcessor1, TProcessor2>()
             where TProcessor1 : IProcessor, new()
             where TProcessor2 : IProcessor, new()
@@ -53,6 +59,16 @@ namespace Pipelines.Implementations.Pipelines
             where TProcessor4 : IProcessor, new()
         {
             return FromProcessors(new TProcessor1(), new TProcessor2(), new TProcessor3(), new TProcessor4());
+        }
+
+        public static IPipeline FromProcessors<TProcessor1, TProcessor2, TProcessor3, TProcessor4, TProcessor5>()
+            where TProcessor1 : IProcessor, new()
+            where TProcessor2 : IProcessor, new()
+            where TProcessor3 : IProcessor, new()
+            where TProcessor4 : IProcessor, new()
+            where TProcessor5 : IProcessor, new()
+        {
+            return FromProcessors(new TProcessor1(), new TProcessor2(), new TProcessor3(), new TProcessor4(), new TProcessor5());
         }
 
         public static readonly string ProcessorsMustNotBeNull = "Creating a pipeline with predefined processor, be sure to pass a not null list of processors.";

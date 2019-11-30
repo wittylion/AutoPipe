@@ -258,6 +258,25 @@ namespace Pipelines
         }
 
         /// <summary>
+        /// The function returns boolean value of specified type
+        /// exists in collection of properties.
+        /// </summary>
+        /// <typeparam name="TProperty">
+        /// Type of the property to be stored in the collection.
+        /// </typeparam>
+        /// <param name="name">
+        /// The name of the property to be checked for presence.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case property of specified type exists,
+        /// otherwise returns <c>false</c>.
+        /// </returns>
+        public virtual bool HasProperty<TProperty>(string name)
+        {
+            return ContainsProperty<TProperty>(name);
+        }
+
+        /// <summary>
         /// The function returns boolean value that defines
         /// whether property was added to the context or not.
         /// </summary>
@@ -271,6 +290,61 @@ namespace Pipelines
         public virtual bool ContainsProperty(string name)
         {
             return GetPropertyObjectOrNull(name) != null;
+        }
+
+        /// <summary>
+        /// The function returns boolean value that defines
+        /// whether property is missing in context or not.
+        /// </summary>
+        /// <param name="name">
+        /// The name of the property to be checked for absence.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case property missing,
+        /// otherwise returns <c>false</c>.
+        /// </returns>
+        public virtual bool DoesNotContainProperty(string name)
+        {
+            return !ContainsProperty(name);
+        }
+
+        /// <summary>
+        /// The function returns boolean value that indicates whether property
+        /// of specified type exists in collection of properties.
+        /// </summary>
+        /// <typeparam name="TProperty">
+        /// Type of the property to be stored in the collection.
+        /// </typeparam>
+        /// <param name="name">
+        /// The name of the property to be checked for presence.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case property of specified type exists,
+        /// otherwise returns <c>false</c>.
+        /// </returns>
+        public virtual bool ContainsProperty<TProperty>(string name)
+        {
+            var property = GetPropertyObjectOrNull(name);
+            return property?.Value is TProperty;
+        }
+
+        /// <summary>
+        /// The function returns boolean value that indicates whether property
+        /// of specified type is missing in collection of properties.
+        /// </summary>
+        /// <typeparam name="TProperty">
+        /// Type of the property to check in the collection.
+        /// </typeparam>
+        /// <param name="name">
+        /// The name of the property to be checked for absence.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case property of specified type is missing,
+        /// otherwise returns <c>false</c>.
+        /// </returns>
+        public virtual bool DoesNotContainProperty<TProperty>(string name)
+        {
+            return !ContainsProperty<TProperty>(name);
         }
 
         /// <summary>

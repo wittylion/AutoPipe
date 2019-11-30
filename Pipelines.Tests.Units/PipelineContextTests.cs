@@ -244,6 +244,28 @@ namespace Pipelines.Tests.Units
             context.GetPropertyValueOrNull<string>("Message")
                 .Should().Be("test");
         }
+        
+        [Fact]
+        public void ContainsProperty_With_Generic_Type_Returns_False_If_Type_Of_The_Property_Has_Other_Type()
+        {
+            var name = nameof(ContainsProperty_With_Generic_Type_Returns_False_If_Type_Of_The_Property_Has_Other_Type);
+            var members = new { Message = name };
+            var context = ContextConstructor.Create(members);
+
+            context.ContainsProperty<bool>(nameof(members.Message))
+                .Should().BeFalse();
+        }
+        
+        [Fact]
+        public void ContainsProperty_With_Generic_Type_Returns_True_If_Type_Of_The_Property_Requested()
+        {
+            var name = nameof(ContainsProperty_With_Generic_Type_Returns_True_If_Type_Of_The_Property_Requested);
+            var members = new { Message = name };
+            var context = ContextConstructor.Create(members);
+
+            context.ContainsProperty<string>(nameof(members.Message))
+                .Should().BeTrue();
+        }
     }
 
     public class PipelineContextTestObject : PipelineContext
