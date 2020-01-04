@@ -20,6 +20,7 @@ namespace Pipelines.Implementations.Pipelines
 
         public IEnumerable<IProcessor> GetProcessors()
         {
+            var result = new List<IProcessor>();
             var assemblies = GetAssembliesThatMayContainProcessors();
 
             foreach (var assembly in assemblies)
@@ -28,16 +29,20 @@ namespace Pipelines.Implementations.Pipelines
 
                 if (types.Any())
                 {
-                    return from type in types
+                    var processors = from type in types
                            let constructor = type.GetConstructor(Type.EmptyTypes)
                            where constructor != null
-                           let orderAttribute = type.GetCustomAttributes().OfType<ProcessorOrderAttribute>().FirstOrDefault()
-                           orderby orderAttribute?.Order ?? Int32.MaxValue, type.Name
+                           let attributes = type.GetCustomAttributes()
+                           where !attributes.OfType<SkipProcessorAttribute>().Any()
+                           let orderAttribute = attributes.OfType<ProcessorOrderAttribute>().FirstOrDefault()
+                           orderby orderAttribute?.Order ?? int.MaxValue, type.Name
                            select constructor.Invoke(new object[0]) as IProcessor;
+
+                    result.AddRange(processors);
                 }
             }
 
-            return Enumerable.Empty<IProcessor>();
+            return result.AsReadOnly();
         }
 
         protected virtual IEnumerable<Type> GetTypesInNamespaceSafe(Assembly assembly)
