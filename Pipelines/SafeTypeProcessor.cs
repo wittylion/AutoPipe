@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Pipelines
 {
@@ -49,6 +50,37 @@ namespace Pipelines
         }
 
         /// <summary>
+        /// Executes small action that does tracing in case
+        /// type passed through the processor does not match an
+        /// expected type. This action is supposed to be brief and
+        /// should not take long time to execute.
+        /// </summary>
+        /// <param name="arguments">
+        /// Arguments of the type that this processor has received.
+        /// </param>
+        public virtual void ExamineIncorrectType(object arguments)
+        {
+            Debug.WriteLine(
+                "Skipping Processor [{0}]. Expected type [{1}]. Received type [{2}].",
+                GetType().Name,
+                typeof(TArgs).Name,
+                arguments.GetType().Name);
+        }
+
+        /// <summary>
+        /// Executes small action that does some logging in case
+        /// arguments object passed to the processor does not pass
+        /// safety check. This action is supposed to be brief and
+        /// should not take long time to execute.
+        /// </summary>
+        /// <param name="arguments">
+        /// Arguments of the type that this processor has received.
+        /// </param>
+        public virtual void ProcessUnsafeArguments(TArgs arguments)
+        {
+        }
+
+        /// <summary>
         /// Executes a logic defined in <see cref="SafeExecute"/>
         /// class only if <paramref name="arguments"/> parameter
         /// is of type <see cref="TArgs"/> and <see cref="SafeCondition"/>
@@ -65,13 +97,15 @@ namespace Pipelines
         /// </returns>
         public Task Execute(object arguments)
         {
-            if (!(arguments is TArgs))
+            if (!(arguments is TArgs typedArguments))
             {
+                ExamineIncorrectType(arguments);
                 return PipelineTask.CompletedTask;
             }
 
-            if (!SafeCondition((TArgs)arguments))
+            if (!SafeCondition(typedArguments))
             {
+                ProcessUnsafeArguments(typedArguments);
                 return PipelineTask.CompletedTask;
             }
 

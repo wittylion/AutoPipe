@@ -123,5 +123,43 @@ namespace Pipelines.ExtensionMethods
 
             return ActionProcessor.FromAction<TArgs>(action);
         }
+
+        /// <summary>
+        /// Converts an action to a processor. Helps to write code quickly,
+        /// without introducing instance of interface <see cref="IProcessor"/>.
+        /// </summary>
+        /// <param name="action">
+        /// Represents an action to be converted to a processor.
+        /// </param>
+        /// <returns>
+        /// Returns a processor which is produced from <paramref name="action"/>
+        /// or <c>null</c> if action is null.
+        /// </returns>
+        public static IProcessor ToProcessor(this Action action)
+        {
+            if (action.HasNoValue())
+                return null;
+
+            return ActionProcessor.FromAction(action);
+        }
+
+        /// <summary>
+        /// Converts an action to a processor. Helps to write code quickly,
+        /// without introducing instance of interface <see cref="IProcessor"/>.
+        /// </summary>
+        /// <param name="action">
+        /// Represents an action to be converted to a processor.
+        /// </param>
+        /// <returns>
+        /// Returns a processor which is produced from <paramref name="action"/>
+        /// or <c>null</c> if action is null.
+        /// </returns>
+        public static IProcessor ToProcessor(this Func<Task> action)
+        {
+            if (action.HasNoValue())
+                return null;
+
+            return ActionProcessor.FromAction(context => action());
+        }
     }
 }

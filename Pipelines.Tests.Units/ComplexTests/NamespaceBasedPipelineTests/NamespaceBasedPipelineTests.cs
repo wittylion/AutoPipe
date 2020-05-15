@@ -14,6 +14,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
     {
         protected internal static readonly string InitialTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest";
         protected internal static readonly string OrderTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest";
+        protected internal static readonly string SkipTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest";
 
         [Fact]
         public void NamespaceBasedPipeline_Should_Have_Processors_When_Creating_From_Related_Test_Folder()
@@ -75,6 +76,15 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
 
             mockRunner.Verify(x => x.RunProcessor(It.IsAny<IProcessor>(), It.IsAny<PipelineContext>()),
                 Times.Exactly(expectedCount), "Method run processor should be executed, since pipeline has processors");
+        }
+
+        [Fact]
+        public void NamespaceBasedPipeline_Should_Not_Contain_Processor_With_SkipProcessor_Attribute()
+        {
+            new NamespaceBasedPipeline(SkipTestFolder).GetProcessors()
+                .Should().Contain(x => x.GetType() == typeof(SkipTest.IncludedProcessor))
+                .And
+                .NotContain(x => x.GetType() == typeof(SkipTest.SkippedProcessor));
         }
     }
 }

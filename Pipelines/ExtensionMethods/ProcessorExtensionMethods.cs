@@ -220,6 +220,41 @@ namespace Pipelines.ExtensionMethods
             return processor.ThenProcessor(nextAction.ToProcessor());
         }
 
+        /// <summary>
+        /// Composes processor and action processor created from <paramref name="nextAction"/> together into one enumerable chain.
+        /// </summary>
+        /// <param name="processor">
+        /// First processor. In case it is not specified, it will not be included in collection.
+        /// </param>
+        /// <param name="nextAction">
+        /// Action that will be transformed into processor and executed after the first one.
+        /// In case it is not specified, it will not be included in collection.
+        /// </param>
+        /// <returns>
+        /// Enumerable object of two bound processors.
+        /// </returns>
+        public static IEnumerable<IProcessor> ThenProcessor(this IProcessor processor, Action nextAction)
+        {
+            return processor.ThenProcessor(nextAction.ToProcessor());
+        }
+
+        /// <summary>
+        /// Composes processor and action processor created from <paramref name="nextAction"/> together into one enumerable chain.
+        /// </summary>
+        /// <param name="processor">
+        /// First processor. In case it is not specified, it will not be included in collection.
+        /// </param>
+        /// <param name="nextAction">
+        /// Action that will be transformed into processor and executed after the first one.
+        /// In case it is not specified, it will not be included in collection.
+        /// </param>
+        /// <returns>
+        /// Enumerable object of two bound processors.
+        /// </returns>
+        public static IEnumerable<IProcessor> ThenProcessor(this IProcessor processor, Func<Task> nextAction)
+        {
+            return processor.ThenProcessor(nextAction.ToProcessor());
+        }
 
         /// <summary>
         /// Composes processor and action processor created from <paramref name="nextAction"/> together into one enumerable chain.

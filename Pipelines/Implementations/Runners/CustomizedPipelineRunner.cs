@@ -1,43 +1,39 @@
-﻿using System;
+﻿using Pipelines.ExtensionMethods;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Pipelines.ExtensionMethods;
 
-namespace Pipelines
+namespace Pipelines.Implementations.Runners
 {
     /// <summary>
-    /// Runs instances of <see cref="IProcessor"/> and <see cref="IPipeline"/>.
+    /// Wrapper for pipeline processor, that allow to iterate
+    /// through processor and use a passed processor executor
+    /// for each of them.
     /// </summary>
-    public class PipelineRunner : IPipelineRunner, IProcessorRunner
+    public class CustomizedPipelineRunner : IPipelineRunner
     {
+        public static readonly string ProcessorRunnerMustBeSpecified = "Processor runner should have object value, but was null.";
+        
         /// <summary>
-        /// Default instance of the <see cref="PipelineRunner"/>.
+        /// A runner that is executed for each processor from the pipeline.
         /// </summary>
-        public static readonly PipelineRunner StaticInstance = new PipelineRunner();
+        public IProcessorRunner ProcessorRunner { get; }
 
         /// <summary>
-        /// The object that is responsible for running single processor in <see cref="RunProcessor{TArgs}(IProcessor, TArgs)"/>.
+        /// Creates a new pipeline runner with a custom <paramref name="processorRunner"/>.
         /// </summary>
-        public IProcessorRunner ProcessorsRunner { get; }
-
-        public PipelineRunner() : this(processorRunner: ProcessorRunner.StaticInstance)
+        /// <param name="processorRunner">
+        /// Processor runner that defines how the processor should be executed.
+        /// </param>
+        public CustomizedPipelineRunner(IProcessorRunner processorRunner)
         {
-        }
-
-        public PipelineRunner(IProcessorRunner processorRunner)
-        {
-            if (processorRunner == null)
-            {
-                throw new ArgumentNullException(nameof(processorRunner), "The value of the processor runner should be specified.");
-            }
-
-            ProcessorsRunner = processorRunner;
+            ProcessorRunner = processorRunner ?? throw new ArgumentNullException(nameof(processorRunner), ProcessorRunnerMustBeSpecified);
         }
 
         /// <summary>
-        /// Runs pipeline's processors one by one in an order
-        /// they are returned from <see cref="IPipeline.GetProcessors"/>.
+        /// Runs pipeline's processors one by one with a <see cref="ProcessorRunner"/> 
+        /// in an order they are returned from <see cref="IPipeline.GetProcessors"/>.
         /// </summary>
         /// <typeparam name="TArgs">
         /// Type of the arguments used in each processors of the pipeline.
@@ -85,31 +81,7 @@ namespace Pipelines
             processors = processors.Ensure(Enumerable.Empty<IProcessor>());
             foreach (var processor in processors)
             {
-                await RunProcessor(processor, args);
-            }
-        }
-
-        /// <summary>
-        /// Runs a processor by executing its <see cref="IProcessor.Execute"/> method.
-        /// If processor is null it will be skipped.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// The type of arguments that has to be passed to the processor.
-        /// </typeparam>
-        /// <param name="processor">
-        /// The processor to be executed.
-        /// </param>
-        /// <param name="args">
-        /// The arguments that has to be passed to the processor.
-        /// </param>
-        /// <returns>
-        /// Returns a promise of the processor execution.
-        /// </returns>
-        public virtual async Task RunProcessor<TArgs>(IProcessor processor, TArgs args)
-        {
-            if (processor.HasValue())
-            {
-                await ProcessorsRunner.RunProcessor(processor, args);
+                await ProcessorRunner.RunProcessor(processor, args);
             }
         }
     }
