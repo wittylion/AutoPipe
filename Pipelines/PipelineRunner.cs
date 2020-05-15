@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Pipelines.ExtensionMethods;
@@ -14,6 +15,25 @@ namespace Pipelines
         /// Default instance of the <see cref="PipelineRunner"/>.
         /// </summary>
         public static readonly PipelineRunner StaticInstance = new PipelineRunner();
+
+        /// <summary>
+        /// The object that is responsible for running single processor in <see cref="RunProcessor{TArgs}(IProcessor, TArgs)"/>.
+        /// </summary>
+        public IProcessorRunner ProcessorsRunner { get; }
+
+        public PipelineRunner() : this(processorRunner: ProcessorRunner.StaticInstance)
+        {
+        }
+
+        public PipelineRunner(IProcessorRunner processorRunner)
+        {
+            if (processorRunner == null)
+            {
+                throw new ArgumentNullException(nameof(processorRunner), "The value of the processor runner should be specified.");
+            }
+
+            ProcessorsRunner = processorRunner;
+        }
 
         /// <summary>
         /// Runs pipeline's processors one by one in an order
@@ -88,7 +108,9 @@ namespace Pipelines
         public virtual async Task RunProcessor<TArgs>(IProcessor processor, TArgs args)
         {
             if (processor.HasValue())
-                await processor.Execute(args);
+            {
+                await ProcessorsRunner.RunProcessor(processor, args);
+            }
         }
     }
 }
