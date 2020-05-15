@@ -7,24 +7,17 @@
     <Authors>Sergey Solomentsev</Authors>
     <Company>Witty Lion</Company>
     <Description>Library that exposes SOLID principles by introducing pipelines.</Description>
-    <Copyright>Witty Lion © 2019</Copyright>
-    <PackageLicense>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicense>
-    <PackageLicenseUrl>https://github.com/wittylion/Pipelines.Net/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <Copyright>Witty Lion © 2020</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://wittylion.github.io/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
       New in this version:
 
-      1) Added NamespaceBasedPipeline and ProcessorOrder that allow to create a pipeline from processors in a namespace.
-
-        Example: https://wittylion.github.io/2019/07/13/namespace-based-pipeline.html
-
-      2) Added new methods that allow to cache processors for a period of time: CacheInMemoryForPeriod, CacheInMemoryForHours, CacheInMemoryForMinutes. These methods will be helpful in case you have a dynamic pipeline which processors can change.
-
-      3) Added methods ContainsProperty, DoesNotContainProperty to PipelineContext and ContainsResult, DoesNotContainResult to QueryContext.
-
-      4) Added generic constructors for one and five processors in PredefinedPipeline.
+      1) Added Source Link to GitHub for better debugging experience.
+      2) Added [SkipProcessor] attribute for namespace based pipelines, that allows keep processor in the namespace without being included into the pipeline.
+      3) Added constructor in PipelineRunner that allows to pass a custom IProcessorRunner.
 
       Also check out new Pipelines.Net.Xml library: https://www.nuget.org/packages/Pipelines.Net.Xml/
       More information on using Pipelines.Net.Xml library you can find here: https://wittylion.github.io/2019/11/22/pipelines-net-xml.html
@@ -36,9 +29,16 @@
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-    <Version>1.1.6</Version>
-    <AssemblyVersion>1.1.6.0</AssemblyVersion>
-    <PackageIcon>https://wittylion.github.io/assets/pipelines-icon.png</PackageIcon>
-    <PackageIconUrl>https://wittylion.github.io/assets/pipelines-icon.png</PackageIconUrl>
+    <Version>1.1.7</Version>
+    <AssemblyVersion>1.1.7.0</AssemblyVersion>
+    <PackageIcon>pipelines-icon.png</PackageIcon>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <None Include="pipelines-icon.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
 </Project>
