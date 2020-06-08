@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Pipelines.ExtensionMethods;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
 {
@@ -25,41 +26,6 @@ namespace Pipelines.Implementations.Pipelines
         IModificationBuilder Instead(IProcessor original, Func<IProcessor> replacement);
 
         IModificationConfiguration GetConfiguration();
-    }
-
-    public interface IProcessorMatcher
-    {
-        bool Matches(IProcessor processor);
-    }
-
-    public class ProcessorMatcherByType : IProcessorMatcher
-    {
-        public ProcessorMatcherByType(Type type)
-        {
-            Type = type;
-        }
-
-        public Type Type { get; }
-
-        public bool Matches(IProcessor processor)
-        {
-            return processor.GetType() == Type;
-        }
-    }
-
-    public class ProcessorMatcherByInstance : IProcessorMatcher
-    {
-        public ProcessorMatcherByInstance(IProcessor processor)
-        {
-            Processor = processor;
-        }
-
-        public IProcessor Processor { get; }
-
-        public bool Matches(IProcessor processor)
-        {
-            return processor == Processor;
-        }
     }
 
     public class A
