@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Implementations.Pipelines
+namespace Pipelines.Implementations.Processors
 {
     public class ProcessorMatcherByType : IProcessorMatcher
     {

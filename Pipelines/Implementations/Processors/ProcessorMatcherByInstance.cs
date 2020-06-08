@@ -1,5 +1,6 @@
-﻿namespace Pipelines.Implementations.Pipelines
+﻿namespace Pipelines.Implementations.Processors
 {
+
     public class ProcessorMatcherByInstance : IProcessorMatcher
     {
         public ProcessorMatcherByInstance(IProcessor processor)

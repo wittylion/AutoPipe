@@ -1,4 +1,4 @@
-﻿namespace Pipelines.Implementations.Pipelines
+﻿namespace Pipelines.Implementations.Processors
 {
     public interface IProcessorMatcher
     {

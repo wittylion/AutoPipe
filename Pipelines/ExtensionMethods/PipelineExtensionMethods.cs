@@ -435,5 +435,24 @@ namespace Pipelines.ExtensionMethods
         {
             return pipeline.CacheInMemoryForPeriod(TimeSpan.FromHours(hours), useLazyLoading);
         }
+
+        /// <summary>
+        /// Creates a new pipeline which will apply <see cref="IModificationConfiguration.GetModifications(IProcessor)"/>
+        /// method on each processor of the original pipeline.
+        /// </summary>
+        /// <param name="pipeline">
+        /// An original pipeline to be modified by <paramref name="configuration"/>.
+        /// </param>
+        /// <param name="configuration">
+        /// A condiguration that describes which processors should be used instead of original.
+        /// </param>
+        /// <returns>
+        /// A new instance of pipeline, that applies <paramref name="configuration"/> to the processors
+        /// of an original pipeline.
+        /// </returns>
+        public static IPipeline Modify(this IPipeline pipeline, IModificationConfiguration configuration)
+        {
+            return new ModifiedPipeline(pipeline, configuration);
+        }
     }
 }
