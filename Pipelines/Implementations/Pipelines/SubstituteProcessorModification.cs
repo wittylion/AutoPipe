@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Pipelines.Implementations.Processors;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
