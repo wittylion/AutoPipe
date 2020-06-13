@@ -1,8 +1,4 @@
-﻿using Pipelines.ExtensionMethods;
-using Pipelines.Implementations.Processors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 
 namespace Pipelines.Implementations.Pipelines
 {

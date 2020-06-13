@@ -4,7 +4,8 @@ namespace Pipelines.Implementations.Pipelines
 {
     public interface IModificationConfiguration 
     {
-        IEnumerable<IProcessor> GetModifications(IProcessor processorType);
+        bool HasModifications(IProcessor processor);
+        IEnumerable<IProcessor> GetModifications(IProcessor processor);
     }
 
 }

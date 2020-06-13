@@ -1,32 +1,32 @@
 ﻿using Pipelines.Implementations.Processors;
+using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Pipelines.Implementations.Pipelines
 {
-    public class SubstituteProcessorModification : IModificationConfiguration
+    public class BeforeProcessorModification : IModificationConfiguration
     {
-        public SubstituteProcessorModification(IProcessorMatcher matcher, IEnumerable<IProcessor> substitutes)
+        public BeforeProcessorModification(IProcessorMatcher matcher, IEnumerable<IProcessor> predecessors)
         {
             Matcher = matcher;
-            Substitutes = substitutes;
+            Predecessors = predecessors;
         }
 
         public IProcessorMatcher Matcher { get; }
-        public IEnumerable<IProcessor> Substitutes { get; }
+        public IEnumerable<IProcessor> Predecessors { get; }
 
         public IEnumerable<IProcessor> GetModifications(IProcessor processor)
         {
             if (Matcher.Matches(processor))
             {
-                foreach (var substitute in Substitutes)
+                foreach (var predecessor in Predecessors)
                 {
-                    yield return substitute;
+                    yield return predecessor;
                 }
             }
-            else
-            {
-                yield return processor;
-            }
+
+            yield return processor;
         }
 
         public bool HasModifications(IProcessor processor)

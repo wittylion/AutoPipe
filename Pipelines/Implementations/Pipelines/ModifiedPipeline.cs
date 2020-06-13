@@ -20,9 +20,18 @@ namespace Pipelines.Implementations.Pipelines
         {
             foreach (var processor in OriginalPipeline.GetProcessors())
             {
-                foreach(var substitute in Configuration.GetModifications(processor))
+                var hasModifications = Configuration.HasModifications(processor);
+
+                if (hasModifications)
                 {
-                    yield return substitute;
+                    foreach (var substitute in Configuration.GetModifications(processor))
+                    {
+                        yield return substitute;
+                    }
+                }
+                else
+                {
+                    yield return processor;
                 }
             }
         }

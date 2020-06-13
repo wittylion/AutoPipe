@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Pipelines.ExtensionMethods;
+using Pipelines.Implementations.Pipelines;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -67,6 +68,23 @@ namespace Pipelines.Tests.Units
             processors.Add(new TestProcessor(() => { }));
 
             pipeline.GetProcessors().Should().HaveCount(1, "updated list should not affect cached pipeline");
+        }
+
+        [Fact]
+        public void Modify_When_Configuration_Is_Passed_Should_Return_New_Processors_Instead_Of_Old()
+        {
+            IProcessor processor1 = new Mock<IProcessor>().Object;
+            IProcessor processor2 = new Mock<IProcessor>().Object;
+            IProcessor processor3 = new Mock<IProcessor>().Object;
+            IProcessor processor4 = new Mock<IProcessor>().Object;
+            IModificationConfiguration configuration =
+                new ModificationConfigurationFacade(new[] {
+                new SubstituteProcessorModification(processor1.GetMatcher(), processor3.ThenProcessor(processor3)),
+                new SubstituteProcessorModification(processor2.GetMatcher(), processor4.ThenProcessor(processor3)),
+                });
+
+            processor1.ThenProcessor(processor2).ToPipeline().Modify(configuration)
+                .GetProcessors().Should().Equal(processor3, processor4);
         }
     }
 }

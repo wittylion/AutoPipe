@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
 {
@@ -11,15 +12,23 @@ namespace Pipelines.Implementations.Pipelines
 
         public IEnumerable<IModificationConfiguration> Configurations { get; }
 
-        public IEnumerable<IProcessor> GetModifications(IProcessor processorType)
+        public IEnumerable<IProcessor> GetModifications(IProcessor processor)
         {
             foreach (var configuration in Configurations)
             {
-                foreach (var processor in configuration.GetModifications(processorType))
+                if (configuration.HasModifications(processor))
                 {
-                    yield return processor;
+                    foreach (var substitute in configuration.GetModifications(processor))
+                    {
+                        yield return substitute;
+                    }
                 }
             }
+        }
+
+        public bool HasModifications(IProcessor processor)
+        {
+            return Configurations.Any(configuration => configuration.HasModifications(processor));
         }
     }
 }

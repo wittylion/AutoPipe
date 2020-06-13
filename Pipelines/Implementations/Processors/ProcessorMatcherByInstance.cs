@@ -9,7 +9,10 @@
     {
         /// <summary>
         /// Creates an instance of matcher with a predefined processor
-        /// to compare later.
+        /// to compare later. This class is probably the only
+        /// exception that allows null instance in the constructor
+        /// because it might be needed to replace all nulls in pipeline
+        /// to something meaningful.
         /// </summary>
         /// <param name="processor">
         /// A processor to be used by <see cref="Matches(IProcessor)"/> method.

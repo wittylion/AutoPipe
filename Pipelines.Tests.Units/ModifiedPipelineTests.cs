@@ -43,7 +43,7 @@ namespace Pipelines.Tests.Units
                 new SubstituteProcessorModification(processor1.GetMatcher(), processor2.ThenProcessor(processor3));
 
             new ModifiedPipeline(processor1.ToAnArray().ToPipeline(), configuration)
-                .GetProcessors().Should().ContainSingle(x => x == processor2);
+                .GetProcessors().Should().Equal(processor2, processor3);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Pipelines.Tests.Units
                 });
 
             new ModifiedPipeline(processor1.ThenProcessor(processor2).ToPipeline(), configuration)
-                .GetProcessors().Should().ContainInOrder(processor3, processor4);
+                .GetProcessors().Should().Equal(processor3, processor3, processor4, processor3);
         }
     }
 }
