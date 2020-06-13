@@ -3,29 +3,27 @@ using System.Collections.Generic;
 
 namespace Pipelines.Implementations.Pipelines
 {
-    public class AfterProcessorModification : IModificationConfiguration
+    public class RemoveProcessorModification : IModificationConfiguration
     {
-        public AfterProcessorModification(IProcessorMatcher matcher, IEnumerable<IProcessor> successors)
+        public RemoveProcessorModification(IProcessorMatcher matcher)
         {
             Matcher = matcher;
-            Successors = successors;
         }
 
         public IProcessorMatcher Matcher { get; }
-        public IEnumerable<IProcessor> Successors { get; }
 
         public IEnumerable<IProcessor> GetModifications(IProcessor processor)
         {
-            yield return processor;
 
             var match = Matcher.Matches(processor);
-            
+
             if (match)
             {
-                foreach (var successor in Successors)
-                {
-                    yield return successor;
-                }
+                yield break;
+            }
+            else
+            {
+                yield return processor;
             }
         }
 

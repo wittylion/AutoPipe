@@ -1,4 +1,6 @@
-﻿namespace Pipelines.Implementations.Processors
+﻿using System;
+
+namespace Pipelines.Implementations.Processors
 {
     /// <summary>
     /// A static helper that helps creating instances of <see cref="IProcessorMatcher"/>.
@@ -32,7 +34,12 @@
         /// </returns>
         public static ProcessorMatcherByType ByType<TProcessor>() where TProcessor: IProcessor
         {
-            return new ProcessorMatcherByType(typeof(TProcessor));
+            return ByType(typeof(TProcessor));
+        }
+
+        public static ProcessorMatcherByType ByType(Type type)
+        {
+            return new ProcessorMatcherByType(type);
         }
     }
 }
