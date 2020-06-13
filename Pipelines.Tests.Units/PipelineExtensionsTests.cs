@@ -84,7 +84,7 @@ namespace Pipelines.Tests.Units
                 });
 
             processor1.ThenProcessor(processor2).ToPipeline().Modify(configuration)
-                .GetProcessors().Should().Equal(processor3, processor4);
+                .GetProcessors().Should().Equal(processor3, processor3, processor4, processor3);
         }
     }
 }
