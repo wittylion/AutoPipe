@@ -7,6 +7,10 @@ namespace Pipelines.Tests.Units
     {
         public Action Action { get; }
 
+        public TestProcessor() : this(() => { })
+        {
+        }
+
         public TestProcessor(Action action)
         {
             Action = action;
