@@ -346,6 +346,11 @@ namespace Pipelines.ExtensionMethods
         /// </returns>
         public static IPipeline CacheInMemory(this IPipeline pipeline, bool useLazyLoading = true)
         {
+            if (!useLazyLoading)
+            {
+                return PredefinedPipeline.FromProcessors(pipeline.GetProcessors().ToArray());
+            }
+
             var loaded = false;
             return new MemoryCachePipelineWrapper(pipeline, () => {
                 var result = !loaded;
@@ -452,7 +457,7 @@ namespace Pipelines.ExtensionMethods
         /// </returns>
         public static IPipeline Modify(this IPipeline pipeline, IModificationConfiguration configuration)
         {
-            return new ModifiedPipeline(pipeline, configuration);
+            return new ModifiedPipeline(pipeline, configuration).CacheInMemory(false);
         }
     }
 }
