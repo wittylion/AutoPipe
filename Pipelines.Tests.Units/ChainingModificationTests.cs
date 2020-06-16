@@ -204,12 +204,27 @@ namespace Pipelines.Tests.Units
             var processor2 = new TestProcessor();
             var processor3 = new TestProcessor();
 
-            var configuration = new ChainingModification()
+            var configuration = Modification.Configure()
                 .Before(processor1, processor2.ThenProcessor(processor3))
                 .GetConfiguration();
 
             processor1.ToAnArray().ToPipeline().Modify(configuration)
                 .GetProcessors().Should().Equal(processor2, processor3, processor1);
+        }
+
+        [Fact]
+        public void Remove_ShouldWorkProperly_WithOriginalInstance()
+        {
+            var processor1 = new TestProcessor();
+            var processor2 = new TestProcessor();
+            var processor3 = new TestProcessor();
+
+            var configuration = Modification.Configure()
+                .Remove(processor1)
+                .GetConfiguration();
+
+            processor1.ThenProcessor(processor2).ThenProcessor(processor3).ToPipeline().Modify(configuration)
+                .GetProcessors().Should().Equal(processor2, processor3);
         }
     }
 }
