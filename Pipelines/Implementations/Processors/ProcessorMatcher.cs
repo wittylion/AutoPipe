@@ -7,6 +7,9 @@ namespace Pipelines.Implementations.Processors
     /// </summary>
     public static class ProcessorMatcher
     {
+        public static readonly IProcessorMatcher True = new DelegateProcessorMatcher(_ => true);
+        public static readonly IProcessorMatcher False = new DelegateProcessorMatcher(_ => false);
+
         /// <summary>
         /// Creates <see cref="ProcessorMatcherByInstance"/> by passing an <paramref name="instance"/>
         /// to the constructor.
@@ -32,7 +35,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// A new instance of <see cref="ProcessorMatcherByType"/>.
         /// </returns>
-        public static ProcessorMatcherByType ByType<TProcessor>() where TProcessor: IProcessor
+        public static ProcessorMatcherByType ByType<TProcessor>() where TProcessor : IProcessor
         {
             return ByType(typeof(TProcessor));
         }

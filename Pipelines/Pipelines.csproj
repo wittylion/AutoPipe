@@ -15,9 +15,11 @@
     <PackageReleaseNotes>
       New in this version:
 
-      1) Added Source Link to GitHub for better debugging experience.
-      2) Added [SkipProcessor] attribute for namespace based pipelines, that allows keep processor in the namespace without being included into the pipeline.
-      3) Added constructor in PipelineRunner that allows to pass a custom IProcessorRunner.
+      Added ability to modify an existing pipeline. In scope of this functionality: 
+        Modify extension method.
+        ModifiedPipeline.
+        Modification.Configure()
+        ProcessorMatcher
 
       Also check out new Pipelines.Net.Xml library: https://www.nuget.org/packages/Pipelines.Net.Xml/
       More information on using Pipelines.Net.Xml library you can find here: https://wittylion.github.io/2019/11/22/pipelines-net-xml.html
@@ -29,8 +31,8 @@
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-    <Version>1.1.7</Version>
-    <AssemblyVersion>1.1.7.0</AssemblyVersion>
+    <Version>1.1.8</Version>
+    <AssemblyVersion>1.1.8.0</AssemblyVersion>
     <PackageIcon>pipelines-icon.png</PackageIcon>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

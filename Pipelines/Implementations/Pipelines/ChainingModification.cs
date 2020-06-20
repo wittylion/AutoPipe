@@ -9,9 +9,48 @@ namespace Pipelines.Implementations.Pipelines
     {
         protected LinkedList<IModificationConfiguration> configurations = new LinkedList<IModificationConfiguration>();
 
+        public ChainingModification AfterAll<TProcessorAfter>() where TProcessorAfter : IProcessor, new()
+        {
+            AfterAll(new TProcessorAfter());
+            return this;
+        }
+
+        public ChainingModification AfterAll(IProcessor successor)
+        {
+            configurations.AddLast(new AfterProcessorModification(ProcessorMatcher.True, successor.ToAnArray()));
+            return this;
+        }
+
+        public ChainingModification AfterAll(IEnumerable<IProcessor> successors)
+        {
+            configurations.AddLast(new AfterProcessorModification(ProcessorMatcher.True, successors));
+            return this;
+        }
+
         public ChainingModification After<TProcessorOriginal, TProcessorAfter>() where TProcessorAfter : IProcessor, new() where TProcessorOriginal : IProcessor
         {
             return After<TProcessorOriginal>(new TProcessorAfter());
+        }
+
+        public ChainingModification After<TProcessorOriginal, TProcessorAfter1, TProcessorAfter2>()
+            where TProcessorAfter1 : IProcessor, new()
+            where TProcessorAfter2 : IProcessor, new()
+            where TProcessorOriginal : IProcessor
+        {
+            return After<TProcessorOriginal>(new TProcessorAfter1().ThenProcessor(new TProcessorAfter2()));
+        }
+
+        public ChainingModification After<TProcessorOriginal, TProcessorAfter1, TProcessorAfter2, TProcessorAfter3>()
+            where TProcessorAfter1 : IProcessor, new()
+            where TProcessorAfter2 : IProcessor, new()
+            where TProcessorAfter3 : IProcessor, new()
+            where TProcessorOriginal : IProcessor
+        {
+            return After<TProcessorOriginal>(
+                new TProcessorAfter1()
+                    .ThenProcessor(new TProcessorAfter2())
+                    .ThenProcessor(new TProcessorAfter3())
+                );
         }
 
         public ChainingModification After<TProcessorOriginal>(IProcessor successor) where TProcessorOriginal : IProcessor
