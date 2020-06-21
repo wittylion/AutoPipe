@@ -12,23 +12,14 @@ namespace Pipelines.Implementations.Pipelines
 
         public IEnumerable<IModificationConfiguration> Configurations { get; }
 
-        public IEnumerable<IProcessor> GetModifications(IProcessor processor)
+        public IEnumerable<IProcessor> GetModifications(IEnumerable<IProcessor> processors)
         {
             foreach (var configuration in Configurations)
             {
-                if (configuration.HasModifications(processor))
-                {
-                    foreach (var substitute in configuration.GetModifications(processor))
-                    {
-                        yield return substitute;
-                    }
-                }
+                processors = configuration.GetModifications(processors);
             }
-        }
 
-        public bool HasModifications(IProcessor processor)
-        {
-            return Configurations.Any(configuration => configuration.HasModifications(processor));
+            return processors;
         }
     }
 }

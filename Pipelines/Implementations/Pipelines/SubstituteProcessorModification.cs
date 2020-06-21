@@ -14,25 +14,24 @@ namespace Pipelines.Implementations.Pipelines
         public IProcessorMatcher Matcher { get; }
         public IEnumerable<IProcessor> Substitutes { get; }
 
-        public IEnumerable<IProcessor> GetModifications(IProcessor processor)
+        public IEnumerable<IProcessor> GetModifications(IEnumerable<IProcessor> processors)
         {
-            if (Matcher.Matches(processor))
+            foreach (var processor in processors)
             {
-                foreach (var substitute in Substitutes)
+                var match = Matcher.Matches(processor);
+
+                if (match)
                 {
-                    yield return substitute;
+                    foreach (var substitute in Substitutes)
+                    {
+                        yield return substitute;
+                    }
+                }
+                else
+                {
+                    yield return processor;
                 }
             }
-            else
-            {
-                yield return processor;
-            }
-        }
-
-        public bool HasModifications(IProcessor processor)
-        {
-            var match = Matcher.Matches(processor);
-            return match;
         }
     }
 }
