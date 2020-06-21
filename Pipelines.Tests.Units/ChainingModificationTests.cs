@@ -226,5 +226,53 @@ namespace Pipelines.Tests.Units
             processor1.ThenProcessor(processor2).ThenProcessor(processor3).ToPipeline().Modify(configuration)
                 .GetProcessors().Should().Equal(processor2, processor3);
         }
+
+        [Fact]
+        public void Insert_ShouldWorkProperly_WhenThreeInstancesArePassedIntoEmptyPipeline()
+        {
+            var processor1 = new TestProcessor();
+            var processor2 = new TestProcessor();
+            var processor3 = new TestProcessor();
+
+            var configuration = Modification.Configure(
+                    x => x.Insert(0, processor1, processor2, processor3)
+                )
+                .GetConfiguration();
+
+            PredefinedPipeline.Empty.Modify(configuration)
+                .GetProcessors().Should().Equal(processor1, processor2, processor3);
+        }
+
+        [Fact]
+        public void Insert_ShouldPasteProperlyIntoIndexOne_WhenInstanceIsPassedIntoNonEmptyPipeline()
+        {
+            var processor1 = new TestProcessor();
+            var processor2 = new TestProcessor();
+            var processor3 = new TestProcessor();
+
+            var configuration = Modification.Configure(
+                    x => x.Insert(1, processor2)
+                )
+                .GetConfiguration();
+
+            processor1.ThenProcessor(processor3).ToPipeline().Modify(configuration)
+                .GetProcessors().Should().Equal(processor1, processor2, processor3);
+        }
+
+        [Fact]
+        public void Insert_ShouldPasteProperlyIntoIndexTwo_WhenInstanceIsPassedIntoNonEmptyPipeline()
+        {
+            var processor1 = new TestProcessor();
+            var processor2 = new TestProcessor();
+            var processor3 = new TestProcessor();
+
+            var configuration = Modification.Configure(
+                    x => x.Insert(2, processor2)
+                )
+                .GetConfiguration();
+
+            processor1.ThenProcessor(processor3).ToPipeline().Modify(configuration)
+                .GetProcessors().Should().Equal(processor1, processor3, processor2);
+        }
     }
 }

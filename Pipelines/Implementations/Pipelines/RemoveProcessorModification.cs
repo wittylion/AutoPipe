@@ -1,22 +1,24 @@
 ﻿using Pipelines.Implementations.Processors;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
 {
     public class RemoveProcessorModification : IModificationConfiguration
     {
-        public RemoveProcessorModification(IProcessorMatcher matcher)
+        public RemoveProcessorModification(IEnumerable<IProcessorMatcher> matchers)
         {
-            Matcher = matcher;
+            Matchers = matchers ?? throw new ArgumentNullException(nameof(matchers), "Matchers collection must be specified when creating a modification that removes processors.");
         }
 
-        public IProcessorMatcher Matcher { get; }
+        public IEnumerable<IProcessorMatcher> Matchers { get; }
 
         public IEnumerable<IProcessor> GetModifications(IEnumerable<IProcessor> processors)
         {
             foreach (var processor in processors)
             {
-                var match = Matcher.Matches(processor);
+                var match = Matchers.Any(matcher => matcher.Matches(processor));
 
                 if (match)
                 {
