@@ -10,13 +10,16 @@ namespace Pipelines.Implementations.Pipelines
             return new ChainingModification();
         }
 
-        public static ChainingModification Configure(Action<ChainingModification> configurator)
+        public static ChainingModification Configure(params Action<ChainingModification>[] configurators)
         {
             var result = new ChainingModification();
 
-            if (configurator.IsNotNull())
+            if (configurators.IsNotNull())
             {
-                configurator(result);
+                foreach (var configurator in configurators)
+                {
+                    configurator(result);
+                }
             }
 
             return result;

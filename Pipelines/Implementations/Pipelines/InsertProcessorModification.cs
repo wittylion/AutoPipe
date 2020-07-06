@@ -29,7 +29,7 @@ namespace Pipelines.Implementations.Pipelines
 
             foreach (var processor in processors)
             {
-                if (counter == Position)
+                if (counter == Position && Position != 0)
                 {
                     foreach (var newcomer in Newcomers)
                     {
@@ -41,7 +41,9 @@ namespace Pipelines.Implementations.Pipelines
                 counter++;
             }
 
-            if (counter == Position)
+            // When the passed position is one more than amount
+            // of processors, newcomers should be returned at the end.
+            if (counter == Position && counter != 0)
             {
                 foreach (var newcomer in Newcomers)
                 {

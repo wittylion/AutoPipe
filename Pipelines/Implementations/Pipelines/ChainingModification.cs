@@ -10,21 +10,56 @@ namespace Pipelines.Implementations.Pipelines
     {
         protected LinkedList<IModificationConfiguration> configurations = new LinkedList<IModificationConfiguration>();
 
-        public ChainingModification AfterAll<TProcessorAfter>() where TProcessorAfter : IProcessor, new()
+        public ChainingModification AddLast<TProcessorLast>() where TProcessorLast : IProcessor, new()
         {
-            AfterAll(new TProcessorAfter());
+            return AddLast(new TProcessorLast());
+        }
+
+        public ChainingModification AddLast<TProcessorLast1, TProcessorLast2>()
+            where TProcessorLast1 : IProcessor, new()
+            where TProcessorLast2 : IProcessor, new()
+        {
+            return AddLast(new TProcessorLast1().ThenProcessor(new TProcessorLast2()));
+        }
+
+        public ChainingModification AddLast<TProcessorLast1, TProcessorLast2, TProcessorLast3>()
+            where TProcessorLast1 : IProcessor, new()
+            where TProcessorLast2 : IProcessor, new()
+            where TProcessorLast3 : IProcessor, new()
+        {
+            return AddLast(
+                new TProcessorLast1()
+                    .ThenProcessor(new TProcessorLast2())
+                    .ThenProcessor(new TProcessorLast3())
+                );
+        }
+
+        public ChainingModification AddLast(params IProcessor[] processors)
+        {
+            return AddLast((IEnumerable<IProcessor>)processors);
+        }
+
+        public ChainingModification AddLast(IEnumerable<IProcessor> processors)
+        {
+            configurations.AddLast(new AddLastProcessorModification(processors));
             return this;
         }
 
-        public ChainingModification AfterAll(IEnumerable<IProcessor> successors)
+        public ChainingModification AfterEach<TProcessorAfter>() where TProcessorAfter : IProcessor, new()
+        {
+            AfterEach(new TProcessorAfter());
+            return this;
+        }
+
+        public ChainingModification AfterEach(IEnumerable<IProcessor> successors)
         {
             configurations.AddLast(new AfterProcessorModification(ProcessorMatcher.True, successors));
             return this;
         }
 
-        public ChainingModification AfterAll(params IProcessor[] successors)
+        public ChainingModification AfterEach(params IProcessor[] successors)
         {
-            AfterAll((IEnumerable<IProcessor>) successors);
+            AfterEach((IEnumerable<IProcessor>) successors);
             return this;
         }
 

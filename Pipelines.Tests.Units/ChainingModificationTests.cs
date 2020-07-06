@@ -13,6 +13,13 @@ namespace Pipelines.Tests.Units
     public class ChainingModificationTests
     {
         [Fact]
+        public void AddLast_ShouldWorkProperly_WithGenericType()
+        {
+            PredefinedPipeline.Empty.Modify(x => x.AddLast<TestProcessor>())
+                .GetProcessors().Should().AllBeOfType<TestProcessor>();
+        }
+
+        [Fact]
         public void After_ShouldWorkProperly_WithGenericType()
         {
             var processor1 = new TestProcessor(() => { });
@@ -240,6 +247,39 @@ namespace Pipelines.Tests.Units
                 .GetConfiguration();
 
             PredefinedPipeline.Empty.Modify(configuration)
+                .GetProcessors().Should().Equal(processor1, processor2, processor3);
+        }
+
+        [Fact]
+        public void Insert_ShouldWorkProperly_WhenTwoInstancesArePassedIntoOneProcessorPipeline()
+        {
+            var processor1 = new TestProcessor();
+            var processor2 = new TestProcessor();
+            var processor3 = new TestProcessor();
+
+            var configuration = Modification.Configure(
+                    x => x.Insert(0, processor1, processor2)
+                )
+                .GetConfiguration();
+
+            PredefinedPipeline.FromProcessors(processor3).Modify(configuration)
+                .GetProcessors().Should().Equal(processor1, processor2, processor3);
+        }
+
+        [Fact]
+        public void Insert_ShouldWorkProperly_WhenTwoInstancesArePassedInDifferentPlaces()
+        {
+            var processor1 = new TestProcessor();
+            var processor2 = new TestProcessor();
+            var processor3 = new TestProcessor();
+
+            var configuration = Modification.Configure(
+                    x => x.Insert(0, processor1),
+                    x => x.Insert(1, processor2)
+                )
+                .GetConfiguration();
+
+            PredefinedPipeline.FromProcessors(processor3).Modify(configuration)
                 .GetProcessors().Should().Equal(processor1, processor2, processor3);
         }
 
