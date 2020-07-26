@@ -51,26 +51,10 @@ namespace Pipelines.Implementations.Pipelines
         /// </returns>
         public IEnumerable<IProcessor> GetProcessors()
         {
-            var processors = OriginalPipeline.GetProcessors();
+            var originalProcessors = OriginalPipeline.GetProcessors();
+            var modifiedProcessors = Configuration.GetModifications(originalProcessors);
 
-            foreach (var processor in processors)
-            {
-                var hasModifications = Configuration.HasModifications(processor);
-
-                if (hasModifications)
-                {
-                    var modifications = Configuration.GetModifications(processor);
-
-                    foreach (var substitute in modifications)
-                    {
-                        yield return substitute;
-                    }
-                }
-                else
-                {
-                    yield return processor;
-                }
-            }
+            return modifiedProcessors;
         }
     }
 }

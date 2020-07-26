@@ -2,6 +2,7 @@
 using Pipelines.Implementations.Processors;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Pipelines.Implementations.Pipelines
 {
@@ -9,21 +10,56 @@ namespace Pipelines.Implementations.Pipelines
     {
         protected LinkedList<IModificationConfiguration> configurations = new LinkedList<IModificationConfiguration>();
 
-        public ChainingModification AfterAll<TProcessorAfter>() where TProcessorAfter : IProcessor, new()
+        public ChainingModification AddLast<TProcessorLast>() where TProcessorLast : IProcessor, new()
         {
-            AfterAll(new TProcessorAfter());
+            return AddLast(new TProcessorLast());
+        }
+
+        public ChainingModification AddLast<TProcessorLast1, TProcessorLast2>()
+            where TProcessorLast1 : IProcessor, new()
+            where TProcessorLast2 : IProcessor, new()
+        {
+            return AddLast(new TProcessorLast1().ThenProcessor(new TProcessorLast2()));
+        }
+
+        public ChainingModification AddLast<TProcessorLast1, TProcessorLast2, TProcessorLast3>()
+            where TProcessorLast1 : IProcessor, new()
+            where TProcessorLast2 : IProcessor, new()
+            where TProcessorLast3 : IProcessor, new()
+        {
+            return AddLast(
+                new TProcessorLast1()
+                    .ThenProcessor(new TProcessorLast2())
+                    .ThenProcessor(new TProcessorLast3())
+                );
+        }
+
+        public ChainingModification AddLast(params IProcessor[] processors)
+        {
+            return AddLast((IEnumerable<IProcessor>)processors);
+        }
+
+        public ChainingModification AddLast(IEnumerable<IProcessor> processors)
+        {
+            configurations.AddLast(new AddLastProcessorModification(processors));
             return this;
         }
 
-        public ChainingModification AfterAll(IProcessor successor)
+        public ChainingModification AfterEach<TProcessorAfter>() where TProcessorAfter : IProcessor, new()
         {
-            configurations.AddLast(new AfterProcessorModification(ProcessorMatcher.True, successor.ToAnArray()));
+            AfterEach(new TProcessorAfter());
             return this;
         }
 
-        public ChainingModification AfterAll(IEnumerable<IProcessor> successors)
+        public ChainingModification AfterEach(IEnumerable<IProcessor> successors)
         {
             configurations.AddLast(new AfterProcessorModification(ProcessorMatcher.True, successors));
+            return this;
+        }
+
+        public ChainingModification AfterEach(params IProcessor[] successors)
+        {
+            AfterEach((IEnumerable<IProcessor>) successors);
             return this;
         }
 
@@ -53,9 +89,9 @@ namespace Pipelines.Implementations.Pipelines
                 );
         }
 
-        public ChainingModification After<TProcessorOriginal>(IProcessor successor) where TProcessorOriginal : IProcessor
+        public ChainingModification After<TProcessorOriginal>(params IProcessor[] successors) where TProcessorOriginal : IProcessor
         {
-            return After<TProcessorOriginal>(successor.ToAnArray());
+            return After<TProcessorOriginal>((IEnumerable<IProcessor>) successors);
         }
 
         public ChainingModification After<TProcessorOriginal>(IEnumerable<IProcessor> successors) where TProcessorOriginal : IProcessor
@@ -63,9 +99,10 @@ namespace Pipelines.Implementations.Pipelines
             return After(ProcessorMatcher.ByType<TProcessorOriginal>(), successors);
         }
 
-        public ChainingModification After(Type original, IProcessor successor)
+        public ChainingModification After(Type original, params IProcessor[] successors)
         {
-            return After(original, successor.ToAnArray());
+            After(original, (IEnumerable<IProcessor>)successors);
+            return this;
         }
 
         public ChainingModification After(Type original, IEnumerable<IProcessor> successors)
@@ -73,9 +110,10 @@ namespace Pipelines.Implementations.Pipelines
             return After(ProcessorMatcher.ByType(original), successors);
         }
 
-        public ChainingModification After(IProcessor original, IProcessor successor)
+        public ChainingModification After(IProcessor original, params IProcessor[] successors)
         {
-            return After(original, successor.ToAnArray());
+            After(original, (IEnumerable<IProcessor>)successors);
+            return this;
         }
 
         public ChainingModification After(IProcessor original, IEnumerable<IProcessor> successors)
@@ -83,9 +121,10 @@ namespace Pipelines.Implementations.Pipelines
             return After(original.GetMatcher(), successors);
         }
 
-        public ChainingModification After(IProcessorMatcher matcher, IProcessor successor)
+        public ChainingModification After(IProcessorMatcher matcher, params IProcessor[] successors)
         {
-            return After(matcher, successor.ToAnArray());
+            After(matcher, (IEnumerable<IProcessor>) successors);
+            return this;
         }
 
         public ChainingModification After(IProcessorMatcher matcher, IEnumerable<IProcessor> successors)
@@ -99,9 +138,9 @@ namespace Pipelines.Implementations.Pipelines
             return Before<TProcessorOriginal>(new TProcessorBefore());
         }
 
-        public ChainingModification Before<TProcessorOriginal>(IProcessor predecessor) where TProcessorOriginal : IProcessor
+        public ChainingModification Before<TProcessorOriginal>(params IProcessor[] predecessors) where TProcessorOriginal : IProcessor
         {
-            return Before<TProcessorOriginal>(predecessor.ToAnArray());
+            return Before<TProcessorOriginal>((IEnumerable<IProcessor>) predecessors);
         }
 
         public ChainingModification Before<TProcessorOriginal>(IEnumerable<IProcessor> predecessors) where TProcessorOriginal : IProcessor
@@ -109,9 +148,9 @@ namespace Pipelines.Implementations.Pipelines
             return Before(ProcessorMatcher.ByType<TProcessorOriginal>(), predecessors);
         }
 
-        public ChainingModification Before(Type original, IProcessor predecessor)
+        public ChainingModification Before(Type original, params IProcessor[] predecessors)
         {
-            return Before(original, predecessor.ToAnArray());
+            return Before(original, (IEnumerable<IProcessor>) predecessors);
         }
 
         public ChainingModification Before(Type original, IEnumerable<IProcessor> predecessors)
@@ -119,9 +158,9 @@ namespace Pipelines.Implementations.Pipelines
             return Before(ProcessorMatcher.ByType(original), predecessors);
         }
 
-        public ChainingModification Before(IProcessor original, IProcessor predecessor)
+        public ChainingModification Before(IProcessor original, params IProcessor[] predecessors)
         {
-            return Before(original, predecessor.ToAnArray());
+            return Before(original, (IEnumerable<IProcessor>)predecessors);
         }
 
         public ChainingModification Before(IProcessor original, IEnumerable<IProcessor> predecessors)
@@ -129,9 +168,9 @@ namespace Pipelines.Implementations.Pipelines
             return Before(original.GetMatcher(), predecessors);
         }
 
-        public ChainingModification Before(IProcessorMatcher matcher, IProcessor predecessor)
+        public ChainingModification Before(IProcessorMatcher matcher, params IProcessor[] predecessors)
         {
-            return Before(matcher, predecessor.ToAnArray());
+            return Before(matcher, (IEnumerable<IProcessor>) predecessors);
         }
 
         public ChainingModification Before(IProcessorMatcher matcher, IEnumerable<IProcessor> predecessors)
@@ -144,14 +183,30 @@ namespace Pipelines.Implementations.Pipelines
             return new ModificationConfigurationFacade(configurations);
         }
 
+        public ChainingModification Insert<TProcessorNew>(int position) where TProcessorNew : IProcessor, new()
+        {
+            return Insert(position, new TProcessorNew());
+        }
+
+        public ChainingModification Insert(int position, params IProcessor[] insertions)
+        {
+            return Insert(position, (IEnumerable<IProcessor>) insertions);
+        }
+
+        public ChainingModification Insert(int position, IEnumerable<IProcessor> insertions)
+        {
+            this.configurations.AddLast(new InsertProcessorModification(position, insertions));
+            return this;
+        }
+
         public ChainingModification Instead<TProcessorOriginal, TProcessorInstead>() where TProcessorInstead : IProcessor, new() where TProcessorOriginal : IProcessor
         {
             return Instead<TProcessorOriginal>(new TProcessorInstead());
         }
 
-        public ChainingModification Instead<TProcessorOriginal>(IProcessor substitute) where TProcessorOriginal : IProcessor
+        public ChainingModification Instead<TProcessorOriginal>(params IProcessor[] substitutes) where TProcessorOriginal : IProcessor
         {
-            return Instead<TProcessorOriginal>(substitute.ToAnArray());
+            return Instead<TProcessorOriginal>((IEnumerable<IProcessor>) substitutes);
         }
 
         public ChainingModification Instead<TProcessorOriginal>(IEnumerable<IProcessor> substitutes) where TProcessorOriginal : IProcessor
@@ -159,9 +214,9 @@ namespace Pipelines.Implementations.Pipelines
             return Instead(ProcessorMatcher.ByType<TProcessorOriginal>(), substitutes);
         }
 
-        public ChainingModification Instead(Type original, IProcessor substitute)
+        public ChainingModification Instead(Type original, params IProcessor[] substitutes)
         {
-            return Instead(original, substitute.ToAnArray());
+            return Instead(original, (IEnumerable<IProcessor>) substitutes);
         }
 
         public ChainingModification Instead(Type original, IEnumerable<IProcessor> substitutes)
@@ -169,9 +224,9 @@ namespace Pipelines.Implementations.Pipelines
             return Instead(ProcessorMatcher.ByType(original), substitutes);
         }
 
-        public ChainingModification Instead(IProcessor original, IProcessor substitute)
+        public ChainingModification Instead(IProcessor original, params IProcessor[] substitutes)
         {
-            return Instead(original, substitute.ToAnArray());
+            return Instead(original, (IEnumerable<IProcessor>) substitutes);
         }
 
         public ChainingModification Instead(IProcessor original, IEnumerable<IProcessor> substitutes)
@@ -179,9 +234,9 @@ namespace Pipelines.Implementations.Pipelines
             return Instead(original.GetMatcher(), substitutes);
         }
 
-        public ChainingModification Instead(IProcessorMatcher matcher, IProcessor substitute)
+        public ChainingModification Instead(IProcessorMatcher matcher, params IProcessor[] substitutes)
         {
-            return Instead(matcher, substitute.ToAnArray());
+            return Instead(matcher, (IEnumerable<IProcessor>) substitutes);
         }
 
         public ChainingModification Instead(IProcessorMatcher matcher, IEnumerable<IProcessor> substitutes)
@@ -195,19 +250,42 @@ namespace Pipelines.Implementations.Pipelines
             return Remove(ProcessorMatcher.ByType<TProcessorOriginal>());
         }
 
-        public ChainingModification Remove(Type original)
+        public ChainingModification Remove<TProcessorOriginal1, TProcessorOriginal2>() 
+            where TProcessorOriginal1 : IProcessor
+            where TProcessorOriginal2 : IProcessor
         {
-            return Remove(ProcessorMatcher.ByType(original));
+            return Remove(ProcessorMatcher.ByType<TProcessorOriginal1>(), 
+                ProcessorMatcher.ByType<TProcessorOriginal2>());
         }
 
-        public ChainingModification Remove(IProcessor original)
+        public ChainingModification Remove<TProcessorOriginal1, TProcessorOriginal2, TProcessorOriginal3>()
+            where TProcessorOriginal1 : IProcessor
+            where TProcessorOriginal2 : IProcessor
+            where TProcessorOriginal3 : IProcessor
         {
-            return Remove(original.GetMatcher());
+            return Remove(ProcessorMatcher.ByType<TProcessorOriginal1>(),
+                ProcessorMatcher.ByType<TProcessorOriginal2>(),
+                ProcessorMatcher.ByType<TProcessorOriginal3>());
         }
 
-        public ChainingModification Remove(IProcessorMatcher matcher)
+        public ChainingModification Remove(params Type[] types)
         {
-            configurations.AddLast(new RemoveProcessorModification(matcher));
+            return Remove(types.Select(type => ProcessorMatcher.ByType(type)));
+        }
+
+        public ChainingModification Remove(params IProcessor[] refereces)
+        {
+            return Remove(refereces.Select(reference => reference.GetMatcher()));
+        }
+
+        public ChainingModification Remove(params IProcessorMatcher[] matchers)
+        {
+            return Remove((IEnumerable<IProcessorMatcher>)matchers);
+        }
+
+        public ChainingModification Remove(IEnumerable<IProcessorMatcher> matchers)
+        {
+            configurations.AddLast(new RemoveProcessorModification(matchers));
             return this;
         }
     }

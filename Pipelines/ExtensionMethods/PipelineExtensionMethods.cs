@@ -449,7 +449,7 @@ namespace Pipelines.ExtensionMethods
         /// An original pipeline to be modified by <paramref name="configuration"/>.
         /// </param>
         /// <param name="configuration">
-        /// A condiguration that describes which processors should be used instead of original.
+        /// A configuration that describes which processors should be used instead of original.
         /// </param>
         /// <returns>
         /// A new instance of pipeline, that applies <paramref name="configuration"/> to the processors
@@ -458,6 +458,46 @@ namespace Pipelines.ExtensionMethods
         public static IPipeline Modify(this IPipeline pipeline, IModificationConfiguration configuration)
         {
             return new ModifiedPipeline(pipeline, configuration).CacheInMemory(false);
+        }
+
+        /// <summary>
+        /// Creates a new pipeline which will apply <see cref="IModificationConfiguration.GetModifications(IProcessor)"/>
+        /// method on each processor of the original pipeline.
+        /// </summary>
+        /// <param name="pipeline">
+        /// An original pipeline to be modified by <paramref name="configuration"/>.
+        /// </param>
+        /// <param name="modification">
+        /// A modification object that describes which processors should be used instead of original.
+        /// </param>
+        /// <returns>
+        /// A new instance of pipeline, that applies <paramref name="configuration"/> to the processors
+        /// of an original pipeline.
+        /// </returns>
+        public static IPipeline Modify(this IPipeline pipeline, ChainingModification modification)
+        {
+            var configuration = modification.GetConfiguration();
+            return Modify(pipeline, configuration);
+        }
+
+        /// <summary>
+        /// Creates a new pipeline which will apply <see cref="IModificationConfiguration.GetModifications(IProcessor)"/>
+        /// method on each processor of the original pipeline.
+        /// </summary>
+        /// <param name="pipeline">
+        /// An original pipeline to be modified by <paramref name="configuration"/>.
+        /// </param>
+        /// <param name="modification">
+        /// An action object describing how processors should be modified.
+        /// </param>
+        /// <returns>
+        /// A new instance of pipeline, that applies <paramref name="configuration"/> to the processors
+        /// of an original pipeline.
+        /// </returns>
+        public static IPipeline Modify(this IPipeline pipeline, params Action<ChainingModification>[] configurators)
+        {
+            var modification = Modification.Configure(configurators);
+            return Modify(pipeline, modification);
         }
     }
 }

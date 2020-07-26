@@ -14,25 +14,22 @@ namespace Pipelines.Implementations.Pipelines
         public IProcessorMatcher Matcher { get; }
         public IEnumerable<IProcessor> Successors { get; }
 
-        public IEnumerable<IProcessor> GetModifications(IProcessor processor)
+        public IEnumerable<IProcessor> GetModifications(IEnumerable<IProcessor> processors)
         {
-            yield return processor;
-
-            var match = Matcher.Matches(processor);
-            
-            if (match)
+            foreach (var processor in processors)
             {
-                foreach (var successor in Successors)
+                yield return processor;
+
+                var match = Matcher.Matches(processor);
+
+                if (match)
                 {
-                    yield return successor;
+                    foreach (var successor in Successors)
+                    {
+                        yield return successor;
+                    }
                 }
             }
-        }
-
-        public bool HasModifications(IProcessor processor)
-        {
-            var match = Matcher.Matches(processor);
-            return match;
         }
     }
 }
