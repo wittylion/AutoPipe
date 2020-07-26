@@ -7,7 +7,15 @@ namespace Pipelines.Implementations.Processors
     /// </summary>
     public static class ProcessorMatcher
     {
+        /// <summary>
+        /// A matcher that always returns true will be useful when you need to log something
+        /// or debug anything right after each processor.
+        /// </summary>
         public static readonly IProcessorMatcher True = new DelegateProcessorMatcher(_ => true);
+
+        /// <summary>
+        /// A matcher that always returns false.
+        /// </summary>
         public static readonly IProcessorMatcher False = new DelegateProcessorMatcher(_ => false);
 
         /// <summary>
@@ -40,6 +48,16 @@ namespace Pipelines.Implementations.Processors
             return ByType(typeof(TProcessor));
         }
 
+        /// <summary>
+        /// Creates <see cref="ProcessorMatcherByType"/> by passing a <paramref name="type"/> as type
+        /// to the constructor.
+        /// </summary>
+        /// <param name="type">
+        /// A type to be compared to types of other processors.
+        /// </param>
+        /// <returns>
+        /// A new instance of <see cref="ProcessorMatcherByType"/>.
+        /// </returns>
         public static ProcessorMatcherByType ByType(Type type)
         {
             return new ProcessorMatcherByType(type);
