@@ -13,13 +13,20 @@
     <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
+      A moment of happiness:
+      OMG, version 1.1.7 has been downloaded more than 1000 times :)
+      I am so happy, that you guys like this package. Cheers!
+
       New in this version:
 
       Added ability to modify an existing pipeline. In scope of this functionality: 
-        Modify extension method.
-        ModifiedPipeline.
-        Modification.Configure()
-        ProcessorMatcher
+        - Added Modify extension method to pipelines;
+        - Added a class called ModifiedPipeline, that accepts modifiers and a pipeline and returns processors of the original pipeline with applied to them modificators;
+        - Added class ChainingModification that allows composing several different modification configurations;
+        - Modification.Configure() - is an easy way to create ChainingModification;
+        - IProcessorMatcher and implementations - is a functionality that helps choosing the right processor for modification.
+
+      More information of pipeline modification can be found in this article: https://wittylion.github.io/2020/08/05/modify-pipeline.html
 
       Also check out new Pipelines.Net.Xml library: https://www.nuget.org/packages/Pipelines.Net.Xml/
       More information on using Pipelines.Net.Xml library you can find here: https://wittylion.github.io/2019/11/22/pipelines-net-xml.html
