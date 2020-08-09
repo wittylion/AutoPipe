@@ -357,5 +357,21 @@ namespace Pipelines.ExtensionMethods
         {
             processor.Run(args, runner).Wait();
         }
+
+        /// <summary>
+        /// Creates an instance of <see cref="ProcessorMatcherByInstance"/>
+        /// passing there a <paramref name="processor"/>.
+        /// </summary>
+        /// <param name="processor">
+        /// A processor to be matched by the processor matcher.
+        /// </param>
+        /// <returns>
+        /// A new instance of <see cref="ProcessorMatcherByInstance"/>
+        /// using an original processor to compare.
+        /// </returns>
+        public static IProcessorMatcher GetMatcher(this IProcessor processor)
+        {
+            return ProcessorMatcher.ByInstance(processor);
+        }
     }
 }

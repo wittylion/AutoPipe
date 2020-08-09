@@ -310,7 +310,41 @@ namespace Pipelines.Implementations.Processors
         {
             return CommonProcessors.DisposeProperties(properties);
         }
-        
+
+        /// <summary>
+        /// Returns a new processor that transforms property by taking a value 
+        /// of propertry <paramref name="propertyToTransform"/> from <typeparamref name="TContext"/>
+        /// and passing it to the <paramref name="transformFunction"/>, which returns a value
+        /// that will be written into <paramref name="transformToProperty"/> property in <typeparamref name="TContext"/>.
+        /// </summary>
+        /// <typeparam name="TContext">
+        /// The type of the context, that is derived from <see cref="PipelineContext"/>.
+        /// </typeparam>
+        /// <typeparam name="TProperty">
+        /// The type of the property that is expected to be transformed in <paramref name="transformFunction"/>.
+        /// </typeparam>
+        /// <typeparam name="TNewProperty">
+        /// The type of the property that is expected to be out of <paramref name="transformFunction"/>.
+        /// </typeparam>
+        /// <param name="propertyToTransform">
+        /// A property in the <typeparamref name="TContext"/> which value will be taken to be transformed
+        /// by the <paramref name="transformFunction"/>.
+        /// </param>
+        /// <param name="transformFunction">
+        /// A function that takes a value of property <paramref name="propertyToTransform"/>
+        /// and returns a new value, that will be written into <paramref name="transformToProperty"/>.
+        /// </param>
+        /// <param name="transformToProperty">
+        /// The name of the new property to be generated in <typeparamref name="TContext"/> 
+        /// by taking <paramref name="propertyToTransform"/> and passing it to the
+        /// <paramref name="transformFunction"/>.
+        /// </param>
+        /// <returns>
+        /// A new processor that transforms property by taking a value 
+        /// of propertry <paramref name="propertyToTransform"/> from <typeparamref name="TContext"/>
+        /// and passing it to the <paramref name="transformFunction"/>, which returns a value
+        /// that will be written into <paramref name="transformToProperty"/> property in <typeparamref name="TContext"/>.
+        /// </returns>
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TContext, TProperty, TNewProperty> transformFunction, string transformToProperty)
