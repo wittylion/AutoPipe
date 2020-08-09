@@ -62,5 +62,20 @@ namespace Pipelines.Implementations.Processors
         {
             return new ProcessorMatcherByType(type);
         }
+
+        /// <summary>
+        /// Creates <see cref="DelegateProcessorMatcher"/> by passing a <paramref name="predicate"/> as a delegate
+        /// to the constructor.
+        /// </summary>
+        /// <param name="predicate">
+        /// A predicate that will be used to match a processor.
+        /// </param>
+        /// <returns>
+        /// A new instance of <see cref="DelegateProcessorMatcher"/>.
+        /// </returns>
+        public static DelegateProcessorMatcher Custom(Predicate<IProcessor> predicate)
+        {
+            return new DelegateProcessorMatcher(predicate);
+        }
     }
 }

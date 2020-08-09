@@ -45,7 +45,7 @@ namespace Pipelines.ExtensionMethods
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
-            return ActionProcessor.FromAction(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
+            return ActionProcessor.FromAction(async args => await pipeline.Run(args, runner));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Pipelines.ExtensionMethods
         /// </returns>
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
         {
-            return ActionProcessor.FromAction<TArgs>(async args => await runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args));
+            return ActionProcessor.FromAction<TArgs>(async args => await pipeline.Run(args, runner));
         }
 
         /// <summary>
@@ -170,7 +170,8 @@ namespace Pipelines.ExtensionMethods
         /// </returns>
         public static Task Run<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
         {
-            return runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args);
+            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            return runner.RunPipeline(pipeline, args);
         }
 
         /// <summary>

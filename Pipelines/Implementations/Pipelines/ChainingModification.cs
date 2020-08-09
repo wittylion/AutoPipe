@@ -10,6 +10,40 @@ namespace Pipelines.Implementations.Pipelines
     {
         protected LinkedList<IModificationConfiguration> configurations = new LinkedList<IModificationConfiguration>();
 
+        public ChainingModification AddFirst<TProcessorFirst>() where TProcessorFirst : IProcessor, new()
+        {
+            return AddFirst(new TProcessorFirst());
+        }
+
+        public ChainingModification AddFirst<TProcessorFirst, TProcessorSecond>()
+            where TProcessorFirst : IProcessor, new()
+            where TProcessorSecond : IProcessor, new()
+        {
+            return AddFirst(new TProcessorFirst().ThenProcessor(new TProcessorSecond()));
+        }
+
+        public ChainingModification AddFirst<TProcessorFirst, TProcessorSecond, TProcessorThird>()
+            where TProcessorFirst : IProcessor, new()
+            where TProcessorSecond : IProcessor, new()
+            where TProcessorThird : IProcessor, new()
+        {
+            return AddFirst(
+                new TProcessorFirst()
+                    .ThenProcessor(new TProcessorSecond())
+                    .ThenProcessor(new TProcessorThird())
+                );
+        }
+
+        public ChainingModification AddFirst(params IProcessor[] processors)
+        {
+            return AddFirst((IEnumerable<IProcessor>)processors);
+        }
+
+        public ChainingModification AddFirst(IEnumerable<IProcessor> processors)
+        {
+            return Insert(0, processors);
+        }
+
         public ChainingModification AddLast<TProcessorLast>() where TProcessorLast : IProcessor, new()
         {
             return AddLast(new TProcessorLast());
