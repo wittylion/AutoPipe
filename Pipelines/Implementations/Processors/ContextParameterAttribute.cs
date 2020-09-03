@@ -7,5 +7,8 @@ namespace Pipelines.Implementations.Processors
     {
         public string Name { get; set; }
         public bool Required { get; set; }
+        public bool AbortIfNotExist { get; set; }
+        public string ErrorMessage { get; set; }
+        public object DefaultValue { get; set; }
     }
 }
