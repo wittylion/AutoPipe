@@ -17,26 +17,33 @@ namespace Pipelines.Implementations.Processors
             Methods = GetMethodsToExecute();
         }
 
-        protected virtual IEnumerable<MethodInfo> GetMethodsToExecute()
+        public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
             var type = this.GetType();
-            var bindingAttr = GetMethodBindingAttributes().Aggregate((l,r) => l | r);
-            return type.GetMethods(bindingAttr).Where(MethodFilter).OrderBy(OrderByAttributeProperty);
+            var allAttributes = GetMethodBindingAttributes();
+
+            if (allAttributes.HasNoValue())
+            {
+                return Enumerable.Empty<MethodInfo>();
+            }
+
+            var bindingAttr = allAttributes.Aggregate((l,r) => l | r);
+            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderFromAttribute);
         }
 
-        protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
+        public virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
             return new [] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static };
         }
 
-        protected virtual bool MethodFilter(MethodInfo method)
+        public virtual bool AcceptableByFilter(MethodInfo method)
         {
             return method.GetCustomAttribute<ExecuteMethodAttribute>(false) != null;
         }
 
-        protected virtual int OrderByAttributeProperty(MethodInfo method)
+        public virtual int GetOrderFromAttribute(MethodInfo method)
         {
-            return method.GetCustomAttribute<ExecuteMethodAttribute>().Order;
+            return method.GetCustomAttribute<ExecuteMethodAttribute>()?.Order ?? default;
         }
 
         protected virtual async Task ExecuteMethod(MethodInfo method, PipelineContext context)
@@ -150,12 +157,12 @@ namespace Pipelines.Implementations.Processors
                         }
                         else
                         {
-                            yield return metadata.DefaultValue;
+                            yield return metadata?.DefaultValue;
                         }
                     }
                     else
                     {
-                        yield return metadata.DefaultValue;
+                        yield return metadata?.DefaultValue;
                     }
                 }
             }
