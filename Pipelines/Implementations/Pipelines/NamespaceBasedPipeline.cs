@@ -35,7 +35,7 @@ namespace Pipelines.Implementations.Pipelines
                            let attributes = type.GetCustomAttributes()
                            where !attributes.OfType<SkipProcessorAttribute>().Any()
                            let orderAttribute = attributes.OfType<ProcessorOrderAttribute>().FirstOrDefault()
-                           orderby orderAttribute?.Order ?? int.MaxValue, type.Name
+                           orderby orderAttribute?.Order ?? default, type.Name
                            select constructor.Invoke(new object[0]) as IProcessor;
 
                     result.AddRange(processors);
