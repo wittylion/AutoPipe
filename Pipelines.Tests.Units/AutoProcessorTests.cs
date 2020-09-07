@@ -35,6 +35,13 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
+        public void AcceptableByFilter_ShouldNotThrowExceptionAndBeNotAcceptable_WhenMethodIsNull()
+        {
+            TestAutoProcessor processor = new TestAutoProcessor();
+            processor.AcceptableByFilter(null).Should().BeFalse();
+        }
+
+        [Fact]
         public void AcceptableByFilter_ShouldNotAcceptMethod_WhenMethodHasNoExecuteMethodAttribute()
         {
             TestAutoProcessor processor = new TestAutoProcessor();
@@ -71,21 +78,32 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
-        public void GetOrderFromAttribute_ShouldReturnNumberFromExecuteMethodAttribute_WhenItIsSpecified()
+        public void GetOrderOfExecution_ShouldReturnNumberFromExecuteMethodAttribute_WhenItIsSpecified()
         {
             TestAutoProcessor processor = new TestAutoProcessor();
             var method = processor.GetType().GetMethod(nameof(TestAutoProcessor.EmptyMethod2));
-            processor.GetOrderFromAttribute(method).Should().Be(method.GetAttribute<ExecuteMethodAttribute>().Order);
+            processor.GetOrderOfExecution(method).Should().Be(method.GetAttribute<ExecuteMethodAttribute>().Order);
         }
 
         [Fact]
-        public void GetOrderFromAttribute_ShouldReturnNotThrowExceptionAndReturnZero_WhenMethodDoesntHaveAttribute()
+        public void GetOrderOfExecution_ShouldReturnNotThrowExceptionAndReturnZero_WhenMethodDoesntHaveAttribute()
         {
             TestAutoProcessor processor = new TestAutoProcessor();
             var method = processor.GetType().GetMethod(nameof(TestAutoProcessor.EmptyMethodNotForExecution));
-            processor.GetOrderFromAttribute(method).Should().Be(default);
+            processor.GetOrderOfExecution(method).Should().Be(default);
         }
 
+        [Fact]
+        public void GetOrderOfExecution_ShouldReturnNotThrowExceptionAndReturnZero_WhenMethodIsNull()
+        {
+            TestAutoProcessor processor = new TestAutoProcessor();
+            processor.GetOrderOfExecution(null).Should().Be(default);
+        }
+
+        public void ProcessTask_ShouldSkipTask_WhenItIsNull()
+        {
+
+        }
     }
 
     public class TestAutoProcessor : AutoProcessor

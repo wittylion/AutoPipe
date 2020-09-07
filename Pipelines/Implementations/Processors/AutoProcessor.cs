@@ -27,49 +27,49 @@ namespace Pipelines.Implementations.Processors
                 return Enumerable.Empty<MethodInfo>();
             }
 
-            var bindingAttr = allAttributes.Aggregate((l,r) => l | r);
-            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderFromAttribute);
+            var bindingAttr = allAttributes.Aggregate((l, r) => l | r);
+            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderOfExecution);
         }
 
         public virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
-            return new [] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static };
+            return new[] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static };
         }
 
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return method.GetCustomAttribute<ExecuteMethodAttribute>(false) != null;
+            return method?.GetCustomAttribute<ExecuteMethodAttribute>(false) != null;
         }
 
-        public virtual int GetOrderFromAttribute(MethodInfo method)
+        public virtual int GetOrderOfExecution(MethodInfo method)
         {
-            return method.GetCustomAttribute<ExecuteMethodAttribute>()?.Order ?? default;
+            return method?.GetCustomAttribute<ExecuteMethodAttribute>()?.Order ?? default;
         }
 
         protected virtual async Task ExecuteMethod(MethodInfo method, PipelineContext context)
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
-            await ProcessResult(method, context, result);
+            await ProcessResult(context, result);
         }
 
-        protected virtual async Task ProcessResult(MethodInfo method, PipelineContext context, object methodResult)
+        protected virtual async Task ProcessResult(PipelineContext context, object methodResult)
         {
-            if (methodResult == null)
+            if (methodResult.HasNoValue())
             {
                 return;
             }
 
             if (methodResult is Task task)
             {
-                await ProcessTask(method, context, task);
+                await ProcessTask(context, task);
             }
 
             if (methodResult is IEnumerable enumerable)
             {
                 foreach (var item in enumerable)
                 {
-                    await ProcessResult(method, context, item);
+                    await ProcessResult(context, item);
                 }
                 return;
             }
@@ -79,11 +79,16 @@ namespace Pipelines.Implementations.Processors
                 action(context);
             }
 
-            ProcessObjectProperties(method, context, methodResult);
+            ProcessObjectProperties(context, methodResult);
         }
 
-        protected virtual void ProcessObjectProperties(MethodInfo method, PipelineContext context, object propertyContainer)
+        protected virtual void ProcessObjectProperties(PipelineContext context, object propertyContainer)
         {
+            if (propertyContainer.HasNoValue() || context.HasNoValue())
+            {
+                return;
+            }
+
             foreach (var prop in propertyContainer.GetType().GetProperties())
             {
                 var contextProperty = new PipelineProperty(prop.Name, prop.GetValue(propertyContainer, null));
@@ -91,23 +96,30 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
-        protected virtual async Task ProcessTask(MethodInfo method, PipelineContext context, Task task)
+        public virtual async Task ProcessTask(PipelineContext context, Task task)
         {
+            if (task.HasNoValue())
+            {
+                return;
+            }
+
             await task;
 
-            var property = task.GetType().GetProperty("Result");
+            var property = task.GetType().GetProperty(nameof(Task<object>.Result));
 
-            if (property != null)
+            if (property.HasNoValue())
             {
-                var value = property.GetValue(task);
-                if (value != null)
-                {
-                    await ProcessResult(method, context, value);
-                }
+                return;
+            }
+
+            var result = property.GetValue(task);
+            if (result.HasValue())
+            {
+                await ProcessResult(context, result);
             }
         }
 
-        protected virtual Action<PipelineContext> AddErrorMessage(string message)
+        public virtual Action<PipelineContext> AddErrorMessage(string message)
         {
             return context => context.AddError(message);
         }
