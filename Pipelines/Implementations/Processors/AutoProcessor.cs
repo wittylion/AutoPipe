@@ -46,14 +46,14 @@ namespace Pipelines.Implementations.Processors
             return method?.GetCustomAttribute<ExecuteMethodAttribute>()?.Order ?? default;
         }
 
-        protected virtual async Task ExecuteMethod(MethodInfo method, PipelineContext context)
+        public virtual async Task ExecuteMethod(MethodInfo method, PipelineContext context)
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
             await ProcessResult(context, result);
         }
 
-        protected virtual async Task ProcessResult(PipelineContext context, object methodResult)
+        public virtual async Task ProcessResult(PipelineContext context, object methodResult)
         {
             if (methodResult.HasNoValue())
             {
@@ -77,12 +77,20 @@ namespace Pipelines.Implementations.Processors
             if (methodResult is Action<PipelineContext> action)
             {
                 action(context);
+                return;
+            }
+
+            if (methodResult is Func<PipelineContext, object> functionContext)
+            {
+                var functionResult = functionContext(context);
+                await ProcessResult(context, functionResult);
+                return;
             }
 
             ProcessObjectProperties(context, methodResult);
         }
 
-        protected virtual void ProcessObjectProperties(PipelineContext context, object propertyContainer)
+        public virtual void ProcessObjectProperties(PipelineContext context, object propertyContainer)
         {
             if (propertyContainer.HasNoValue() || context.HasNoValue())
             {
@@ -119,7 +127,12 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
-        public virtual Action<PipelineContext> AddErrorMessage(string message)
+        protected virtual Action<PipelineContext> AddInformationMessage(string message)
+        {
+            return context => context.AddInformation(message);
+        }
+
+        protected virtual Action<PipelineContext> AddErrorMessage(string message)
         {
             return context => context.AddError(message);
         }
@@ -134,7 +147,7 @@ namespace Pipelines.Implementations.Processors
             return context => context.AbortPipelineWithErrorMessage(message);
         }
 
-        protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, PipelineContext context)
+        public virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, PipelineContext context)
         {
             var parameters = method.GetParameters();
 
@@ -180,7 +193,7 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
-        protected virtual bool AllParametersAreValid(MethodInfo method, PipelineContext context)
+        public virtual bool AllParametersAreValid(MethodInfo method, PipelineContext context)
         {
             var parameters = method.GetParameters();
 
@@ -218,7 +231,9 @@ namespace Pipelines.Implementations.Processors
                     }
                     else
                     {
-                        var message = containsErrorMessage ? $"Property [{parameter.Name}] is not found. Skipping method [{method.Name}] in [{this.GetType().Name}]: \"{metadata.ErrorMessage}\"" : $"Property [{parameter.Name}] is not found. Skipping method [{method.Name}] in [{this.GetType().Name}].";
+                        var messageTemplate = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
+                        var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
+                        var message = containsErrorMessage ? formattedMessage + $" {metadata.ErrorMessage}" : formattedMessage;
 
                         if (metadata.AbortIfNotExist)
                         {
@@ -235,7 +250,9 @@ namespace Pipelines.Implementations.Processors
                     var val = property.Value.Value;
                     if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
-                        var message = containsErrorMessage ? $"Property [{parameter.Name}] is not assignable to type [{parameter.ParameterType}], its value is [{val}]. Skipping method [{method.Name}] in [{this.GetType().Name}]: \"{metadata.ErrorMessage}\"" : $"Property [{parameter.Name}] is not assignable to type [{parameter.ParameterType}], its value is [{val}]. Skipping method [{method.Name}] in [{this.GetType().Name}].";
+                        var messageTemplate = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
+                        var formattedMessage = string.Format(messageTemplate, parameter.Name, parameter.ParameterType, val, method.Name, method.DeclaringType.Name);
+                        var message = containsErrorMessage ? formattedMessage + $" {metadata.ErrorMessage}" : formattedMessage;
 
                         if (metadata.AbortIfNotExist)
                         {
