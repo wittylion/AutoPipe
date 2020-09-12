@@ -20,29 +20,33 @@ namespace Pipelines.Implementations.Pipelines
 
         public IEnumerable<IProcessor> GetProcessors()
         {
-            var result = new List<IProcessor>();
+            var result = new List<Type>();
             var assemblies = GetAssembliesThatMayContainProcessors();
 
             foreach (var assembly in assemblies)
             {
                 var types = GetTypesInNamespaceSafe(assembly);
-
-                if (types.Any())
-                {
-                    var processors = from type in types
-                           let constructor = type.GetConstructor(Type.EmptyTypes)
-                           where constructor != null
-                           let attributes = type.GetCustomAttributes()
-                           where !attributes.OfType<SkipProcessorAttribute>().Any()
-                           let orderAttribute = attributes.OfType<ProcessorOrderAttribute>().FirstOrDefault()
-                           orderby orderAttribute?.Order ?? default, type.Name
-                           select constructor.Invoke(new object[0]) as IProcessor;
-
-                    result.AddRange(processors);
-                }
+                result.AddRange(types);
             }
 
-            return result.AsReadOnly();
+            return result.OrderBy(GetProcessorOrder).Select(ConstructProcessor);
+        }
+
+        protected virtual bool FilterProcessors(Type type)
+        {
+            return type.Namespace == Namespace 
+                && typeof(IProcessor).IsAssignableFrom(type) 
+                && type.GetCustomAttribute<SkipProcessorAttribute>() == null;
+        }
+
+        protected virtual int GetProcessorOrder(Type type)
+        {
+            return type?.GetCustomAttribute<ProcessorOrderAttribute>()?.Order ?? default;
+        }
+
+        protected virtual IProcessor ConstructProcessor(Type type)
+        {
+            return type?.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as IProcessor ?? null;
         }
 
         protected virtual IEnumerable<Type> GetTypesInNamespaceSafe(Assembly assembly)
@@ -80,11 +84,7 @@ namespace Pipelines.Implementations.Pipelines
 
         protected virtual IEnumerable<Type> GetTypesInNamespace(Assembly assembly)
         {
-            var types = assembly.GetTypes();
-
-            return from type in types
-                    where type.Namespace == Namespace && typeof(IProcessor).IsAssignableFrom(type)
-                    select type;
+            return assembly.GetTypes().Where(FilterProcessors);
         }
 
         protected virtual IEnumerable<Assembly> GetAssembliesThatMayContainProcessors()
