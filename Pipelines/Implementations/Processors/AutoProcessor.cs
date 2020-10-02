@@ -189,6 +189,21 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
+        /// <summary>
+        /// Awaits a task and if it has a result value, takes
+        /// the result value and puts all its properties to the
+        /// <paramref name="context"/>.
+        /// </summary>
+        /// <param name="context">
+        /// A context to be used to set properties of the task result.
+        /// </param>
+        /// <param name="task">
+        /// A task to be awaited.
+        /// </param>
+        /// <returns>
+        /// A task indicating whether the processing of the <paramref name="task"/>
+        /// has been completed.
+        /// </returns>
         protected virtual async Task ProcessTask(PipelineContext context, Task task)
         {
             if (task.HasNoValue())
@@ -272,6 +287,22 @@ namespace Pipelines.Implementations.Processors
             return context => context.AbortPipelineWithErrorMessage(message);
         }
 
+        /// <summary>
+        /// Tries to define values to pass them to the method.
+        /// Uses the reflection to get the names of the parameters
+        /// and then searches them in the pipeline conetext.
+        /// In case parameter method has a type derived from <see cref="PipelineContext"/>
+        /// passes the <paramref name="context"/>.
+        /// </summary>
+        /// <param name="method">
+        /// A method to be used to define parameters.
+        /// </param>
+        /// <param name="context">
+        /// A context to find values to be passed to the method.
+        /// </param>
+        /// <returns>
+        /// Collection of values in order defined in the <paramref name="method"/>.
+        /// </returns>
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, PipelineContext context)
         {
             var parameters = method.GetParameters();
@@ -318,6 +349,21 @@ namespace Pipelines.Implementations.Processors
             }
         }
 
+        /// <summary>
+        /// Does a predefined check to validate execution
+        /// possibility of the of the <paramref name="method"/>.
+        /// Uses <see cref="ContextParameterAttribute"/> to do some
+        /// parameter validation checks.
+        /// </summary>
+        /// <param name="method">
+        /// A method which parameters should be checked for validity.
+        /// </param>
+        /// <param name="context">
+        /// A context used to do a parameters check.
+        /// </param>
+        /// <returns>
+        /// Value indicating whether all parameters are valid or not.
+        /// </returns>
         protected virtual bool AllParametersAreValid(MethodInfo method, PipelineContext context)
         {
             var parameters = method.GetParameters();
@@ -396,6 +442,18 @@ namespace Pipelines.Implementations.Processors
             return true;
         }
 
+
+        /// <summary>
+        /// Executes all methods found with <see cref="GetMethodsToExecute"/> 
+        /// using all the power of <see cref="PipelineContext"/>.
+        /// </summary>
+        /// <param name="context">
+        /// A context which properties are searched for methods parameters and
+        /// which is used for returned value handling.
+        /// </param>
+        /// <returns>
+        /// A task object indicating whether execution of the method has been completed.
+        /// </returns>
         public override async Task SafeExecute(PipelineContext args)
         {
             if (Methods != null)
