@@ -95,7 +95,7 @@ namespace Pipelines
         {
             this.UpdateOrAddProperty(name, value);
         }
-        
+
         /// <summary>
         /// Adds the property to the collection <see cref="Properties"/>
         /// or updates the value if key of parameter <paramref name="name"/>
@@ -128,7 +128,7 @@ namespace Pipelines
                 dictionary.Add(name, property);
             }
         }
-        
+
         /// <summary>
         /// Adds the property to the collection <see cref="Properties"/>
         /// or if the key of the parameter <paramref name="name"/>
@@ -398,7 +398,7 @@ namespace Pipelines
         /// or <c>null</c> if property was not added or the type
         /// of the value is different than <see cref="TValue"/>.
         /// </returns>
-        public virtual TValue GetPropertyValueOrNull<TValue>(string name) where TValue: class
+        public virtual TValue GetPropertyValueOrNull<TValue>(string name) where TValue : class
         {
             return this.GetPropertyValueOrDefault<TValue>(name, null);
         }
@@ -443,7 +443,7 @@ namespace Pipelines
             }
             return new PipelineMessage[0];
         }
-        
+
         /// <summary>
         /// Returns all messages of the pipeline context
         /// that have been added during pipeline execution,
@@ -457,7 +457,174 @@ namespace Pipelines
         {
             return this.GetMessages(MessageFilter.All);
         }
-        
+
+        /// <summary>
+        /// Returns all text messages of the pipeline context
+        /// that have been added during pipeline execution,
+        /// including: informations, warnings and errors.
+        /// </summary>
+        /// <returns>
+        /// All text messages of the context, that have been added
+        /// during pipeline execution.
+        /// </returns>
+        public virtual string[] GetAllMessageTexts()
+        {
+            return this.GetAllMessages()
+                .Select(messageContainer => messageContainer.Message)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Returns filtered text messages of the pipeline context
+        /// that have been added during pipeline execution,
+        /// including: informations, warnings and errors.
+        /// </summary>
+        /// <param name="filter">
+        /// A filter for the message collection.
+        /// </param>
+        /// <returns>
+        /// Filtered text messages of the context, that have been added
+        /// during pipeline execution.
+        /// </returns>
+        public virtual string[] GetMessageTexts(MessageFilter filter)
+        {
+            return this.GetMessages(filter)
+                .Select(messageContainer => messageContainer.Message)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Returns filtered text messages of the pipeline context
+        /// that have been added during pipeline execution,
+        /// including: informations, warnings and errors.
+        /// </summary>
+        /// <param name="filter">
+        /// A filter for the message collection.
+        /// </param>
+        /// <param name="format">
+        /// Function that accepts <see cref="PipelineMessage.Message"/>
+        /// and <see cref="PipelineMessage.MessageType"/> and returns a
+        /// formatted value to be returned by this function.
+        /// </param>
+        /// <returns>
+        /// Filtered text messages of the context, that have been added
+        /// during pipeline execution.
+        /// </returns>
+        public virtual string[] GetMessageTexts(MessageFilter filter, Func<string, MessageType, string> format)
+        {
+            if (format.HasNoValue())
+            {
+                return this.GetMessageTexts(filter);
+            }
+
+            return this.GetMessages(filter)
+                .Select(messageContainer => 
+                    format(messageContainer.Message, messageContainer.MessageType))
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Returns filtered text messages of the pipeline context
+        /// that have been added during pipeline execution,
+        /// including: informations, warnings and errors.
+        /// </summary>
+        /// <param name="filter">
+        /// A filter for the message collection.
+        /// </param>
+        /// <param name="format">
+        /// Function that accepts <see cref="PipelineMessage.Message"/>
+        /// and <see cref="PipelineMessage.MessageType"/> and returns a
+        /// formatted value to be returned by this function.
+        /// </param>
+        /// <returns>
+        /// Filtered text messages of the context, that have been added
+        /// during pipeline execution.
+        /// </returns>
+        public virtual string[] GetMessageTexts(MessageFilter filter, Func<PipelineMessage, string> format)
+        {
+            if (format.HasNoValue())
+            {
+                return this.GetMessageTexts(filter);
+            }
+
+            return this.GetMessages(filter)
+                .Select(messageContainer => format(messageContainer))
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Returns all text messages of the pipeline context
+        /// that have been added during pipeline execution,
+        /// including: informations, warnings and errors.
+        /// </summary>
+        /// <param name="format">
+        /// Function that accepts <see cref="PipelineMessage.Message"/>
+        /// and <see cref="PipelineMessage.MessageType"/> and returns a
+        /// formatted value to be returned by this function.
+        /// </param>
+        /// <returns>
+        /// All text messages of the context, that have been added
+        /// during pipeline execution.
+        /// </returns>
+        public virtual string[] GetAllMessageTexts(Func<string, MessageType, string> format)
+        {
+            if (format.HasNoValue())
+            {
+                return this.GetAllMessageTexts();
+            }
+
+            return this.GetAllMessages()
+                .Select(messageContainer =>
+                    format(messageContainer.Message, messageContainer.MessageType))
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Returns all text messages of the pipeline context
+        /// that have been added during pipeline execution,
+        /// including: informations, warnings and errors.
+        /// </summary>
+        /// <param name="format">
+        /// Function that accepts <see cref="PipelineMessage.Message"/>
+        /// and <see cref="PipelineMessage.MessageType"/> and returns a
+        /// formatted value to be returned by this function.
+        /// </param>
+        /// <returns>
+        /// All text messages of the context, that have been added
+        /// during pipeline execution.
+        /// </returns>
+        public virtual string[] GetAllMessageTexts(Func<PipelineMessage, string> format)
+        {
+            if (format.HasNoValue())
+            {
+                return this.GetAllMessageTexts();
+            }
+
+            return this.GetAllMessages()
+                .Select(messageContainer => format(messageContainer))
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Produces a string of joined texts of message collection.
+        /// </summary>
+        /// <param name="separator">
+        /// A separator to join the texts of the messages.
+        /// </param>
+        /// <returns>
+        /// Returns a string of joined texts of message collection.
+        /// </returns>
+        public virtual string GetSummaryMessage(
+            string separator = null, MessageFilter filter = MessageFilter.All,
+            Func<PipelineMessage, string> format = null)
+        {
+            string[] texts = this.GetMessageTexts(filter, format);
+
+            separator = separator.Ensure(Environment.NewLine);
+
+            return string.Join(separator, texts);
+        }
+
         /// <summary>
         /// Returns messages of the pipeline context
         /// that have been added during pipeline execution,
@@ -485,7 +652,7 @@ namespace Pipelines
         {
             return this.GetMessages(MessageFilter.Warnings | MessageFilter.Errors);
         }
-        
+
         /// <summary>
         /// Returns information messages that have been added during
         /// pipeline execution to the context. It might contain
@@ -593,7 +760,7 @@ namespace Pipelines
         public PipelineContext()
         {
         }
-        
+
         public PipelineContext(object propertyContainer)
         {
             if (propertyContainer.HasValue())
@@ -647,7 +814,7 @@ namespace Pipelines
             AbortPipeline();
             AddMessage(message, type);
         }
-        
+
         /// <summary>
         /// Executes two actions: aborts pipeline and adds an error message
         /// which signals about wrong pipeline abortion.
@@ -671,7 +838,7 @@ namespace Pipelines
         {
             AbortPipelineWithTypedMessage(message, MessageType.Warning);
         }
-        
+
         /// <summary>
         /// Executes two actions: aborts pipeline and adds an information message
         /// which signals about early pipeline end.
@@ -708,7 +875,7 @@ namespace Pipelines
         {
             AddMessage(message, MessageType.Warning);
         }
-        
+
         /// <summary>
         /// Adds an error message. Use this method when during the pipeline
         /// execution, something goes wrong, and pipeline cannot proceed,

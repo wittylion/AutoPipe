@@ -25,6 +25,17 @@ namespace Pipelines.ExtensionMethods
         {
             return enumerable.Ensure(Enumerable.Empty<T>());
         }
+
+        public static IEnumerable<T> OnlyValuable<T>(this IEnumerable<T> enumerable) where T : class
+        {
+            if (enumerable.HasNoValue())
+            {
+                return enumerable;
+            }
+
+            return enumerable.Where(value => value.HasValue());
+        }
+
         /// <summary>
         /// Opposite action of the
         /// <see cref="Enumerable.Any{TSource}(System.Collections.Generic.IEnumerable{TSource})"/>
