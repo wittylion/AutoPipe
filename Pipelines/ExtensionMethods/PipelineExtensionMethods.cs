@@ -236,7 +236,8 @@ namespace Pipelines.ExtensionMethods
         /// </param>
         public static void RunSync<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
         {
-            runner.Ensure(PipelineRunner.StaticInstance).RunPipeline(pipeline, args).Wait();
+            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            runner.RunPipeline(pipeline, args).Wait();
         }
 
         /// <summary>

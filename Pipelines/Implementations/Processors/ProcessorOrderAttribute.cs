@@ -2,7 +2,7 @@
 
 namespace Pipelines.Implementations.Processors
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class ProcessorOrderAttribute : Attribute
     {
         public int Order { get; }
