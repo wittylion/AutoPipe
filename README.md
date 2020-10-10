@@ -53,6 +53,8 @@ Currently code examples can be found on [Witty Lion's official blog](https://wit
 The articles on the site show how to:
 - [Easy create and use context](https://wittylion.github.io/2019/01/25/ways-to-create-context.html)
 - [Use a new namespace based pipeline](https://wittylion.github.io/2019/07/13/namespace-based-pipeline.html)
+- [Use a new auto processor](https://wittylion.github.io/2020/10/04/auto-processor.html)
+- [Modify pipelines](https://wittylion.github.io/2020/08/05/modify-pipeline.html)
 - [Use common processors like "Transform Property"](https://wittylion.github.io/2019/01/23/transform-property-processor.html)
 
 Project example: [https://github.com/SergAtGitHub/Solo.BinaryTree](https://github.com/SergAtGitHub/Solo.BinaryTree)

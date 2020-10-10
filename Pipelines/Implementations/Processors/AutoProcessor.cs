@@ -47,7 +47,7 @@ namespace Pipelines.Implementations.Processors
             }
 
             var bindingAttr = allAttributes.Aggregate((l, r) => l | r);
-            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderOfExecution);
+            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
         }
 
         /// <summary>
