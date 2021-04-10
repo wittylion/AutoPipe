@@ -1,8 +1,10 @@
 ﻿using Castle.Core.Internal;
 using FluentAssertions;
 using Moq;
+using Pipelines.Implementations.Contexts;
 using Pipelines.Implementations.Processors;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -100,9 +102,57 @@ namespace Pipelines.Tests.Units
             processor.GetOrderOfExecution(null).Should().Be(default);
         }
 
-        public void ProcessTask_ShouldSkipTask_WhenItIsNull()
+        [Fact]
+        public async Task ProcessResult_ShouldNotThrowException_WhenTaskIsNull()
         {
+            TestAutoProcessor processor = new TestAutoProcessor();
 
+            PipelineContext context = ContextConstructor.Create();
+            Task task = null;
+
+            await processor.ProcessResult(context, task);
+
+            context.GetAllPropertyObjects().Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public async Task ProcessResult_ShouldNotAssignExtraProperties_WhenTaskIsEmpty()
+        {
+            TestAutoProcessor processor = new TestAutoProcessor();
+
+            PipelineContext context = ContextConstructor.Create();
+            Task task = Task.CompletedTask;
+
+            await processor.ProcessResult(context, task);
+
+            context.GetAllPropertyObjects().Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public async Task AutoProcessor_ShouldSkipOtherMethods_WhenOneAborts()
+        {
+            var processor = new Mock<TestAbortingContextParameter>(MockBehavior.Loose) { CallBase = true };
+
+            PipelineContext context = ContextConstructor.Create();
+            await processor.Object.Execute(context);
+
+            processor.Verify(x => x.EmptyMethod(It.IsAny<object>()), Times.Never );
+            processor.Verify(x => x.EmptyMethod2(), Times.Never );
+        }
+    }
+
+    public class TestAbortingContextParameter : AutoProcessor
+    {
+        [ExecuteMethod(Order = 1)]
+        public virtual void EmptyMethod([ContextParameter(AbortIfNotExist = true, ErrorMessage = "Parameter does not exist.")] object parameter) { }
+
+        [ExecuteMethod(Order = 2)]
+        public virtual void EmptyMethod2() { }
+
+        public TestAbortingContextParameter()
+        {
         }
     }
 
@@ -115,6 +165,11 @@ namespace Pipelines.Tests.Units
         public void EmptyMethod2() { }
 
         public void EmptyMethodNotForExecution() { }
+
+        public new Task ProcessResult(PipelineContext context, object methodResult)
+        {
+            return base.ProcessResult(context, methodResult);
+        }
     }
 
     public class TestOrderOfAutoProcessor : AutoProcessor

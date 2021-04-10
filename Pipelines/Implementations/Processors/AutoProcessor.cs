@@ -138,6 +138,7 @@ namespace Pipelines.Implementations.Processors
             if (methodResult is Task task)
             {
                 await ProcessTask(context, task);
+                return;
             }
 
             if (methodResult is IEnumerable enumerable)
@@ -460,6 +461,11 @@ namespace Pipelines.Implementations.Processors
             {
                 foreach (var method in Methods)
                 {
+                    if (args.IsAborted)
+                    {
+                        break;
+                    }
+
                     if (AllParametersAreValid(method, args))
                     {
                         await ExecuteMethod(method, args);
