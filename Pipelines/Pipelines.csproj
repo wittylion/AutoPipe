@@ -16,11 +16,9 @@
 
       New in this version:
 
-      - Added AutoProcessor that allows easily create self-explanatory methods by using [ExecuteMethod] attribute and by providing additional filters to the method parameters with [ContextParameter] attribute. More information here: https://wittylion.github.io/2020/10/04/auto-processor.html
+      - Fixed AutoProcessor issue: properties of the task (like Result, IsCompleted) were assigned to the context.
 
-      - Added methods to PipelineContext: GetAllMessageTexts, GetMessageTexts, GetSummaryMessage.
-
-      - Fixed mechanism collecting processors around assemblies. Earlier order attribute applied to each group of assemblies and groups followed one by one. Now mechanism collects all processors and then applies an order.
+      - Fixed AutoProcessor issue: aborting method via ContextParameter continued execution on other methods.
 
       Also check out new Pipelines.Net.Xml library: https://www.nuget.org/packages/Pipelines.Net.Xml/
       More information on using Pipelines.Net.Xml library you can find here: https://wittylion.github.io/2019/11/22/pipelines-net-xml.html
@@ -32,8 +30,8 @@
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-    <Version>1.1.9</Version>
-    <AssemblyVersion>1.1.9.0</AssemblyVersion>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <PackageIcon>pipelines-icon.png</PackageIcon>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
