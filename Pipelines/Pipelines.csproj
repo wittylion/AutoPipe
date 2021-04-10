@@ -20,12 +20,12 @@
 
       - Fixed AutoProcessor issue: aborting method via ContextParameter continued execution on other methods.
 
-      Also check out new Pipelines.Net.Xml library: https://www.nuget.org/packages/Pipelines.Net.Xml/
-      More information on using Pipelines.Net.Xml library you can find here: https://wittylion.github.io/2019/11/22/pipelines-net-xml.html
-
-      Please take the survey:
-      https://forms.gle/Y8aogzwPQ3sLKXMCA
-      This inspires and helps wittylion get better.
+      Quick links:
+      https://wittylion.github.io/2020/10/04/auto-processor.html - Auto processor
+      https://wittylion.github.io/2020/08/05/modify-pipeline.html - Modify pipeline
+      https://wittylion.github.io/2019/01/25/ways-to-create-context.html - Work with context
+      https://www.nuget.org/packages/Pipelines.Net.Xml/ - Pipelines.Net.Xml library
+      https://forms.gle/Y8aogzwPQ3sLKXMCA - Share your opinion
 
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
