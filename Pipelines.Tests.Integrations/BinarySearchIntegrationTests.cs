@@ -14,7 +14,7 @@ namespace Pipelines.Tests.Integrations
         [MemberData(nameof(DataSets.GetIntegerArrayCollectionAndNumberFromIt), MemberType = typeof(DataSets))]
         public async void Should_Find_The_Number_In_Data_Array_By_A_Traditional_Implementation(int[] data, int number)
         {
-            var mid = await DependencyResolver.DefaultElementFinder.FindElement(data, number);
+            var mid = await DependencyResolver.DefaultElementFinder.FindElement(data, number).ConfigureAwait(false);
 
             data[mid].Should()
                 .Be(number, "because we are finding this element in the collection.");
@@ -24,7 +24,7 @@ namespace Pipelines.Tests.Integrations
         [MemberData(nameof(DataSets.GetIntegerArrayCollectionAndNumberThatDoesNotBelongToIt), MemberType = typeof(DataSets))]
         public async void Should_Not_Find_The_Number_In_Data_Array_By_A_Traditional_Implementation(int[] data, int number)
         {
-            var mid = await DependencyResolver.DefaultElementFinder.FindElement(data, number);
+            var mid = await DependencyResolver.DefaultElementFinder.FindElement(data, number).ConfigureAwait(false);
 
             mid.Should()
                 .Be(-1, "because we element doesn't exist in collection.");
@@ -34,7 +34,7 @@ namespace Pipelines.Tests.Integrations
         [MemberData(nameof(DataSets.GetIntegerArrayCollectionAndNumberFromIt), MemberType = typeof(DataSets))]
         public async Task Should_Find_The_Number_In_Data_Array_By_Means_Of_Processors(int[] data, int number)
         {
-            var mid = await DependencyResolver.PipelineElementFinder.FindElement(data, number);
+            var mid = await DependencyResolver.PipelineElementFinder.FindElement(data, number).ConfigureAwait(false);
 
             data[mid].Should()
                 .Be(number, "because we are finding this element in the collection.");
@@ -44,7 +44,7 @@ namespace Pipelines.Tests.Integrations
         [MemberData(nameof(DataSets.GetIntegerArrayCollectionAndNumberThatDoesNotBelongToIt), MemberType = typeof(DataSets))]
         public async Task Should_Not_Find_The_Number_In_Data_Array_By_Means_Of_Processors(int[] data, int number)
         {
-            var mid = await DependencyResolver.PipelineElementFinder.FindElement(data, number);
+            var mid = await DependencyResolver.PipelineElementFinder.FindElement(data, number).ConfigureAwait(false);
 
             mid.Should()
                 .Be(-1, "because we element doesn't exist in collection.");
@@ -103,7 +103,7 @@ namespace Pipelines.Tests.Integrations
                     EndSearchIndex = max ?? data.Length - 1
                 };
 
-                await Runner.Run(container);
+                await Runner.Run(container).ConfigureAwait(false);
 
                 return container.FoundIndex;
             }

@@ -17,7 +17,7 @@ namespace Pipelines.Tests.Units
                 IsAborted = true
             };
             var processor = new TestProcessor(() => reachedExecution = true);
-            await processor.Execute(args);
+            await processor.Execute(args).ConfigureAwait(false);
             reachedExecution.Should().BeFalse("pipeline was aborted");
         }
 
@@ -26,7 +26,7 @@ namespace Pipelines.Tests.Units
         {
             var reachedExecution = false;
             var processor = new TestProcessor(() => reachedExecution = true);
-            await ContextConstructor.Create().ExecuteWithProcessor(processor);
+            await ContextConstructor.Create().ExecuteWithProcessor(processor).ConfigureAwait(false);
             reachedExecution.Should().BeTrue("pipeline was not aborted");
         }
     }

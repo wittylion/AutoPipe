@@ -33,7 +33,7 @@ namespace Pipelines
             if (processor == null)
                 return;
 
-            await processor.Execute(args);
+            await processor.Execute(args).ConfigureAwait(false);
         }
     }
 }

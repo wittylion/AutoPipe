@@ -52,7 +52,7 @@ namespace Pipelines.Implementations.Runners
 
             try
             {
-                await this.OriginalRunner.RunProcessor(processor, args);
+                await this.OriginalRunner.RunProcessor(processor, args).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

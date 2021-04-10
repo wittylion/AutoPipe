@@ -32,7 +32,7 @@ namespace Pipelines.Tests.Units
             var cached = pipeline.Object.CacheInMemoryForPeriod(waitPeriod);
 
             cached.GetProcessors(); // Caching call
-            await Task.Delay(waitPeriod.Add(TimeSpan.FromMilliseconds(100)));
+            await Task.Delay(waitPeriod.Add(TimeSpan.FromMilliseconds(100))).ConfigureAwait(false);
             cached.GetProcessors(); // Extra call to check cache
 
             pipeline.Verify(p => p.GetProcessors(), Times.Exactly(2),

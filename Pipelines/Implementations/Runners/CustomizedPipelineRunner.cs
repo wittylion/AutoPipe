@@ -81,7 +81,7 @@ namespace Pipelines.Implementations.Runners
             processors = processors.Ensure(Enumerable.Empty<IProcessor>());
             foreach (var processor in processors)
             {
-                await ProcessorRunner.RunProcessor(processor, args);
+                await ProcessorRunner.RunProcessor(processor, args).ConfigureAwait(false);
             }
         }
     }

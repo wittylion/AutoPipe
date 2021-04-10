@@ -13,7 +13,7 @@ namespace Pipelines.Tests.Integrations
             PipelineRunner runner = new PipelineRunner();
 
             var arguments = new HelloWorldArguments() { Name = "Sergey" };
-            await runner.RunPipeline(new HelloWorldPipeline(), arguments);
+            await runner.RunPipeline(new HelloWorldPipeline(), arguments).ConfigureAwait(false);
 
             arguments.Result.Should().Be("Hello, Sergey!",
                 $"we've passed name '{arguments.Name}' to the pipeline, and expect it to be displayed in phrase 'Hello, {arguments.Name}!'");
@@ -25,7 +25,7 @@ namespace Pipelines.Tests.Integrations
             PipelineRunner runner = new PipelineRunner();
 
             var arguments = new HelloWorldArguments { Name = "   " };
-            await runner.RunPipeline(new HelloWorldPipelineWithValidation(), arguments);
+            await runner.RunPipeline(new HelloWorldPipelineWithValidation(), arguments).ConfigureAwait(false);
 
             arguments.GetMessages(MessageFilter.Errors).Should().ContainSingle(pipelineMessage =>
                 pipelineMessage.Message.Equals(HelloWorldPipelineMessages.NameMustBeProvided));

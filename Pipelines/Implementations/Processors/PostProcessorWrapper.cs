@@ -17,7 +17,7 @@ namespace Pipelines.Implementations.Processors
 
         public override async Task CustomExecute(object arguments)
         {
-            await AdditionalProcessor.Execute(arguments);
+            await AdditionalProcessor.Execute(arguments).ConfigureAwait(false);
         }
     }
     /// <summary>
@@ -37,7 +37,7 @@ namespace Pipelines.Implementations.Processors
 
         public override async Task CustomExecute(TArgs arguments)
         {
-            await AdditionalProcessor.Execute(arguments);
+            await AdditionalProcessor.Execute(arguments).ConfigureAwait(false);
         }
     }
 }

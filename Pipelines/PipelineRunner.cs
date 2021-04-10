@@ -85,7 +85,7 @@ namespace Pipelines
             processors = processors.Ensure(Enumerable.Empty<IProcessor>());
             foreach (var processor in processors)
             {
-                await RunProcessor(processor, args);
+                await RunProcessor(processor, args).ConfigureAwait(false);
             }
         }
 
@@ -109,7 +109,7 @@ namespace Pipelines
         {
             if (processor.HasValue())
             {
-                await ProcessorsRunner.RunProcessor(processor, args);
+                await ProcessorsRunner.RunProcessor(processor, args).ConfigureAwait(false);
             }
         }
     }

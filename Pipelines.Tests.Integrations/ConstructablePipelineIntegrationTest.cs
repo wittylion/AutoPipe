@@ -13,7 +13,7 @@ namespace Pipelines.Tests.Integrations
         public async void When_Using_Action_Method_In_Pipeline_Declaration_It_Will_Be_Executed()
         {
             var context = new PipelineContext();
-            await new AddMessagePipeline().Run(context);
+            await new AddMessagePipeline().Run(context).ConfigureAwait(false);
             context.GetAllMessages().Length
                 .Should().Be(1, "because pipeline intended to add a message");
         }
@@ -22,7 +22,7 @@ namespace Pipelines.Tests.Integrations
         public async void When_Using_Iterator_Method_In_Pipeline_Declaration_It_Will_Be_Executed()
         {
             var context = new PipelineContext(new { Messages = ContextValues.Messages });
-            await new AddMessagesFromPropertyPipeline().Run(context);
+            await new AddMessagesFromPropertyPipeline().Run(context).ConfigureAwait(false);
             context.GetAllMessages().Select(x => x.Message)
                 .Should()
                 .BeEquivalentTo(ContextValues.Messages, "because pipeline should add passed messages to the property");
@@ -32,7 +32,7 @@ namespace Pipelines.Tests.Integrations
         public async void When_Using_Iterator_And_Setter_Methods_In_Pipeline_Declaration_They_Will_Be_Executed()
         {
             var context = new PipelineContext();
-            await new SetMessagesAndAddFromPropertyPipeline().Run(context);
+            await new SetMessagesAndAddFromPropertyPipeline().Run(context).ConfigureAwait(false);
             context.GetAllMessages().Select(x => x.Message)
                 .Should()
                 .BeEquivalentTo(ContextValues.Messages, "because pipeline should add passed messages to the property");

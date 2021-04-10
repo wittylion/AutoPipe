@@ -16,7 +16,7 @@ namespace Pipelines.Implementations.Processors
         {
             foreach (var element in collection)
             {
-                await ElementExecution(args, element);
+                await ElementExecution(args, element).ConfigureAwait(false);
             }
         }
 

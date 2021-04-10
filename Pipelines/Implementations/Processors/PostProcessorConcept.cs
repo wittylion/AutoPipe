@@ -24,8 +24,8 @@ namespace Pipelines.Implementations.Processors
 
         public async Task Execute(object arguments)
         {
-            await this.ActualProcessor.Execute(arguments);
-            await this.CustomExecute(arguments);
+            await this.ActualProcessor.Execute(arguments).ConfigureAwait(false);
+            await this.CustomExecute(arguments).ConfigureAwait(false);
         }
 
         public abstract Task CustomExecute(object arguments);
@@ -49,8 +49,8 @@ namespace Pipelines.Implementations.Processors
 
         public override async Task SafeExecute(TArgs arguments)
         {
-            await this.ActualProcessor.Execute(arguments);
-            await this.CustomExecute(arguments);
+            await this.ActualProcessor.Execute(arguments).ConfigureAwait(false);
+            await this.CustomExecute(arguments).ConfigureAwait(false);
         }
 
         public abstract Task CustomExecute(TArgs arguments);

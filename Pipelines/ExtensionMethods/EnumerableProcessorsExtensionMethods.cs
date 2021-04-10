@@ -272,7 +272,7 @@ namespace Pipelines.ExtensionMethods
 
             foreach (var processor in enumerable)
             {
-                await runner.RunProcessor(processor, args);
+                await runner.RunProcessor(processor, args).ConfigureAwait(false);
             }
         }
 
@@ -346,7 +346,7 @@ namespace Pipelines.ExtensionMethods
 
             while (condition(args))
             {
-                await enumerable.Run(args, runner);
+                await enumerable.Run(args, runner).ConfigureAwait(false);
             }
         }
 

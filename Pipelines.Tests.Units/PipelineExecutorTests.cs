@@ -18,7 +18,7 @@ namespace Pipelines.Tests.Units
 
             pipeline.Setup(x => x.GetProcessors()).Returns(Enumerable.Empty<IProcessor>());
 
-            await pipelineExecutor.Execute(string.Empty);
+            await pipelineExecutor.Execute(string.Empty).ConfigureAwait(false);
 
             pipelineRunner.Verify(
                 runner => runner.RunPipeline(
@@ -35,7 +35,7 @@ namespace Pipelines.Tests.Units
             var pipelineExecutor = new PipelineExecutor(pipeline);
 
             var args = new PipelineContext();
-            await pipelineExecutor.Execute(args);
+            await pipelineExecutor.Execute(args).ConfigureAwait(false);
 
             args.GetPropertyValueOrDefault(property, false)
                 .Should()

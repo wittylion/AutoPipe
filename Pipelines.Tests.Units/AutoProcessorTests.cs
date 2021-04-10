@@ -110,7 +110,7 @@ namespace Pipelines.Tests.Units
             PipelineContext context = ContextConstructor.Create();
             Task task = null;
 
-            await processor.ProcessResult(context, task);
+            await processor.ProcessResult(context, task).ConfigureAwait(false);
 
             context.GetAllPropertyObjects().Should().BeEmpty();
         }
@@ -124,7 +124,7 @@ namespace Pipelines.Tests.Units
             PipelineContext context = ContextConstructor.Create();
             Task task = Task.CompletedTask;
 
-            await processor.ProcessResult(context, task);
+            await processor.ProcessResult(context, task).ConfigureAwait(false);
 
             context.GetAllPropertyObjects().Should().BeEmpty();
         }
@@ -136,7 +136,7 @@ namespace Pipelines.Tests.Units
             var processor = new Mock<TestAbortingContextParameter>(MockBehavior.Loose) { CallBase = true };
 
             PipelineContext context = ContextConstructor.Create();
-            await processor.Object.Execute(context);
+            await processor.Object.Execute(context).ConfigureAwait(false);
 
             processor.Verify(x => x.EmptyMethod(It.IsAny<object>()), Times.Never );
             processor.Verify(x => x.EmptyMethod2(), Times.Never );

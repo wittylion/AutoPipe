@@ -79,7 +79,7 @@ namespace Pipelines
         /// </returns>
         public async Task Execute<TContext>(TContext arguments)
         {
-            await this.Runner.RunPipeline(this.Pipeline, arguments);
+            await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Pipelines
         /// </returns>
         public async Task<TResult> Execute<TResult>(QueryContext<TResult> arguments) where TResult : class
         {
-            await this.Runner.RunPipeline(this.Pipeline, arguments);
+            await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
             return arguments.GetResult();
         }
     }

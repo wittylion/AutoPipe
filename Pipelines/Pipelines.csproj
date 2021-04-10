@@ -20,6 +20,8 @@
 
       - Fixed AutoProcessor issue: aborting method via ContextParameter continued execution on other methods.
 
+      - Fixed deadlocks of the main thread by adding .ConfigureAwait(false) to all places where await keyword is used.
+
       Quick links:
       https://wittylion.github.io/2020/10/04/auto-processor.html - Auto processor
       https://wittylion.github.io/2020/08/05/modify-pipeline.html - Modify pipeline
@@ -30,8 +32,8 @@
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-    <Version>1.2.0</Version>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <Version>1.2.1</Version>
+    <AssemblyVersion>1.2.1.0</AssemblyVersion>
     <PackageIcon>pipelines-icon.png</PackageIcon>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
