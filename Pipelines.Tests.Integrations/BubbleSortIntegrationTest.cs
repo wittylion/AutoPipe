@@ -23,7 +23,7 @@ namespace Pipelines.Tests.Integrations
                 .ThenActionOf(container => container.OneMoreTraverse())
                 .While(container => container.CanTraverseOneMoreTime());
 
-            await bubbleSortProcessor.Execute(new DataContainer() {Array = data});
+            await bubbleSortProcessor.Execute(new DataContainer() {Array = data}).ConfigureAwait(false);
 
             data.Should()
                 .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");
@@ -50,7 +50,7 @@ namespace Pipelines.Tests.Integrations
                 .ThenActionOf(requestOneMoreTraverse)
                 .While(container => container.CanTraverseOneMoreTime());
 
-            await bubbleSortProcessor.Execute(new DataContainer() { Array = data });
+            await bubbleSortProcessor.Execute(new DataContainer() { Array = data }).ConfigureAwait(false);
 
             data.Should()
                 .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");
@@ -62,7 +62,7 @@ namespace Pipelines.Tests.Integrations
         {
             var args = new DataContainer() {Array = data};
             
-            await GetSortingProcessors(args).RunProcessorsWhile(args, container => container.CanTraverseOneMoreTime());
+            await GetSortingProcessors(args).RunProcessorsWhile(args, container => container.CanTraverseOneMoreTime()).ConfigureAwait(false);
 
             data.Should()
                 .BeInAscendingOrder("because we are sorting in the descending order, using bubble sort algorythm.");

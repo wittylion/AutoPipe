@@ -24,7 +24,7 @@ namespace Pipelines.Implementations.Processors
 
         public override async Task CustomExecute(object arguments)
         {
-            await this.Action(arguments);
+            await this.Action(arguments).ConfigureAwait(false);
         }
     }
 
@@ -46,7 +46,7 @@ namespace Pipelines.Implementations.Processors
 
         public override async Task CustomExecute(TArgs arguments)
         {
-            await this.Action(arguments);
+            await this.Action(arguments).ConfigureAwait(false);
         }
     }
 }

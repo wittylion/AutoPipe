@@ -22,7 +22,7 @@ namespace Pipelines.Implementations.Processors
         {
             if (this.Condition(args))
             {
-                await this.CustomExecute(args);
+                await this.CustomExecute(args).ConfigureAwait(false);
             }
         }
 
@@ -45,7 +45,7 @@ namespace Pipelines.Implementations.Processors
         {
             if (this.Condition(arguments))
             {
-                await this.CustomExecute(arguments);
+                await this.CustomExecute(arguments).ConfigureAwait(false);
             }
         }
 

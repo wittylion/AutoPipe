@@ -41,7 +41,7 @@ namespace Pipelines.Implementations.Processors
         {
             try
             {
-                await this.Action(args, property);
+                await this.Action(args, property).ConfigureAwait(false);
             }
             catch (Exception e)
             {

@@ -47,7 +47,7 @@ namespace Pipelines.Implementations.Runners
 
             try
             {
-                await this.OriginalRunner.RunPipeline(pipeline, args);
+                await this.OriginalRunner.RunPipeline(pipeline, args).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

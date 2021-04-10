@@ -109,7 +109,7 @@ namespace Pipelines.Implementations.Processors
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
-            await ProcessResult(context, result);
+            await ProcessResult(context, result).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Pipelines.Implementations.Processors
 
             if (methodResult is Task task)
             {
-                await ProcessTask(context, task);
+                await ProcessTask(context, task).ConfigureAwait(false);
                 return;
             }
 
@@ -145,7 +145,7 @@ namespace Pipelines.Implementations.Processors
             {
                 foreach (var item in enumerable)
                 {
-                    await ProcessResult(context, item);
+                    await ProcessResult(context, item).ConfigureAwait(false);
                 }
                 return;
             }
@@ -159,7 +159,7 @@ namespace Pipelines.Implementations.Processors
             if (methodResult is Func<PipelineContext, object> functionContext)
             {
                 var functionResult = functionContext(context);
-                await ProcessResult(context, functionResult);
+                await ProcessResult(context, functionResult).ConfigureAwait(false);
                 return;
             }
 
@@ -212,7 +212,7 @@ namespace Pipelines.Implementations.Processors
                 return;
             }
 
-            await task;
+            await task.ConfigureAwait(false);
 
             var property = task.GetType().GetProperty(nameof(Task<object>.Result));
 
@@ -224,7 +224,7 @@ namespace Pipelines.Implementations.Processors
             var result = property.GetValue(task);
             if (result.HasValue())
             {
-                await ProcessResult(context, result);
+                await ProcessResult(context, result).ConfigureAwait(false);
             }
         }
 
@@ -468,7 +468,7 @@ namespace Pipelines.Implementations.Processors
 
                     if (AllParametersAreValid(method, args))
                     {
-                        await ExecuteMethod(method, args);
+                        await ExecuteMethod(method, args).ConfigureAwait(false);
                     }
                 }
             }

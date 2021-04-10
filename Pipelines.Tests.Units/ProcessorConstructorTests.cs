@@ -20,7 +20,7 @@ namespace Pipelines.Tests.Units
                 (x, y) => PipelineTask.CompletedTask, propertyName, abortMessage, MessageType.Error);
             var context = new PipelineContext();
 
-            await processor.Execute(context);
+            await processor.Execute(context).ConfigureAwait(false);
 
             context.GetErrorMessages()
                 .Should()
@@ -45,7 +45,7 @@ namespace Pipelines.Tests.Units
             var context = new PipelineContext();
             context.AddOrSkipPropertyIfExists(propertyName, nameof(ProcessorConstructorTests));
 
-            await processor.Execute(context);
+            await processor.Execute(context).ConfigureAwait(false);
 
             context.GetPropertyValueOrDefault(successProperty, false)
                 .Should()
@@ -70,7 +70,7 @@ namespace Pipelines.Tests.Units
             var context = new PipelineContext();
             context.AddOrSkipPropertyIfExists(propertyName, nameof(ProcessorConstructorTests));
 
-            await processor.Execute(context);
+            await processor.Execute(context).ConfigureAwait(false);
 
             context.GetPropertyValueOrDefault(exceptionHandlerProperty, false)
                 .Should()
@@ -89,7 +89,7 @@ namespace Pipelines.Tests.Units
             context.AddOrSkipPropertyIfExists(propertyName, disposable.Object);
 
             var proocessor = constructor.DisposeProperties(propertyName);
-            await proocessor.Execute(context);
+            await proocessor.Execute(context).ConfigureAwait(false);
 
             completed.Should().BeTrue("because the processor supposed to call dispose on each specified property");
         }

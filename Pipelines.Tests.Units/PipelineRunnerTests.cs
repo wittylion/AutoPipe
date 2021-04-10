@@ -16,7 +16,7 @@ namespace Pipelines.Tests.Units
             
             pipeline.Setup(x => x.GetProcessors()).Returns(Enumerable.Empty<IProcessor>());
 
-            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty);
+            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty).ConfigureAwait(false);
 
             pipeline.Verify(x => x.GetProcessors(), Times.AtLeastOnce);
         }
@@ -29,7 +29,7 @@ namespace Pipelines.Tests.Units
 
             pipeline.Setup(x => x.GetProcessors()).Returns((IEnumerable<IProcessor>) null);
 
-            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty);
+            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty).ConfigureAwait(false);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace Pipelines.Tests.Units
             var pipeline = new Mock<IPipeline>();
             pipeline.Setup(x => x.GetProcessors()).Returns(new [] { a.Object, b.Object, c.Object });
 
-            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty);
+            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty).ConfigureAwait(false);
         }
     }
 }
