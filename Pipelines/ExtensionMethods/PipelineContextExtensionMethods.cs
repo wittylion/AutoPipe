@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.ExtensionMethods
+namespace Pipelines
 {
     /// <summary>
     /// Extensions for the <see cref="PipelineContext"/>.

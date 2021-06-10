@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Processors
 {

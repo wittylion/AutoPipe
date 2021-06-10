@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Moq;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Pipelines;
 using System;
 using Xunit;

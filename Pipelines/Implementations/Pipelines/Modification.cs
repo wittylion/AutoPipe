@@ -1,5 +1,4 @@
-﻿using Pipelines.ExtensionMethods;
-using System;
+﻿using System;
 
 namespace Pipelines.Implementations.Pipelines
 {

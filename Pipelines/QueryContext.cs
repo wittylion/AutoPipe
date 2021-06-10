@@ -1,5 +1,4 @@
-﻿using Pipelines.ExtensionMethods;
-
+﻿
 namespace Pipelines
 {
     /// <summary>

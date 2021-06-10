@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Processors;
 using Xunit;
 

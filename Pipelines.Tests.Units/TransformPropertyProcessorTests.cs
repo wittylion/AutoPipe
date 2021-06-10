@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Contexts;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Implementations.Processors;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Contexts
 {

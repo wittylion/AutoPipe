@@ -2,7 +2,6 @@
 using System.Linq;
 using FluentAssertions;
 using Moq;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest;
 using Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest;

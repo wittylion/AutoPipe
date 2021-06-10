@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Pipelines.Implementations.Pipelines;
 
-namespace Pipelines.ExtensionMethods
+namespace Pipelines
 {
     /// <summary>
     /// Extension methods for classes <see cref="IEnumerable{T}"/>
