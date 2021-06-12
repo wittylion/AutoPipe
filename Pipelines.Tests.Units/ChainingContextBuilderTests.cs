@@ -13,13 +13,13 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void RunWith_Should_Run_The_Passed_Pipeline_With_Preset_Properties()
         {
-            var context = await ContextConstructor.BuildContext()
+            var context = await Bag.Build()
                 .Use("one", 1)
                 .Use("two", 2)
                 .Use("string", "aqwe")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
-                        CommonProcessors.TransformProperty<PipelineContext, int, int>("one", "string",
+                        CommonProcessors.TransformProperty<Bag, int, int>("one", "string",
                             (ctx, s) => s + ctx.GetPropertyValueOrDefault("two", 0))),
                     PipelineRunner.StaticInstance);
 
@@ -31,7 +31,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void RunWith_Should_Run_The_Passed_Pipeline()
         {
-            var context = await ContextConstructor.BuildContext()
+            var context = await Bag.Build()
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
                         new EnsureName(),
@@ -48,7 +48,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Template_That_Will_Not_Be_Overriden()
         {
-            var context = await ContextConstructor.BuildContext()
+            var context = await Bag.Build()
                 .Use("message", "Hola, {name}!")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
@@ -65,7 +65,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_Up_A_Name_That_Will_Not_Be_Overriden()
         {
-            var context = await ContextConstructor.BuildContext()
+            var context = await Bag.Build()
                 .Use("name", "Bob")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
@@ -84,7 +84,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Name_That_Will_Be_Set_In_QueryContext_Result()
         {
-            var context = await ContextConstructor.BuildQueryContext<string>()
+            var context = await Bag.BuildQuery<string>()
                 .Use("name", "Bob")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
@@ -99,22 +99,22 @@ namespace Pipelines.Tests.Units
                 .Be("Hello, Bob!");
         }
 
-        public class EnsureName : SafeProcessor<PipelineContext>
+        public class EnsureName : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(PipelineContext args)
+            public override Task SafeExecute(Bag args)
             {
                 args.ApplyProperty("name", ctx => "Serge", PropertyModificator.SkipIfExists);
                 return Done;
             }
         }
 
-        public class HelloMessageNameReplacer : SafeProcessor<PipelineContext>
+        public class HelloMessageNameReplacer : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(PipelineContext args)
+            public override Task SafeExecute(Bag args)
             {
                 args.TransformProperty(
                     "message",
-                    (PipelineContext ctx, string val) => val.Replace("{name}", ctx.GetPropertyValueOrDefault("name", "stranger")),
+                    (Bag ctx, string val) => val.Replace("{name}", ctx.GetPropertyValueOrDefault("name", "stranger")),
                     PropertyModificator.UpdateValue
                 );
 
@@ -143,9 +143,9 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class EnsureMessage : SafeProcessor<PipelineContext>
+        public class EnsureMessage : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(PipelineContext args)
+            public override Task SafeExecute(Bag args)
             {
                 args.ApplyProperty("message", ctx => "Hello, {name}!", PropertyModificator.SkipIfExists);
                 return Done;

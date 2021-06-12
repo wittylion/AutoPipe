@@ -12,7 +12,7 @@ namespace Pipelines.Tests.Units
         public async Task Safe_Execution_Is_Not_Reached_When_Pipeline_Context_Has_Aborted_Parameter_Set_To_True()
         {
             var reachedExecution = false;
-            var args = new PipelineContext()
+            var args = new Bag()
             {
                 IsAborted = true
             };
@@ -26,7 +26,7 @@ namespace Pipelines.Tests.Units
         {
             var reachedExecution = false;
             var processor = new TestProcessor(() => reachedExecution = true);
-            await ContextConstructor.Create().ExecuteWithProcessor(processor).ConfigureAwait(false);
+            await Bag.Create().ExecuteWithProcessor(processor).ConfigureAwait(false);
             reachedExecution.Should().BeTrue("pipeline was not aborted");
         }
     }

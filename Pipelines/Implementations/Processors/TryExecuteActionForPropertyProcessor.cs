@@ -10,7 +10,7 @@ namespace Pipelines.Implementations.Processors
     }
 
     public class TryExecuteActionForPropertyProcessor<TContext, TProperty>
-        : ExecuteActionForPropertyProcessor<TContext, TProperty> where TContext : PipelineContext
+        : ExecuteActionForPropertyProcessor<TContext, TProperty> where TContext : Bag
     {
         public Action<TContext, TProperty, Exception> ExceptionHandler { get; }
 

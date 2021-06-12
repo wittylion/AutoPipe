@@ -9,7 +9,7 @@
     /// Arguments of type <see cref="PipelineContext"/> or derived,
     /// which will be handled by this processor.
     /// </typeparam>
-    public abstract class SafeProcessor<TArgs> : SafeTypeProcessor<TArgs> where TArgs : PipelineContext
+    public abstract class SafeProcessor<TArgs> : SafeTypeProcessor<TArgs> where TArgs : Bag
     {
         /// <summary>
         /// Additionally to the base class method
@@ -37,7 +37,7 @@
     /// which is intended to handle <see cref="PipelineContext"/>
     /// type of arguments.
     /// </summary>
-    public abstract class SafeProcessor : SafeProcessor<PipelineContext>
+    public abstract class SafeProcessor : SafeProcessor<Bag>
     {
     }
 }

@@ -86,7 +86,7 @@ namespace Pipelines.Tests.Integrations
         }
     }
 
-    public class HelloWorldArguments : PipelineContext
+    public class HelloWorldArguments : Bag
     {
         public string Name { get; set; }
         public string Result { get; set; }

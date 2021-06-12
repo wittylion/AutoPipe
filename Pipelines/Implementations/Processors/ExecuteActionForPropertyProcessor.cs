@@ -14,7 +14,7 @@ namespace Pipelines.Implementations.Processors
     }
 
     public class ExecuteActionForPropertyProcessor<TContext, TProperty> 
-        : ExecuteActionForPropertyProcessorConcept<TContext, TProperty> where TContext : PipelineContext
+        : ExecuteActionForPropertyProcessorConcept<TContext, TProperty> where TContext : Bag
     {
         public string PropertyName { get; }
         public Func<TContext, TProperty, Task> Action { get; }

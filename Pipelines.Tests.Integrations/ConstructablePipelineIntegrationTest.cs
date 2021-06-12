@@ -12,7 +12,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void When_Using_Action_Method_In_Pipeline_Declaration_It_Will_Be_Executed()
         {
-            var context = new PipelineContext();
+            var context = new Bag();
             await new AddMessagePipeline().Run(context).ConfigureAwait(false);
             context.GetAllMessages().Length
                 .Should().Be(1, "because pipeline intended to add a message");
@@ -21,7 +21,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void When_Using_Iterator_Method_In_Pipeline_Declaration_It_Will_Be_Executed()
         {
-            var context = new PipelineContext(new { Messages = ContextValues.Messages });
+            var context = new Bag(new { Messages = ContextValues.Messages });
             await new AddMessagesFromPropertyPipeline().Run(context).ConfigureAwait(false);
             context.GetAllMessages().Select(x => x.Message)
                 .Should()
@@ -31,7 +31,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void When_Using_Iterator_And_Setter_Methods_In_Pipeline_Declaration_They_Will_Be_Executed()
         {
-            var context = new PipelineContext();
+            var context = new Bag();
             await new SetMessagesAndAddFromPropertyPipeline().Run(context).ConfigureAwait(false);
             context.GetAllMessages().Select(x => x.Message)
                 .Should()
@@ -52,7 +52,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Constructor.Action<PipelineContext>(x =>
+                yield return Constructor.Action<Bag>(x =>
                     x.AddMessage(nameof(ConstructablePipelineIntegrationTest)));
             }
         }

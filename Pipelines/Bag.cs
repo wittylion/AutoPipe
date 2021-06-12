@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pipelines.Implementations.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -14,8 +15,147 @@ namespace Pipelines
     /// <see cref="IsAborted"/> identifying whether pipeline was aborted.
     /// </summary>
     [Serializable]
-    public class PipelineContext : ISerializable
+    public class Bag : ISerializable
     {
+        public static ChainingContext<Bag> Build() =>
+            Build<Bag>();
+
+        public static ChainingContext<TContext> Build<TContext>() where TContext : Bag, new() =>
+            Build(new TContext());
+
+        public static ChainingContext<TContext> Build<TContext>(TContext context) where TContext : Bag =>
+            new ChainingContext<TContext>(context);
+
+        public static ChainingContext<QueryContext<TValue>> BuildQuery<TValue>() where TValue : class =>
+            Build<QueryContext<TValue>>();
+
+        /// <summary>
+        /// Creates a new Bag that has a parameter-less constructor.
+        /// </summary>
+        /// <returns>
+        /// A new pipeline context.
+        /// </returns>
+        public static Bag Create()
+        {
+            return new Bag();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="PipelineContext"/> with
+        /// properties of the object passed in <paramref name="propertyContainer"/>.
+        /// </summary>
+        /// <typeparam name="TProperties">The type of property container.</typeparam>
+        /// <param name="propertyContainer">
+        /// Object which properties will be used in pipeline context when it will be created.
+        /// </param>
+        /// <returns>
+        /// New pipeline context with properties from an object passed in parameter <paramref name="propertyContainer"/>.
+        /// </returns>
+        public static Bag Create<TProperties>(TProperties propertyContainer)
+        {
+            return Bag.CreateFromProperties(propertyContainer);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="PipelineContext"/> with properties composed from
+        /// keys and values of the object passed in <paramref name="propertyContainer"/>.
+        /// </summary>
+        /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
+        /// <param name="propertyContainer">
+        /// Dictionary which properties will be used in pipeline context when it will be created.
+        /// </param>
+        /// <returns>
+        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// </returns>
+        public static Bag Create<TValue>(IDictionary<string, TValue> propertyContainer)
+        {
+            return Bag.CreateFromDictionary(propertyContainer);
+        }
+
+        /// <summary>
+        /// Creates a new Bag or derived type that has
+        /// a parameter-less constructor.
+        /// </summary>
+        /// <typeparam name="TContext">
+        /// The type of the pipeline context that is derived from
+        /// <see cref="PipelineContext"/> and has a parameter-less constructor.
+        /// </typeparam>
+        /// <returns>
+        /// A new pipeline context.
+        /// </returns>
+        public static TContext Create<TContext>() where TContext : Bag, new()
+        {
+            return new TContext();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="TContext"/> with properties composed from
+        /// keys and values of the object passed in <paramref name="propertyContainer"/>.
+        /// </summary>
+        /// <typeparam name="TContext">
+        /// The type of the pipeline context that is derived from
+        /// <see cref="PipelineContext"/> and has a parameter-less constructor.
+        /// </typeparam>
+        /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
+        /// <param name="propertyContainer">
+        /// Dictionary which properties will be used in pipeline context when it will be created.
+        /// </param>
+        /// <returns>
+        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// </returns>
+        public static TContext Create<TContext, TValue>(IDictionary<string, TValue> propertyContainer) where TContext : Bag, new()
+        {
+            var context = Create<TContext>();
+            if (propertyContainer.HasValue())
+            {
+                foreach (var item in propertyContainer)
+                {
+                    context.SetOrAddProperty(item.Key, item.Value);
+                }
+            }
+            return context;
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="PipelineContext"/> with
+        /// properties of the object passed in <paramref name="propertyContainer"/>.
+        /// </summary>
+        /// <typeparam name="TProperties">The type of property container.</typeparam>
+        /// <param name="propertyContainer">
+        /// Object which properties will be used in pipeline context when it will be created.
+        /// </param>
+        /// <returns>
+        /// New pipeline context with properties from an object passed in parameter <paramref name="propertyContainer"/>.
+        /// </returns>
+        public static Bag CreateFromProperties<TProperties>(TProperties propertyContainer)
+        {
+            return new Bag(propertyContainer);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="PipelineContext"/> with properties composed from
+        /// keys and values of the object passed in <paramref name="propertyContainer"/>.
+        /// </summary>
+        /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
+        /// <param name="propertyContainer">
+        /// Dictionary which properties will be used in pipeline context when it will be created.
+        /// </param>
+        /// <returns>
+        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// </returns>
+        public static Bag CreateFromDictionary<TValue>(IDictionary<string, TValue> propertyContainer)
+        {
+            var context = new Bag();
+            if (propertyContainer.HasValue())
+            {
+                foreach (var item in propertyContainer)
+                {
+                    context.SetOrAddProperty(item.Key, item.Value);
+                }
+            }
+            return context;
+        }
+
         /// <summary>
         /// Flag identifying whether pipeline must be aborted/stopped,
         /// it can be used as a cancelation identifier for the execution flow.
@@ -415,7 +555,7 @@ namespace Pipelines
         /// </param>
         /// <example>
         ///
-        /// PipelineContext context = new PipelineContext();
+        /// Bag context = new Bag();
         /// 
         /// context.AddInformation("The request was sent successfully");
         /// context.AddWarning("Could not recognize the id of the site, continued with the default");
@@ -757,11 +897,11 @@ namespace Pipelines
         /// <summary>
         /// Default parameterless constructor allowing you to create and use pipeline context.
         /// </summary>
-        public PipelineContext()
+        public Bag()
         {
         }
 
-        public PipelineContext(object propertyContainer)
+        public Bag(object propertyContainer)
         {
             if (propertyContainer.HasValue())
             {
@@ -781,7 +921,7 @@ namespace Pipelines
         /// Serialization information, containing data of the serialized object.
         /// </param>
         /// <param name="context">Streaming context.</param>
-        protected PipelineContext(SerializationInfo info, StreamingContext context)
+        protected Bag(SerializationInfo info, StreamingContext context)
         {
         }
 
@@ -901,8 +1041,8 @@ namespace Pipelines
         /// </param>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue($"{nameof(PipelineContext)}.{nameof(IsAborted)}", IsAborted);
-            info.AddValue($"{nameof(PipelineContext)}.{nameof(Messages)}", Messages, typeof(ICollection<PipelineMessage>));
+            info.AddValue($"{nameof(Bag)}.{nameof(IsAborted)}", IsAborted);
+            info.AddValue($"{nameof(Bag)}.{nameof(Messages)}", Messages, typeof(ICollection<PipelineMessage>));
         }
     }
 }

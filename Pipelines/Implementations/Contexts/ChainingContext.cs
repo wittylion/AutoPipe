@@ -4,7 +4,7 @@ using Pipelines.ExtensionMethods;
 
 namespace Pipelines.Implementations.Contexts
 {
-    public class ChainingContext<TContext> where TContext : PipelineContext
+    public class ChainingContext<TContext> where TContext : Bag
     {
         public TContext OriginalContext { get; }
 

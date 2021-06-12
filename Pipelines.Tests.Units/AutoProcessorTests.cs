@@ -107,7 +107,7 @@ namespace Pipelines.Tests.Units
         {
             TestAutoProcessor processor = new TestAutoProcessor();
 
-            PipelineContext context = ContextConstructor.Create();
+            Bag context = Bag.Create();
             Task task = null;
 
             await processor.ProcessResult(context, task).ConfigureAwait(false);
@@ -121,7 +121,7 @@ namespace Pipelines.Tests.Units
         {
             TestAutoProcessor processor = new TestAutoProcessor();
 
-            PipelineContext context = ContextConstructor.Create();
+            Bag context = Bag.Create();
             Task task = Task.CompletedTask;
 
             await processor.ProcessResult(context, task).ConfigureAwait(false);
@@ -135,7 +135,7 @@ namespace Pipelines.Tests.Units
         {
             var processor = new Mock<TestAbortingContextParameter>(MockBehavior.Loose) { CallBase = true };
 
-            PipelineContext context = ContextConstructor.Create();
+            Bag context = Bag.Create();
             await processor.Object.Execute(context).ConfigureAwait(false);
 
             processor.Verify(x => x.EmptyMethod(It.IsAny<object>()), Times.Never );
@@ -166,7 +166,7 @@ namespace Pipelines.Tests.Units
 
         public void EmptyMethodNotForExecution() { }
 
-        public new Task ProcessResult(PipelineContext context, object methodResult)
+        public new Task ProcessResult(Bag context, object methodResult)
         {
             return base.ProcessResult(context, methodResult);
         }

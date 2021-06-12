@@ -7,7 +7,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTes
     [SkipProcessor]
     public class SkippedProcessor : SafeProcessor
     {
-        public override Task SafeExecute(PipelineContext args)
+        public override Task SafeExecute(Bag args)
         {
             throw new NotImplementedException();
         }

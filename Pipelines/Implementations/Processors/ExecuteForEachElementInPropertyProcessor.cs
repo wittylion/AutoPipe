@@ -12,21 +12,21 @@ namespace Pipelines.Implementations.Processors
             "Creating a generic class used to execute action for each element, you have to specify property name of the enumerable of elements.";
     }
 
-    public class ExecuteForEachElementInPropertyProcessor<TElement> : ExecuteForEachElementInPropertyProcessor<PipelineContext, TElement>
+    public class ExecuteForEachElementInPropertyProcessor<TElement> : ExecuteForEachElementInPropertyProcessor<Bag, TElement>
     {
         public ExecuteForEachElementInPropertyProcessor(Action<TElement> action, string propertyName)
             : base(action, propertyName)
         {
         }
 
-        public ExecuteForEachElementInPropertyProcessor(Action<PipelineContext, TElement> action, string propertyName) 
+        public ExecuteForEachElementInPropertyProcessor(Action<Bag, TElement> action, string propertyName) 
             : base(action, propertyName)
         {
         }
     }
 
     public class ExecuteForEachElementInPropertyProcessor<TContext, TElement> : 
-        ExecuteForEachElementInPropertyProcessorConcept<TContext, TElement> where TContext : PipelineContext
+        ExecuteForEachElementInPropertyProcessorConcept<TContext, TElement> where TContext : Bag
     {
         private readonly Action<TContext, TElement> _action;
         private readonly string _propertyName;

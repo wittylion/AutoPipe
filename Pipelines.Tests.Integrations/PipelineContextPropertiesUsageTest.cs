@@ -9,7 +9,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void When_Using_An_Empty_Context_Simple_Hello_World_Message_Is_Retrieved()
         {
-            var context = new PipelineContext();
+            var context = new Bag();
             await new SetMessage().Execute(context).ConfigureAwait(false);
             context.GetPropertyValueOrNull<string>(GreeterProperties.Message)
                 .Should()
@@ -21,7 +21,7 @@ namespace Pipelines.Tests.Integrations
         {
             var name = nameof(When_Using_A_Context_With_Name_Property_Greeting_Message_Is_Retrieved);
 
-            var context = new PipelineContext();
+            var context = new Bag();
             context.AddOrSkipPropertyIfExists(GreeterProperties.Name, name);
 
             await new SetMessage().Execute(context).ConfigureAwait(false);
@@ -36,7 +36,7 @@ namespace Pipelines.Tests.Integrations
         {
             var name = nameof(When_Using_An_Object_Constructor_Of_Pipeline_Context_Greeting_Message_Is_Retrieved);
 
-            var context = new PipelineContext(new {Name = name});
+            var context = new Bag(new {Name = name});
             await new SetMessage().Execute(context).ConfigureAwait(false);
 
             context.GetPropertyValueOrNull<string>(GreeterProperties.Message)
@@ -48,7 +48,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void When_Using_An_Intermediate_Processor_Its_Message__Must_Be_Returned()
         {
-            var context = new PipelineContext();
+            var context = new Bag();
             await new DefaultMessageSetter().Execute(context).ConfigureAwait(false);
 
             context.GetPropertyValueOrNull<string>(GreeterProperties.Message)
@@ -60,7 +60,7 @@ namespace Pipelines.Tests.Integrations
         public async void
             When_Using_An_Intermediate_Processor_Its_Message__Must_Be_Returned_Even_When_Custom_Message_Is_Set()
         {
-            var context = new PipelineContext(new {Message = "DEFAULT"});
+            var context = new Bag(new {Message = "DEFAULT"});
             await new DefaultMessageSetter().Execute(context).ConfigureAwait(false);
 
             context.GetPropertyValueOrNull<string>(GreeterProperties.Message)
@@ -83,7 +83,7 @@ namespace Pipelines.Tests.Integrations
 
         public class DefaultMessageSetter : SafeProcessor
         {
-            public override Task SafeExecute(PipelineContext args)
+            public override Task SafeExecute(Bag args)
             {
                 args.UpdateOrAddProperty(GreeterProperties.Message, GreeterValues.IntermediateMessage);
                 return new SetMessage().Execute(args);
@@ -92,7 +92,7 @@ namespace Pipelines.Tests.Integrations
 
         public class SetMessage : SafeProcessor
         {
-            public override Task SafeExecute(PipelineContext args)
+            public override Task SafeExecute(Bag args)
             {
                 var name = args.GetPropertyValueOrNull<string>(GreeterProperties.Name);
 

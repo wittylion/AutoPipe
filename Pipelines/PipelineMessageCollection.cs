@@ -154,7 +154,7 @@ namespace Pipelines
         /// </param>
         /// <example>
         ///
-        /// PipelineContext context = new PipelineContext();
+        /// Bag context = new Bag();
         /// 
         /// context.AddInformation("The request was sent successfully");
         /// context.AddWarning("Could not recognize the id of the site, continued with the default");

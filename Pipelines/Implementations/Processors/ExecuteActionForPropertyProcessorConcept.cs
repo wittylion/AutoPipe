@@ -3,7 +3,7 @@
 namespace Pipelines.Implementations.Processors
 {
     public abstract class ExecuteActionForPropertyProcessorConcept<TContext, TProperty> : SafeProcessor<TContext>
-        where TContext : PipelineContext
+        where TContext : Bag
     {
         public override Task SafeExecute(TContext args)
         {
@@ -36,7 +36,7 @@ namespace Pipelines.Implementations.Processors
         public abstract string GetPropertyName(TContext args);
     }
 
-    public abstract class ExecuteActionForPropertyProcessorConcept : ExecuteActionForPropertyProcessorConcept<PipelineContext, object>
+    public abstract class ExecuteActionForPropertyProcessorConcept : ExecuteActionForPropertyProcessorConcept<Bag, object>
     {
     }
 }

@@ -5,7 +5,7 @@ using Pipelines.ExtensionMethods;
 namespace Pipelines.Implementations.Processors
 {
     public class TransformPropertyProcessor<TContext, TProperty, TNewProperty>
-        :  SafeProcessor<TContext> where TContext : PipelineContext
+        :  SafeProcessor<TContext> where TContext : Bag
     {
         public string PropertyToTransform { get; }
         public Func<TContext, TProperty, TNewProperty> TransformFunction { get; }

@@ -16,9 +16,9 @@ namespace Pipelines.Tests.Units
             var constructor = new ProcessorConstructor();
             var propertyName = nameof(ExecuteActionForPropertyOrAbort_When_Property_Is_Missing_Should_Abort_With_A_Given_Message);
             var abortMessage = "Aborting... Property was not found.";
-            var processor = constructor.ExecuteActionForPropertyOrAbort<PipelineContext, string>(
+            var processor = constructor.ExecuteActionForPropertyOrAbort<Bag, string>(
                 (x, y) => PipelineTask.CompletedTask, propertyName, abortMessage, MessageType.Error);
-            var context = new PipelineContext();
+            var context = new Bag();
 
             await processor.Execute(context).ConfigureAwait(false);
 
@@ -35,14 +35,14 @@ namespace Pipelines.Tests.Units
             var abortMessage = "Aborting... Property was not found.";
 
             var successProperty = "ExecuteActionForPropertyOrAbortSuccess";
-            Action<PipelineContext, string> setSuccessFunction = (pipelineContext, _) =>
+            Action<Bag, string> setSuccessFunction = (pipelineContext, _) =>
             {
                 pipelineContext.AddOrSkipPropertyIfExists(successProperty, true);
             };
 
-            var processor = constructor.ExecuteActionForPropertyOrAbort<PipelineContext, string>(
+            var processor = constructor.ExecuteActionForPropertyOrAbort<Bag, string>(
                 setSuccessFunction, propertyName, abortMessage, MessageType.Error);
-            var context = new PipelineContext();
+            var context = new Bag();
             context.AddOrSkipPropertyIfExists(propertyName, nameof(ProcessorConstructorTests));
 
             await processor.Execute(context).ConfigureAwait(false);
@@ -60,14 +60,14 @@ namespace Pipelines.Tests.Units
 
 
             var exceptionHandlerProperty = "TryExecuteActionForPropertyExceptionHandler";
-            Action<PipelineContext> exceptionHandlerFunction = (pipelineContext) =>
+            Action<Bag> exceptionHandlerFunction = (pipelineContext) =>
             {
                 pipelineContext.AddOrSkipPropertyIfExists(exceptionHandlerProperty, true);
             };
 
-            var processor = constructor.TryExecuteActionForProperty<PipelineContext, string>(
+            var processor = constructor.TryExecuteActionForProperty<Bag, string>(
                 (x, y) => throw new NotImplementedException(), propertyName, exceptionHandlerFunction);
-            var context = new PipelineContext();
+            var context = new Bag();
             context.AddOrSkipPropertyIfExists(propertyName, nameof(ProcessorConstructorTests));
 
             await processor.Execute(context).ConfigureAwait(false);
@@ -85,7 +85,7 @@ namespace Pipelines.Tests.Units
             var propertyName = nameof(DisposeProperties_Should_Dispose_The_Specified_Property_Of_Type_Disposable);
             Mock<IDisposable> disposable = new Mock<IDisposable>();
             disposable.Setup(x => x.Dispose()).Callback(() => completed = true);
-            var context = new PipelineContext();
+            var context = new Bag();
             context.AddOrSkipPropertyIfExists(propertyName, disposable.Object);
 
             var proocessor = constructor.DisposeProperties(propertyName);

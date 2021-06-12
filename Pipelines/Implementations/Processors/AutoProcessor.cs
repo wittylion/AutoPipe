@@ -105,7 +105,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public virtual async Task ExecuteMethod(MethodInfo method, PipelineContext context)
+        public virtual async Task ExecuteMethod(MethodInfo method, Bag context)
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
@@ -114,8 +114,8 @@ namespace Pipelines.Implementations.Processors
 
         /// <summary>
         /// Tries to process a result of the method. Has checks of:
-        /// Task, Task<T>, IEnumerable, Action<PipelineContext>, Func<PipelineContext, object>, object.
-        /// All the properties of the object will be added to the PipelineContext as properties.
+        /// Task, Task<T>, IEnumerable, Action<Bag>, Func<Bag, object>, object.
+        /// All the properties of the object will be added to the Bag as properties.
         /// Task and Task<T> will be awaited and object of Task<T> will be processed as described earlier.
         /// Each object of IEnumerable collection will be processed as described earlier.
         /// </summary>
@@ -128,7 +128,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// A task indicating whether method result has been processed or not.
         /// </returns>
-        protected virtual async Task ProcessResult(PipelineContext context, object methodResult)
+        protected virtual async Task ProcessResult(Bag context, object methodResult)
         {
             if (methodResult.HasNoValue())
             {
@@ -150,13 +150,13 @@ namespace Pipelines.Implementations.Processors
                 return;
             }
 
-            if (methodResult is Action<PipelineContext> action)
+            if (methodResult is Action<Bag> action)
             {
                 action(context);
                 return;
             }
 
-            if (methodResult is Func<PipelineContext, object> functionContext)
+            if (methodResult is Func<Bag, object> functionContext)
             {
                 var functionResult = functionContext(context);
                 await ProcessResult(context, functionResult).ConfigureAwait(false);
@@ -176,7 +176,7 @@ namespace Pipelines.Implementations.Processors
         /// <param name="propertyContainer">
         /// An object which properties will be added to the pipeline context.
         /// </param>
-        protected virtual void ProcessObjectProperties(PipelineContext context, object propertyContainer)
+        protected virtual void ProcessObjectProperties(Bag context, object propertyContainer)
         {
             if (propertyContainer.HasNoValue() || context.HasNoValue())
             {
@@ -205,7 +205,7 @@ namespace Pipelines.Implementations.Processors
         /// A task indicating whether the processing of the <paramref name="task"/>
         /// has been completed.
         /// </returns>
-        protected virtual async Task ProcessTask(PipelineContext context, Task task)
+        protected virtual async Task ProcessTask(Bag context, Task task)
         {
             if (task.HasNoValue())
             {
@@ -238,7 +238,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<PipelineContext> AddInformationMessage(string message)
+        protected virtual Action<Bag> AddInformationMessage(string message)
         {
             return context => context.AddInformation(message);
         }
@@ -253,7 +253,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<PipelineContext> AddErrorMessage(string message)
+        protected virtual Action<Bag> AddErrorMessage(string message)
         {
             return context => context.AddError(message);
         }
@@ -268,7 +268,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<PipelineContext> AddMessageObjects(params PipelineMessage[] messages)
+        protected virtual Action<Bag> AddMessageObjects(params PipelineMessage[] messages)
         {
             return context => context.AddMessageObjects(messages);
         }
@@ -283,7 +283,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<PipelineContext> AbortPipelineWithErrorMessage(string message)
+        protected virtual Action<Bag> AbortPipelineWithErrorMessage(string message)
         {
             return context => context.AbortPipelineWithErrorMessage(message);
         }
@@ -304,13 +304,13 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// Collection of values in order defined in the <paramref name="method"/>.
         /// </returns>
-        protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, PipelineContext context)
+        protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters();
 
             foreach (var parameter in parameters)
             {
-                if (typeof(PipelineContext).IsAssignableFrom(parameter.ParameterType))
+                if (typeof(Bag).IsAssignableFrom(parameter.ParameterType))
                 {
                     yield return context;
                 }
@@ -365,7 +365,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// Value indicating whether all parameters are valid or not.
         /// </returns>
-        protected virtual bool AllParametersAreValid(MethodInfo method, PipelineContext context)
+        protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters();
 
@@ -455,7 +455,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public override async Task SafeExecute(PipelineContext args)
+        public override async Task SafeExecute(Bag args)
         {
             if (Methods != null)
             {

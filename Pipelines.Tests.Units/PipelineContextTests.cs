@@ -10,11 +10,11 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetMessages_Returns_Information_Messages_When_All_Types_Of_Messages_Are_Added()
         {
-            var information = new PipelineMessage(nameof(PipelineContext), MessageType.Information);
+            var information = new PipelineMessage(nameof(Bag), MessageType.Information);
             var pipelineContext = new PipelineContextTestObject()
-                .WithWarning(nameof(PipelineContext))
+                .WithWarning(nameof(Bag))
                 .WithMessage(information)
-                .WithError(nameof(PipelineContext));
+                .WithError(nameof(Bag));
 
             pipelineContext.GetMessages(MessageFilter.Informations).Should()
                 .HaveCount(1, "only one information message was added")
@@ -26,7 +26,7 @@ namespace Pipelines.Tests.Units
         public void AbortMessageWithError_Calls_Abort_Pipeline_Method()
         {
             var pipelineContext = new PipelineContextTestObject();
-            pipelineContext.AbortPipelineWithErrorMessage(nameof(PipelineContext));
+            pipelineContext.AbortPipelineWithErrorMessage(nameof(Bag));
             pipelineContext.IsAborted.Should().BeTrue("because the method should abort pipeline");
         }
 
@@ -47,7 +47,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrNull_Retrieves_A_Proper_Value()
         {
-            var pipelineContext = ContextConstructor.Create();
+            var pipelineContext = Bag.Create();
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
             var key = nameof(PipelineContextTests);
 
@@ -61,7 +61,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type()
         {
-            var pipelineContext = ContextConstructor.Create();
+            var pipelineContext = Bag.Create();
             var value = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type);
             var key = nameof(PipelineContextTests);
 
@@ -75,7 +75,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrDefault_Retrieves_Default_Value_When_Requested_An_Incorrect_Type()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var value = nameof(GetPropertyValueOrDefault_Retrieves_Default_Value_When_Requested_An_Incorrect_Type);
             var key = nameof(PipelineContextTests);
             var expectedValue = 3;
@@ -90,7 +90,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrNull_Retrieves_A_Proper_Value_Regardless_Name_Case()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value_Regardless_Name_Case);
             var key = nameof(PipelineContextTests);
 
@@ -105,7 +105,7 @@ namespace Pipelines.Tests.Units
         public void ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection()
         {
             var expectedValue = nameof(ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection);
-            var pipelineContext = new PipelineContext(new {PipelineContextTests = expectedValue});
+            var pipelineContext = new Bag(new {PipelineContextTests = expectedValue});
 
             pipelineContext.GetPropertyValueOrNull<string>("PipelineContextTests")
                 .Should()
@@ -116,7 +116,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void ObjectConstructor_Does_Not_Throw_An_Exception_When_Object_Is_Null()
         {
-            var pipelineContext = new PipelineContext(null);
+            var pipelineContext = new Bag(null);
             pipelineContext.Should().NotBeNull();
         }
 
@@ -124,7 +124,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrNull_Retrieves_Null_When_Value_Is_Not_Set()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Value_Is_Not_Set);
             var key = nameof(PipelineContextTests);
 
@@ -136,7 +136,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetPropertyValueOrDefault_Retrieves_Default_Object_When_Value_Is_Not_Set()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var expectedValue = nameof(GetPropertyValueOrDefault_Retrieves_Default_Object_When_Value_Is_Not_Set);
             var key = nameof(PipelineContextTests);
 
@@ -148,7 +148,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void SetOrAddProperty_Should_Update_Value_When_It_Has_Already_Been_Set()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var value = 234;
             var expectedValue = nameof(SetOrAddProperty_Should_Update_Value_When_It_Has_Already_Been_Set);
             var key = nameof(PipelineContextTests);
@@ -164,7 +164,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void AddOrSkipPropertyIfExists_Should_Skip_Property_When_It_Has_Already_Been_Set()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var value = 234;
             var expectedValue = nameof(AddOrSkipPropertyIfExists_Should_Skip_Property_When_It_Has_Already_Been_Set);
             var key = nameof(PipelineContextTests);
@@ -180,7 +180,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void DeleteProperty_Should_Not_Throw_Exception_When_Property_Does_Not_Exists()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var property = nameof(DeleteProperty_Should_Not_Throw_Exception_When_Property_Does_Not_Exists);
             pipelineContext.DeleteProperty(property);
         }
@@ -188,7 +188,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void DeleteProperty_Should_Delete_Property_If_It_Is_Existing()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             var property = nameof(DeleteProperty_Should_Delete_Property_If_It_Is_Existing);
             pipelineContext.AddOrSkipPropertyIfExists(property, nameof(PipelineContextTests));
 
@@ -202,7 +202,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetAllPropertyObjects_Retrieves_Empty_Array_By_Default()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
             
             pipelineContext.GetAllPropertyObjects()
                 .Should()
@@ -212,7 +212,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetAllPropertyObjects_Contains_An_Element_That_Was_Added()
         {
-            var pipelineContext = new PipelineContext();
+            var pipelineContext = new Bag();
 
             var property = new PipelineProperty(
                 nameof(GetAllPropertyObjects_Contains_An_Element_That_Was_Added),
@@ -229,7 +229,7 @@ namespace Pipelines.Tests.Units
         public void ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property()
         {
             var name = nameof(ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property);
-            var context = ContextConstructor.Create(new {Message = name});
+            var context = Bag.Create(new {Message = name});
             context.ApplyProperty("Message", "test", PropertyModificator.SkipIfExists);
             context.GetPropertyValueOrNull<string>("Message")
                 .Should().Be(name);
@@ -239,7 +239,7 @@ namespace Pipelines.Tests.Units
         public void ApplyProperty_With_UpdateValue_Overwrites_The_Existing_Property()
         {
             var name = nameof(ApplyProperty_With_UpdateValue_Overwrites_The_Existing_Property);
-            var context = ContextConstructor.Create(new { Message = name });
+            var context = Bag.Create(new { Message = name });
             context.ApplyProperty("Message", "test", PropertyModificator.UpdateValue);
             context.GetPropertyValueOrNull<string>("Message")
                 .Should().Be("test");
@@ -250,7 +250,7 @@ namespace Pipelines.Tests.Units
         {
             var name = nameof(ContainsProperty_With_Generic_Type_Returns_False_If_Type_Of_The_Property_Has_Other_Type);
             var members = new { Message = name };
-            var context = ContextConstructor.Create(members);
+            var context = Bag.Create(members);
 
             context.ContainsProperty<bool>(nameof(members.Message))
                 .Should().BeFalse();
@@ -261,14 +261,14 @@ namespace Pipelines.Tests.Units
         {
             var name = nameof(ContainsProperty_With_Generic_Type_Returns_True_If_Type_Of_The_Property_Requested);
             var members = new { Message = name };
-            var context = ContextConstructor.Create(members);
+            var context = Bag.Create(members);
 
             context.ContainsProperty<string>(nameof(members.Message))
                 .Should().BeTrue();
         }
     }
 
-    public class PipelineContextTestObject : PipelineContext
+    public class PipelineContextTestObject : Bag
     {
         public virtual PipelineContextTestObject WithMessage(PipelineMessage message)
         {

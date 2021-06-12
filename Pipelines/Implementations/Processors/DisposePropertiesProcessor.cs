@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Pipelines.Implementations.Processors
 {
-    public class DisposePropertiesProcessor : DisposeProcessorConcept<PipelineContext>
+    public class DisposePropertiesProcessor : DisposeProcessorConcept<Bag>
     {
         public static readonly string PropertyNamesNullException = "The property names collection must be specified, so the IDisposables will be released correctly.";
         public string[] PropertyNames { get; }
@@ -14,7 +14,7 @@ namespace Pipelines.Implementations.Processors
                                 DisposePropertiesProcessor.PropertyNamesNullException);
         }
 
-        public override IEnumerable<IDisposable> GetDisposables(PipelineContext arguments)
+        public override IEnumerable<IDisposable> GetDisposables(Bag arguments)
         {
             foreach (var propertyName in PropertyNames)
             {

@@ -12,7 +12,7 @@ namespace Pipelines
     /// Note, that it is a class type, which means that value can be null,
     /// in case something goes wrong.
     /// </typeparam>
-    public class QueryContext<TResult> : PipelineContext where TResult : class
+    public class QueryContext<TResult> : Bag where TResult : class
     {
         /// <summary>
         /// Result of the pipeline execution.

@@ -80,7 +80,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
-                string propertyName) where TContext : PipelineContext
+                string propertyName) where TContext : Bag
         {
             return CommonProcessors.ExecuteActionForProperty(action, propertyName);
         }
@@ -105,7 +105,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForProperty<TContext, TProperty>(Action<TContext, TProperty> action,
-                string propertyName) where TContext : PipelineContext
+                string propertyName) where TContext : Bag
         {
             return CommonProcessors.ExecuteActionForProperty(action, propertyName);
         }
@@ -136,7 +136,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Func<TContext, TProperty, Task> action,
-                string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
+                string propertyName, string abortMessage, MessageType messageType) where TContext : Bag
         {
             return CommonProcessors.ExecuteActionForPropertyOrAbort(action, propertyName, abortMessage, messageType);
         }
@@ -167,7 +167,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual ExecuteActionForPropertyProcessorConcept<TContext, TProperty>
             ExecuteActionForPropertyOrAbort<TContext, TProperty>(Action<TContext, TProperty> action,
-                string propertyName, string abortMessage, MessageType messageType) where TContext : PipelineContext
+                string propertyName, string abortMessage, MessageType messageType) where TContext : Bag
         {
             return CommonProcessors.ExecuteActionForPropertyOrAbort(action, propertyName, abortMessage, messageType);
         }
@@ -193,7 +193,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
             TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
-                string propertyName, Action<TContext, TProperty, Exception> exceptionHandler) where TContext : PipelineContext
+                string propertyName, Action<TContext, TProperty, Exception> exceptionHandler) where TContext : Bag
         {
             return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
         }
@@ -219,7 +219,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
             TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
-                string propertyName, Action<TContext, Exception> exceptionHandler) where TContext : PipelineContext
+                string propertyName, Action<TContext, Exception> exceptionHandler) where TContext : Bag
         {
             return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
         }
@@ -245,7 +245,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
             TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
-                string propertyName, Action<Exception> exceptionHandler) where TContext : PipelineContext
+                string propertyName, Action<Exception> exceptionHandler) where TContext : Bag
         {
             return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
         }
@@ -271,7 +271,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual TryExecuteActionForPropertyProcessor<TContext, TProperty>
             TryExecuteActionForProperty<TContext, TProperty>(Func<TContext, TProperty, Task> action,
-                string propertyName, Action<TContext> exceptionHandler) where TContext : PipelineContext
+                string propertyName, Action<TContext> exceptionHandler) where TContext : Bag
         {
             return CommonProcessors.TryExecuteActionForProperty(action, propertyName, exceptionHandler);
         }
@@ -292,7 +292,7 @@ namespace Pipelines.Implementations.Processors
         /// A new instance of <see cref="ExecuteForEachElementInPropertyProcessor{TElement}"/>.
         /// </returns>
         public virtual ExecuteForEachElementInPropertyProcessor<TElement> ExecuteForEachElementInProperty<TElement>(
-            Action<PipelineContext, TElement> action, string propertyName)
+            Action<Bag, TElement> action, string propertyName)
         {
             return CommonProcessors.ExecuteForEachElementInProperty<TElement>(action, propertyName);
         }
@@ -306,7 +306,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// New instance of <see cref="DisposeProcessorConcept"/>.
         /// </returns>
-        public DisposeProcessorConcept<PipelineContext> DisposeProperties(params string[] properties)
+        public DisposeProcessorConcept<Bag> DisposeProperties(params string[] properties)
         {
             return CommonProcessors.DisposeProperties(properties);
         }
@@ -348,7 +348,7 @@ namespace Pipelines.Implementations.Processors
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TContext, TProperty, TNewProperty> transformFunction, string transformToProperty)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction, transformToProperty);
         }
@@ -356,35 +356,35 @@ namespace Pipelines.Implementations.Processors
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
                 Func<TProperty, TNewProperty> transformFunction, string transformToProperty)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction, transformToProperty);
         }
 
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform, string transformToProperty,
-                Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+                Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : Bag
         {
             return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformToProperty, transformFunction);
         }
 
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform, string transformToProperty,
-                Func<TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+                Func<TProperty, TNewProperty> transformFunction) where TContext : Bag
         {
             return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformToProperty, transformFunction);
         }
 
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
-                Func<TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+                Func<TProperty, TNewProperty> transformFunction) where TContext : Bag
         {
             return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction);
         }
 
         public SafeProcessor<TContext>
             TransformProperty<TContext, TProperty, TNewProperty>(string propertyToTransform,
-                Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : PipelineContext
+                Func<TContext, TProperty, TNewProperty> transformFunction) where TContext : Bag
         {
             return CommonProcessors.TransformProperty<TContext, TProperty, TNewProperty>(propertyToTransform, transformFunction);
         }

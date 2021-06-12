@@ -5,7 +5,7 @@ using Pipelines.ExtensionMethods;
 namespace Pipelines.Implementations.Processors
 {
     public abstract class ExecuteForEachElementInPropertyProcessorConcept<TContext, TElement> 
-        : ExecuteActionForPropertyProcessorConcept<TContext, IEnumerable<TElement>> where TContext : PipelineContext
+        : ExecuteActionForPropertyProcessorConcept<TContext, IEnumerable<TElement>> where TContext : Bag
     {
         public override Task PropertyExecution(TContext args, IEnumerable<TElement> property)
         {

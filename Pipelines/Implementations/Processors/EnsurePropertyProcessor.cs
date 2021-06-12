@@ -20,12 +20,12 @@
             _value = value;
         }
 
-        public override string GetName(PipelineContext args)
+        public override string GetName(Bag args)
         {
             return this._name;
         }
 
-        public override TValue GetValue(PipelineContext args)
+        public override TValue GetValue(Bag args)
         {
             return this._value;
         }

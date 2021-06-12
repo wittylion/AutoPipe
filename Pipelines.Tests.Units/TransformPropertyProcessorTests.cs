@@ -17,10 +17,10 @@ namespace Pipelines.Tests.Units
             var messagePattern = "Hello, {0}!";
             var value = nameof(Execute_Should_Transform_String_And_Put_New_String_Value_Into_New_Property);
             Func<string, string> fillPattern = (pattern) => string.Format(pattern, value);
-            var processor = new TransformPropertyProcessor<PipelineContext, string, string>("message", fillPattern, "newMessage");
+            var processor = new TransformPropertyProcessor<Bag, string, string>("message", fillPattern, "newMessage");
 
             var properties = new { Message =  messagePattern };
-            var context = ContextConstructor.Create(properties);
+            var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
             var actualResult = context.GetPropertyValueOrNull<string>("newMessage");
@@ -35,11 +35,11 @@ namespace Pipelines.Tests.Units
         {
             var messagePattern = "Hello, {0}!";
             var value = nameof(Execute_Should_Transform_String_With_Context_Value_And_Put_New_String_Value_Into_New_Property);
-            Func<PipelineContext, string, string> fillPattern = (ctx, pattern) => string.Format(pattern, ctx.GetPropertyValueOrNull<string>("name"));
-            var processor = new TransformPropertyProcessor<PipelineContext, string, string>("message", fillPattern, "newMessage");
+            Func<Bag, string, string> fillPattern = (ctx, pattern) => string.Format(pattern, ctx.GetPropertyValueOrNull<string>("name"));
+            var processor = new TransformPropertyProcessor<Bag, string, string>("message", fillPattern, "newMessage");
 
             var properties = new { Message = messagePattern, Name = value };
-            var context = ContextConstructor.Create(properties);
+            var context = Bag.Create(properties);
 
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
@@ -56,10 +56,10 @@ namespace Pipelines.Tests.Units
             var integer = Int32.MaxValue;
             var message = integer.ToString();
             Func<string, int> transform = int.Parse;
-            var processor = new TransformPropertyProcessor<PipelineContext, string, int>("numString", transform, "integer");
+            var processor = new TransformPropertyProcessor<Bag, string, int>("numString", transform, "integer");
 
             var properties = new { NumString = message };
-            var context = ContextConstructor.Create(properties);
+            var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
             var actualResult = context.GetPropertyValueOrDefault("integer", 0);
@@ -73,10 +73,10 @@ namespace Pipelines.Tests.Units
             var integer = Int32.MaxValue;
             var message = integer.ToString();
             Func<string, int> transform = int.Parse;
-            var processor = new TransformPropertyProcessor<PipelineContext, string, int>("integer", transform);
+            var processor = new TransformPropertyProcessor<Bag, string, int>("integer", transform);
 
             var properties = new { Integer = message };
-            var context = ContextConstructor.Create(properties);
+            var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
             var actualResult = context.GetPropertyValueOrDefault("integer", 0);

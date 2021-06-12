@@ -17,7 +17,7 @@ namespace Pipelines.Tests.Units
                 ["1"] = nameof(ContextConstructorTests),
                 ["2"] = nameof(PipelineContext_When_Created_From_Dictionary_Contains_All_Expected_Properties)
             };
-            var context = ContextConstructor.CreateFromDictionary(dictionary);
+            var context = Bag.CreateFromDictionary(dictionary);
 
             context.GetAllPropertyObjects().ToDictionary(x => x.Name, x => x.Value).Should().BeEquivalentTo(dictionary);
         }

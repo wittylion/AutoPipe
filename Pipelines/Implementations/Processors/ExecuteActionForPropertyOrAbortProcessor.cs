@@ -5,7 +5,7 @@ using Pipelines.ExtensionMethods;
 namespace Pipelines.Implementations.Processors
 {
     public class ExecuteActionForPropertyOrAbortProcessor<TContext, TProperty>
-        : ExecuteActionForPropertyProcessor<TContext, TProperty> where TContext : PipelineContext
+        : ExecuteActionForPropertyProcessor<TContext, TProperty> where TContext : Bag
     {
         public string AbortMessage { get; }
         public MessageType MessageType { get; }

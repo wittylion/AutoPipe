@@ -5,14 +5,14 @@ namespace Pipelines.Implementations.Processors
     /// <summary>
     /// Processor that simply gets a key of the property
     /// and value to be added then adds key and value to
-    /// the PipelineContext if the key doesn't exist.
+    /// the Bag if the key doesn't exist.
     /// </summary>
     /// <typeparam name="TValue">
     /// Type of the value object that will be added for a given key.
     /// </typeparam>
     public abstract class EnsurePropertyProcessorConcept<TValue> : SafeProcessor
     {
-        public override Task SafeExecute(PipelineContext args)
+        public override Task SafeExecute(Bag args)
         {
             var name = this.GetName(args);
             var value = this.GetValue(args);
@@ -22,7 +22,7 @@ namespace Pipelines.Implementations.Processors
             return PipelineTask.CompletedTask;
         }
 
-        public abstract string GetName(PipelineContext args);
-        public abstract TValue GetValue(PipelineContext args);
+        public abstract string GetName(Bag args);
+        public abstract TValue GetValue(Bag args);
     }
 }

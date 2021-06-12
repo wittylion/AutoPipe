@@ -10,21 +10,21 @@ namespace Pipelines.ExtensionMethods
     {
         public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string property,
             Func<TValue, TNewValue> transformFunction, PropertyModificator modificator)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             context.TransformProperty<TContext, TValue, TNewValue>(property, property, (ctx, val) => transformFunction(val), modificator);
         }
 
         public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string property,
             Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             context.TransformProperty(property, property, transformFunction, modificator);
         }
 
         public static void TransformProperty<TContext, TValue, TNewValue>(this TContext context, string fromProperty,
             string toProperty, Func<TContext, TValue, TNewValue> transformFunction, PropertyModificator modificator)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             if (context.HasNoValue() || transformFunction.HasNoValue())
             {
@@ -46,7 +46,7 @@ namespace Pipelines.ExtensionMethods
 
         public static void ApplyProperty<TContext, TValue>(this TContext context,
             string propertyName, Func<TContext, TValue> createValueFunction, PropertyModificator modificator)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             if (context.HasNoValue() || createValueFunction.HasNoValue())
             {
@@ -87,7 +87,7 @@ namespace Pipelines.ExtensionMethods
         /// The action to be executed when the property exists.
         /// </param>
         public static void IfHasProperty<TContext>(this TContext context, string property, Action<TContext> action)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             if (context.HasValue() && context.HasProperty(property))
             {
@@ -110,7 +110,7 @@ namespace Pipelines.ExtensionMethods
         /// The action to be executed when the property does not exist.
         /// </param>
         public static void IfHasNoProperty<TContext>(this TContext context, string property, Action<TContext> action)
-            where TContext : PipelineContext
+            where TContext : Bag
         {
             if (context.HasValue() && !context.HasProperty(property))
             {
