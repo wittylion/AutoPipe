@@ -94,7 +94,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task<TResult> Execute<TResult>(QueryContext<TResult> arguments) where TResult : class
+        public async Task<TResult> Execute<TResult>(Backpack<TResult> arguments) where TResult : class
         {
             await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
             return arguments.GetResult();

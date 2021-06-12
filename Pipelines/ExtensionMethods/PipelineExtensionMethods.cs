@@ -196,9 +196,9 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, QueryContext<TResult> args, IPipelineRunner runner = null) where TResult : class
+        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, Backpack<TResult> args, IPipelineRunner runner = null) where TResult : class
         {
-            await pipeline.Run<QueryContext<TResult>>(args, runner).ConfigureAwait(false);
+            await pipeline.Run<Backpack<TResult>>(args, runner).ConfigureAwait(false);
             return args.GetResult();
         }
 
@@ -264,7 +264,7 @@ namespace Pipelines.ExtensionMethods
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static TResult RunSync<TResult>(this IPipeline pipeline, QueryContext<TResult> args, IPipelineRunner runner = null) where TResult : class
+        public static TResult RunSync<TResult>(this IPipeline pipeline, Backpack<TResult> args, IPipelineRunner runner = null) where TResult : class
         {
             return pipeline.Run(args, runner).Result;
         }

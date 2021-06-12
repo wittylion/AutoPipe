@@ -22,7 +22,7 @@
         /// A context that is supposed to have a query on the start
         /// and retrieve pipeline in the end of the execution.
         /// </param>
-        void GetSingle<TQuery>(TQuery query) where TQuery : QueryContext<IPipeline>;
+        void GetSingle<TQuery>(TQuery query) where TQuery : Backpack<IPipeline>;
 
         /// <summary>
         /// In case you know some parameters about a collection of pipelines
@@ -38,6 +38,6 @@
         /// A context that is supposed to have a query on the start
         /// and retrieve pipelines collection in the end of the execution.
         /// </param>
-        void GetMany<TQuery>(TQuery query) where TQuery : QueryContext<IPipeline[]>;
+        void GetMany<TQuery>(TQuery query) where TQuery : Backpack<IPipeline[]>;
     }
 }

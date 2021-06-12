@@ -122,9 +122,9 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class HelloMessageNameToResultReplacer : SafeProcessor<QueryContext<string>>
+        public class HelloMessageNameToResultReplacer : SafeProcessor<Backpack<string>>
         {
-            public override Task SafeExecute(QueryContext<string> args)
+            public override Task SafeExecute(Backpack<string> args)
             {
                 args.IfHasProperty(
                     "message",
@@ -134,7 +134,7 @@ namespace Pipelines.Tests.Units
                 return Done;
             }
 
-            public virtual void SetResult(QueryContext<string> ctx)
+            public virtual void SetResult(Backpack<string> ctx)
             {
                 var message = ctx.GetPropertyValueOrNull<string>("message");
                 var name = ctx.GetPropertyValueOrDefault("name", "stranger");
