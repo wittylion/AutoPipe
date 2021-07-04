@@ -23,7 +23,7 @@ namespace Pipelines.Tests.Units
             var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
-            var actualResult = context.GetPropertyValueOrNull<string>("newMessage");
+            var actualResult = context.Get<string>("newMessage");
             var expectedResult = string.Format(messagePattern, value);
 
             actualResult.Should().Be(expectedResult,
@@ -35,7 +35,7 @@ namespace Pipelines.Tests.Units
         {
             var messagePattern = "Hello, {0}!";
             var value = nameof(Execute_Should_Transform_String_With_Context_Value_And_Put_New_String_Value_Into_New_Property);
-            Func<Bag, string, string> fillPattern = (ctx, pattern) => string.Format(pattern, ctx.GetPropertyValueOrNull<string>("name"));
+            Func<Bag, string, string> fillPattern = (ctx, pattern) => string.Format(pattern, ctx.Get<string>("name"));
             var processor = new TransformPropertyProcessor<Bag, string, string>("message", fillPattern, "newMessage");
 
             var properties = new { Message = messagePattern, Name = value };
@@ -43,7 +43,7 @@ namespace Pipelines.Tests.Units
 
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
-            var actualResult = context.GetPropertyValueOrNull<string>("newMessage");
+            var actualResult = context.Get<string>("newMessage");
             var expectedResult = string.Format(messagePattern, value);
 
             actualResult.Should().Be(expectedResult,
@@ -62,7 +62,7 @@ namespace Pipelines.Tests.Units
             var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
-            var actualResult = context.GetPropertyValueOrDefault("integer", 0);
+            var actualResult = context.Get("integer", 0);
             actualResult.Should().Be(integer,
                 "transform property processor should use the function, that parses a number");
         }
@@ -79,7 +79,7 @@ namespace Pipelines.Tests.Units
             var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
-            var actualResult = context.GetPropertyValueOrDefault("integer", 0);
+            var actualResult = context.Get("integer", 0);
             actualResult.Should().Be(integer,
                 "transform property processor should use the function, that parses a number");
         }

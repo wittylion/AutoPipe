@@ -324,7 +324,7 @@ namespace Pipelines
         /// Retrieves the value that is defined under the property
         /// of parameter <paramref name="name"/> or if was not added
         /// or the type of the contained property is different than
-        /// <see cref="TValue"/>, the <paramref name="defaultValue"/> will be retrieved.
+        /// <see cref="TValue"/>, the <paramref name="or"/> will be retrieved.
         /// </summary>
         /// <typeparam name="TValue">
         /// The type of the retrieved value.
@@ -332,16 +332,21 @@ namespace Pipelines
         /// <param name="name">
         /// Key to identify the property (case-insensetive).
         /// </param>
-        /// <param name="defaultValue">
+        /// <param name="or">
         /// Default value to be retrieved if the value of the property
         /// was not added or the type of the value is different than <see cref="TValue"/>.
         /// </param>
         /// <returns>
         /// The value kept under the <paramref name="name"/> of the property
-        /// or <paramref name="defaultValue"/> if property was not added or the type
+        /// or <paramref name="or"/> if property was not added or the type
         /// of the value is different than <see cref="TValue"/>.
         /// </returns>
-        public virtual TValue GetPropertyValueOrDefault<TValue>(string name, TValue defaultValue)
+        public virtual TValue Get<TValue>(string name, TValue or)
+        {
+            return Get(name, or: () => or);
+        }
+
+        public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             var propertyHolder = GetPropertyObjectOrNull(name);
             if (propertyHolder.HasValue)
@@ -352,7 +357,7 @@ namespace Pipelines
                 }
             }
 
-            return defaultValue;
+            return or();
         }
 
         /// <summary>
@@ -538,9 +543,9 @@ namespace Pipelines
         /// or <c>null</c> if property was not added or the type
         /// of the value is different than <see cref="TValue"/>.
         /// </returns>
-        public virtual TValue GetPropertyValueOrNull<TValue>(string name) where TValue : class
+        public virtual TValue Get<TValue>(string name) where TValue : class
         {
-            return this.GetPropertyValueOrDefault<TValue>(name, null);
+            return this.Get<TValue>(name, null);
         }
 
         /// <summary>

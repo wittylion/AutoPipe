@@ -37,7 +37,7 @@ namespace Pipelines.Tests.Units
             var args = new Bag();
             await pipelineExecutor.Execute(args).ConfigureAwait(false);
 
-            args.GetPropertyValueOrDefault(property, false)
+            args.Get(property, false)
                 .Should()
                 .BeTrue("context should have set up a property in passed context");
         }

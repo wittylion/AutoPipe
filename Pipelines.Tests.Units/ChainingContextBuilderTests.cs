@@ -20,10 +20,10 @@ namespace Pipelines.Tests.Units
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
                         CommonProcessors.TransformProperty<Bag, int, int>("one", "string",
-                            (ctx, s) => s + ctx.GetPropertyValueOrDefault("two", 0))),
+                            (ctx, s) => s + ctx.Get("two", 0))),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.GetPropertyValueOrDefault("string", 0)
+            context.OriginalContext.Get("string", 0)
                 .Should()
                 .Be(3);
         }
@@ -40,7 +40,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.GetPropertyValueOrDefault("message", "")
+            context.OriginalContext.Get("message", "")
                 .Should()
                 .Be("Hello, Serge!");
         }
@@ -57,7 +57,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.GetPropertyValueOrDefault("message", "")
+            context.OriginalContext.Get("message", "")
                 .Should()
                 .Be("Hola, stranger!");
         }
@@ -75,7 +75,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.GetPropertyValueOrDefault("message", "")
+            context.OriginalContext.Get("message", "")
                 .Should()
                 .Be("Hello, Bob!");
         }
@@ -114,7 +114,7 @@ namespace Pipelines.Tests.Units
             {
                 args.TransformProperty(
                     "message",
-                    (Bag ctx, string val) => val.Replace("{name}", ctx.GetPropertyValueOrDefault("name", "stranger")),
+                    (Bag ctx, string val) => val.Replace("{name}", ctx.Get("name", "stranger")),
                     PropertyModificator.UpdateValue
                 );
 
@@ -136,8 +136,8 @@ namespace Pipelines.Tests.Units
 
             public virtual void SetResult(Backpack<string> ctx)
             {
-                var message = ctx.GetPropertyValueOrNull<string>("message");
-                var name = ctx.GetPropertyValueOrDefault("name", "stranger");
+                var message = ctx.Get<string>("message");
+                var name = ctx.Get("name", "stranger");
                 var result = message.Replace("{name}", name);
                 ctx.SetResultWithInformation(result, "The message has been set with name token replaced.");
             }

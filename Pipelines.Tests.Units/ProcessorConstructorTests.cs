@@ -47,7 +47,7 @@ namespace Pipelines.Tests.Units
 
             await processor.Execute(context).ConfigureAwait(false);
 
-            context.GetPropertyValueOrDefault(successProperty, false)
+            context.Get(successProperty, false)
                 .Should()
                 .BeTrue("because property is defined in the context and the action must have been set a success property");
         }
@@ -72,7 +72,7 @@ namespace Pipelines.Tests.Units
 
             await processor.Execute(context).ConfigureAwait(false);
 
-            context.GetPropertyValueOrDefault(exceptionHandlerProperty, false)
+            context.Get(exceptionHandlerProperty, false)
                 .Should()
                 .BeTrue("because property is defined in the context and the action must have been set a success property");
         }

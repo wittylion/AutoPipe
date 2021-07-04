@@ -18,7 +18,7 @@ namespace Pipelines.Implementations.Processors
         {
             foreach (var propertyName in PropertyNames)
             {
-                yield return arguments.GetPropertyValueOrNull<IDisposable>(propertyName);
+                yield return arguments.Get<IDisposable>(propertyName);
             }
         }
     }
