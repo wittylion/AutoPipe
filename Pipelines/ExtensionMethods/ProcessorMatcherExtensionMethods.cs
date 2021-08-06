@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Pipelines.ExtensionMethods
+namespace Pipelines
 {
     public static class ProcessorMatcherExtensionMethods
     {

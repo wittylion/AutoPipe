@@ -11,7 +11,7 @@ namespace Pipelines.Tests.Integrations
         {
             var context = new Bag();
             await new SetMessage().Execute(context).ConfigureAwait(false);
-            context.Get<string>(GreeterProperties.Message)
+            context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
                 .Be(GreeterValues.HelloWorld, "because nothing is set in the context");
         }
@@ -26,7 +26,7 @@ namespace Pipelines.Tests.Integrations
 
             await new SetMessage().Execute(context).ConfigureAwait(false);
 
-            context.Get<string>(GreeterProperties.Message)
+            context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
                 .Be(string.Format(GreeterValues.WelcomeAboard, name), "because name is set in the context");
         }
@@ -39,7 +39,7 @@ namespace Pipelines.Tests.Integrations
             var context = new Bag(new {Name = name});
             await new SetMessage().Execute(context).ConfigureAwait(false);
 
-            context.Get<string>(GreeterProperties.Message)
+            context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
                 .Be(string.Format(GreeterValues.WelcomeAboard, name),
                     "because name is set through object constructor in the context");
@@ -51,7 +51,7 @@ namespace Pipelines.Tests.Integrations
             var context = new Bag();
             await new DefaultMessageSetter().Execute(context).ConfigureAwait(false);
 
-            context.Get<string>(GreeterProperties.Message)
+            context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
                 .Be(GreeterValues.IntermediateMessage, "because intermediate processor should set its own message");
         }
@@ -63,7 +63,7 @@ namespace Pipelines.Tests.Integrations
             var context = new Bag(new {Message = "DEFAULT"});
             await new DefaultMessageSetter().Execute(context).ConfigureAwait(false);
 
-            context.Get<string>(GreeterProperties.Message)
+            context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
                 .Be(GreeterValues.IntermediateMessage, "because intermediate processor should set its own message");
         }
@@ -94,7 +94,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override Task SafeExecute(Bag args)
             {
-                var name = args.Get<string>(GreeterProperties.Name);
+                var name = args.Get(GreeterProperties.Name, (string) null);
 
                 if (string.IsNullOrWhiteSpace(name))
                 {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Pipelines;
 using Xunit;
 

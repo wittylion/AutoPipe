@@ -1,4 +1,4 @@
-﻿namespace Pipelines.ExtensionMethods
+﻿namespace Pipelines
 {
     internal static class StringExtensionMethods
     {

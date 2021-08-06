@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Contexts;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Implementations.Processors;
@@ -23,7 +22,7 @@ namespace Pipelines.Tests.Units
             var context = Bag.Create(properties);
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
-            var actualResult = context.Get<string>("newMessage");
+            var actualResult = context.GetOrThrow<string>("newMessage");
             var expectedResult = string.Format(messagePattern, value);
 
             actualResult.Should().Be(expectedResult,
@@ -35,7 +34,7 @@ namespace Pipelines.Tests.Units
         {
             var messagePattern = "Hello, {0}!";
             var value = nameof(Execute_Should_Transform_String_With_Context_Value_And_Put_New_String_Value_Into_New_Property);
-            Func<Bag, string, string> fillPattern = (ctx, pattern) => string.Format(pattern, ctx.Get<string>("name"));
+            Func<Bag, string, string> fillPattern = (ctx, pattern) => string.Format(pattern, ctx.GetOrThrow<string>("name"));
             var processor = new TransformPropertyProcessor<Bag, string, string>("message", fillPattern, "newMessage");
 
             var properties = new { Message = messagePattern, Name = value };
@@ -43,7 +42,7 @@ namespace Pipelines.Tests.Units
 
             PredefinedPipeline.FromProcessors(processor).RunSync(context);
 
-            var actualResult = context.Get<string>("newMessage");
+            var actualResult = context.GetOrThrow<string>("newMessage");
             var expectedResult = string.Format(messagePattern, value);
 
             actualResult.Should().Be(expectedResult,

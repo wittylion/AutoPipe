@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipelines.ExtensionMethods
+namespace Pipelines
 {
     /// <summary>
     /// Extension methods for classes <see cref="IEnumerable{T}"/>.

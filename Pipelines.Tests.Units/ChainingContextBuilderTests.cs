@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Contexts;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Implementations.Processors;
@@ -136,7 +135,7 @@ namespace Pipelines.Tests.Units
 
             public virtual void SetResult(Backpack<string> ctx)
             {
-                var message = ctx.Get<string>("message");
+                var message = ctx.GetOrThrow<string>("message");
                 var name = ctx.Get("name", "stranger");
                 var result = message.Replace("{name}", name);
                 ctx.SetResultWithInformation(result, "The message has been set with name token replaced.");

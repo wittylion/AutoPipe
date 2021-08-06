@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using Pipelines.ExtensionMethods;
 
 namespace Pipelines
 {
@@ -346,6 +345,20 @@ namespace Pipelines
             return Get(name, or: () => or);
         }
 
+        public virtual TValue GetOrThrow<TValue>(string name)
+        {
+            var propertyHolder = GetPropertyObjectOrNull(name);
+            if (propertyHolder.HasValue)
+            {
+                if (propertyHolder.Value.Value is TValue value)
+                {
+                    return value;
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
+        }
+
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             var propertyHolder = GetPropertyObjectOrNull(name);
@@ -524,28 +537,6 @@ namespace Pipelines
             }
 
             return new PipelineProperty[0];
-        }
-
-        /// <summary>
-        /// Retrieves the value that is defined under the property
-        /// of parameter <paramref name="name"/> or if was not added
-        /// or the type of the contained property is different than
-        /// <see cref="TValue"/>, the <c>null</c> will be retrieved.
-        /// </summary>
-        /// <typeparam name="TValue">
-        /// The type of the retrieved value.
-        /// </typeparam>
-        /// <param name="name">
-        /// Key to identify the property (case-insensetive).
-        /// </param>
-        /// <returns>
-        /// The value kept under the <paramref name="name"/> of the property
-        /// or <c>null</c> if property was not added or the type
-        /// of the value is different than <see cref="TValue"/>.
-        /// </returns>
-        public virtual TValue Get<TValue>(string name) where TValue : class
-        {
-            return this.Get<TValue>(name, null);
         }
 
         /// <summary>

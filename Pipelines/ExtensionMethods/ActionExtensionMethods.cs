@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Pipelines.Implementations.Processors;
 
-namespace Pipelines.ExtensionMethods
+namespace Pipelines
 {
     /// <summary>
     /// Extension methods for classes <see cref="Action{T}"/>

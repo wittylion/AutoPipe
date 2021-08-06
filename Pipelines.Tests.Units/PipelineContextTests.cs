@@ -53,7 +53,7 @@ namespace Pipelines.Tests.Units
 
             pipelineContext.SetOrAddProperty(key, expectedValue);
 
-            pipelineContext.Get<string>(key)
+            pipelineContext.GetOrThrow<string>(key)
                 .Should()
                 .Be(expectedValue, "because method must return value when it is set");
         }
@@ -67,7 +67,7 @@ namespace Pipelines.Tests.Units
 
             pipelineContext.SetOrAddProperty(key, value);
 
-            pipelineContext.Get<IAsyncLifetime>(key)
+            pipelineContext.Get(key, (IAsyncLifetime) null)
                 .Should()
                 .BeNull("because method must check a type before value is converted into this type");
         }
@@ -96,7 +96,7 @@ namespace Pipelines.Tests.Units
 
             pipelineContext.SetOrAddProperty(key, expectedValue);
 
-            pipelineContext.Get<string>(key.ToUpperInvariant())
+            pipelineContext.GetOrThrow<string>(key.ToUpperInvariant())
                 .Should()
                 .Be(expectedValue, "because method must return value regardless case of the property name");
         }
@@ -107,7 +107,7 @@ namespace Pipelines.Tests.Units
             var expectedValue = nameof(ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection);
             var pipelineContext = new Bag(new {PipelineContextTests = expectedValue});
 
-            pipelineContext.Get<string>("PipelineContextTests")
+            pipelineContext.GetOrThrow<string>("PipelineContextTests")
                 .Should()
                 .Be(expectedValue, "because method must return value of the property passed in constructor with an object");
         }
@@ -128,7 +128,7 @@ namespace Pipelines.Tests.Units
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Value_Is_Not_Set);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.Get<string>(key)
+            pipelineContext.Get(key, (string) null)
                 .Should()
                 .BeNull(expectedValue, "because the value was not set");
         }
@@ -156,7 +156,7 @@ namespace Pipelines.Tests.Units
             pipelineContext.SetOrAddProperty(nameof(PipelineContextTests), value);
             pipelineContext.SetOrAddProperty(nameof(PipelineContextTests), expectedValue);
             
-            pipelineContext.Get<string>(key)
+            pipelineContext.GetOrThrow<string>(key)
                 .Should()
                 .Be(expectedValue, "because method must update a value if it previously was set");
         }
@@ -172,7 +172,7 @@ namespace Pipelines.Tests.Units
             pipelineContext.AddOrSkipPropertyIfExists(nameof(PipelineContextTests), expectedValue);
             pipelineContext.AddOrSkipPropertyIfExists(nameof(PipelineContextTests), value);
 
-            pipelineContext.Get<string>(key)
+            pipelineContext.GetOrThrow<string>(key)
                 .Should()
                 .Be(expectedValue, "because method must skip a value if it previously was set");
         }
@@ -194,7 +194,7 @@ namespace Pipelines.Tests.Units
 
             pipelineContext.DeleteProperty(property);
 
-            pipelineContext.Get<string>(property)
+            pipelineContext.Get(property, (string) null)
                 .Should()
                 .BeNull("because value has been deleted by 'DeleteProperty' method");
         }
@@ -231,7 +231,7 @@ namespace Pipelines.Tests.Units
             var name = nameof(ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property);
             var context = Bag.Create(new {Message = name});
             context.ApplyProperty("Message", "test", PropertyModificator.SkipIfExists);
-            context.Get<string>("Message")
+            context.GetOrThrow<string>("Message")
                 .Should().Be(name);
         }
 
@@ -241,7 +241,7 @@ namespace Pipelines.Tests.Units
             var name = nameof(ApplyProperty_With_UpdateValue_Overwrites_The_Existing_Property);
             var context = Bag.Create(new { Message = name });
             context.ApplyProperty("Message", "test", PropertyModificator.UpdateValue);
-            context.Get<string>("Message")
+            context.GetOrThrow<string>("Message")
                 .Should().Be("test");
         }
         

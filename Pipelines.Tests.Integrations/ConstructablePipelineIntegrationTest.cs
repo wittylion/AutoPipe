@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Pipelines.ExtensionMethods;
 using Pipelines.Implementations.Pipelines;
 using Xunit;
 

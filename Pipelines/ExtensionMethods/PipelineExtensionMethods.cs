@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Pipelines.Implementations.Pipelines;
 using Pipelines.Implementations.Processors;
 
-namespace Pipelines.ExtensionMethods
+namespace Pipelines
 {
     /// <summary>
     /// Pipeline extension methods intended to simplify
