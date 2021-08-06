@@ -121,9 +121,9 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class HelloMessageNameToResultReplacer : SafeProcessor<Backpack<string>>
+        public class HelloMessageNameToResultReplacer : SafeProcessor<Bag<string>>
         {
-            public override Task SafeExecute(Backpack<string> args)
+            public override Task SafeExecute(Bag<string> args)
             {
                 args.IfHasProperty(
                     "message",
@@ -133,7 +133,7 @@ namespace Pipelines.Tests.Units
                 return Done;
             }
 
-            public virtual void SetResult(Backpack<string> ctx)
+            public virtual void SetResult(Bag<string> ctx)
             {
                 var message = ctx.GetOrThrow<string>("message");
                 var name = ctx.Get("name", "stranger");

@@ -25,8 +25,8 @@ namespace Pipelines
         public static ChainingContext<TContext> Build<TContext>(TContext context) where TContext : Bag =>
             new ChainingContext<TContext>(context);
 
-        public static ChainingContext<Backpack<TValue>> BuildQuery<TValue>() where TValue : class =>
-            Build<Backpack<TValue>>();
+        public static ChainingContext<Bag<TValue>> BuildQuery<TValue>() where TValue : class =>
+            Build<Bag<TValue>>();
 
         /// <summary>
         /// Creates a new Bag that has a parameter-less constructor.
