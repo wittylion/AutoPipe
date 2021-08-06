@@ -50,7 +50,7 @@ namespace Pipelines.Tests.Units
                 ctx.SetResultWithInformation(propertyValue, "Result is set."));
             var pipeline = PredefinedPipeline.FromProcessors(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
-            var args = new Backpack<string>();
+            var args = new Bag<string>();
 
             (await pipelineExecutor.Execute(args))
                 .Should()
