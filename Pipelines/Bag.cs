@@ -1086,6 +1086,21 @@ namespace Pipelines
             return this.Result.Ensure(fallbackValue);
         }
 
+
+        /// <summary>
+        /// In case the value of the result is null, you can specify a
+        /// <paramref name="fallbackValue"/> which will be returned
+        /// instead of the value in result property.
+        /// </summary>
+        /// <returns>
+        /// Value of the result property or <paramref name="fallbackValue"/>
+        /// if value of the result is null.
+        /// </returns>
+        public TResult GetResultOr(Func<TResult> or)
+        {
+            return this.Result.Ensure(or);
+        }
+
         /// <summary>
         /// Returns value indicating whether result is set.
         /// </summary>
