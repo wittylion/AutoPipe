@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines
 {
     /// <summary>
     /// This attribute is supposed to be used for parameters of
@@ -8,7 +8,7 @@ namespace Pipelines.Implementations.Processors
     /// Allows to provide some data before method will be executed.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
-    public class ContextParameterAttribute : Attribute
+    public class ParamAttribute : Attribute
     {
         /// <summary>
         /// The name of the property to be searched 

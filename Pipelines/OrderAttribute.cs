@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class ProcessorOrderAttribute : Attribute
+    public class OrderAttribute : Attribute
     {
         public int Order { get; }
 
-        public ProcessorOrderAttribute(int order)
+        public OrderAttribute(int order)
         {
             Order = order;
         }

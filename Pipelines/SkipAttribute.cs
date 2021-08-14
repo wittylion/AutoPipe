@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class SkipProcessorAttribute : Attribute
+    public class SkipAttribute : Attribute
     {
     }
 }

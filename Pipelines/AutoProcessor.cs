@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines
 {
     /// <summary>
     /// An abstract processor that can be derived to implement
@@ -317,7 +317,7 @@ namespace Pipelines.Implementations.Processors
                 {
                     var name = parameter.Name;
 
-                    var metadata = parameter.GetCustomAttribute<ContextParameterAttribute>();
+                    var metadata = parameter.GetCustomAttribute<ParamAttribute>();
                     if (metadata != null)
                     {
                         if (!string.IsNullOrWhiteSpace(metadata.Name) && context.ContainsProperty<object>(metadata.Name))
@@ -348,7 +348,7 @@ namespace Pipelines.Implementations.Processors
         /// <summary>
         /// Does a predefined check to validate execution
         /// possibility of the of the <paramref name="method"/>.
-        /// Uses <see cref="ContextParameterAttribute"/> to do some
+        /// Uses <see cref="ParamAttribute"/> to do some
         /// parameter validation checks.
         /// </summary>
         /// <param name="method">
@@ -366,7 +366,7 @@ namespace Pipelines.Implementations.Processors
 
             foreach (var parameter in parameters)
             {
-                var metadata = parameter.GetCustomAttribute<ContextParameterAttribute>();
+                var metadata = parameter.GetCustomAttribute<ParamAttribute>();
 
                 if (metadata == null)
                 {

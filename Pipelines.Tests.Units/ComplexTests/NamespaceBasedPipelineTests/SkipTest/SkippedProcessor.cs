@@ -1,10 +1,9 @@
-﻿using Pipelines.Implementations.Processors;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest
 {
-    [SkipProcessor]
+    [Skip]
     public class SkippedProcessor : SafeProcessor
     {
         public override Task SafeRun(Bag args)

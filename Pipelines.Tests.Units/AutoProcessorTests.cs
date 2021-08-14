@@ -1,7 +1,6 @@
 ﻿using Castle.Core.Internal;
 using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Processors;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
@@ -83,7 +82,7 @@ namespace Pipelines.Tests.Units
         {
             TestAutoProcessor processor = new TestAutoProcessor();
             var method = processor.GetType().GetMethod(nameof(TestAutoProcessor.EmptyMethod2));
-            processor.GetOrderOfExecution(method).Should().Be(method.GetAttribute<ExecuteMethodAttribute>().Order);
+            processor.GetOrderOfExecution(method).Should().Be(method.GetAttribute<RunAttribute>().Order);
         }
 
         [Fact]
@@ -145,7 +144,8 @@ namespace Pipelines.Tests.Units
     public class TestAbortingContextParameter : AutoProcessor
     {
         [Run(Order = 1)]
-        public virtual void EmptyMethod([ContextParameter(AbortIfNotExist = true, ErrorMessage = "Parameter does not exist.")] object parameter) { }
+        public virtual void EmptyMethod(
+            [Param(AbortIfNotExist = true, ErrorMessage = "Parameter does not exist.")] object parameter) { }
 
         [Run(Order = 2)]
         public virtual void EmptyMethod2() { }

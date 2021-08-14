@@ -5,9 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Pipelines.Implementations.Processors;
 
-namespace Pipelines.Implementations.Pipelines
+namespace Pipelines
 {
     public class NamespaceBasedPipeline : IPipeline
     {
@@ -36,12 +35,12 @@ namespace Pipelines.Implementations.Pipelines
         {
             return type.Namespace == Namespace 
                 && typeof(IProcessor).IsAssignableFrom(type) 
-                && type.GetCustomAttribute<SkipProcessorAttribute>() == null;
+                && type.GetCustomAttribute<SkipAttribute>() == null;
         }
 
         protected virtual int GetProcessorOrder(Type type)
         {
-            return type?.GetCustomAttribute<ProcessorOrderAttribute>()?.Order ?? default;
+            return type?.GetCustomAttribute<OrderAttribute>()?.Order ?? default;
         }
 
         protected virtual IProcessor ConstructProcessor(Type type)
