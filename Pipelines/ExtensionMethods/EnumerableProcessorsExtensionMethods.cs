@@ -192,7 +192,7 @@ namespace Pipelines
         /// </returns>
         public static async Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args, IProcessorRunner runner)
         {
-            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            runner = runner ?? PipelineRunner.StaticInstance;
             if (enumerable.HasNoValue())
             {
                 return;
@@ -270,7 +270,7 @@ namespace Pipelines
                 return;
             }
 
-            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            runner = runner ?? PipelineRunner.StaticInstance;
 
             while (condition(args))
             {

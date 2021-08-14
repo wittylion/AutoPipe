@@ -61,13 +61,13 @@ namespace Pipelines
             context.ApplyProperty(propertyName, newValue, modificator);
         }
 
-        public static async Task<TContext> RunWith<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
+        public static async Task<TContext> Run<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
         {
             await pipeline.Run(context, runner);
             return context;
         }
 
-        public static async Task<TContext> RunWith<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
+        public static async Task<TContext> Run<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
         {
             await processor.Run(context, runner);
             return context;

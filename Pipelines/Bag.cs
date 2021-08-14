@@ -696,7 +696,7 @@ namespace Pipelines
         {
             string[] texts = this.GetMessageTexts(filter, format);
 
-            separator = separator.Ensure(Environment.NewLine);
+            separator = separator ?? Environment.NewLine;
 
             return string.Join(separator, texts);
         }

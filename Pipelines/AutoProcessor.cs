@@ -86,7 +86,19 @@ namespace Pipelines
         /// </returns>
         public virtual int GetOrderOfExecution(MethodInfo method)
         {
-            return method?.GetCustomAttribute<RunAttribute>()?.Order ?? default;
+            int? order = method?.GetCustomAttribute<RunAttribute>()?.Order;
+            if (order.GetValueOrDefault() != default)
+            {
+                return order.Value;
+            }
+
+            order = method?.GetCustomAttribute<OrderAttribute>()?.Order;
+            if (order != null)
+            {
+                return order.Value;
+            }
+
+            return default;
         }
 
         /// <summary>
@@ -108,7 +120,14 @@ namespace Pipelines
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
-            await ProcessResult(context, result).ConfigureAwait(false);
+            await ProcessResult(method, context, result).ConfigureAwait(false);
+        }
+
+        protected virtual IEnumerable<string> GetPropertyUpdateIndificators()
+        {
+            yield return "Get";
+            yield return "Set";
+            yield return "Update";
         }
 
         /// <summary>
@@ -127,7 +146,7 @@ namespace Pipelines
         /// <returns>
         /// A task indicating whether method result has been processed or not.
         /// </returns>
-        protected virtual async Task ProcessResult(Bag context, object methodResult)
+        protected virtual async Task ProcessResult(MethodInfo method, Bag context, object methodResult)
         {
             if (methodResult.HasNoValue())
             {
@@ -136,15 +155,35 @@ namespace Pipelines
 
             if (methodResult is Task task)
             {
-                await ProcessTask(context, task).ConfigureAwait(false);
+                await ProcessTask(method, context, task).ConfigureAwait(false);
                 return;
+            }
+
+            foreach (var identificator in GetPropertyUpdateIndificators())
+            {
+                if (method.Name.StartsWith(identificator))
+                {
+                    if (method.Name.Length == identificator.Length)
+                    {
+                        break;
+                    }
+
+                    var property = method.Name.Substring(identificator.Length);
+                    if (property.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    context.Set(property, methodResult);
+                    return;
+                }
             }
 
             if (methodResult is IEnumerable enumerable)
             {
                 foreach (var item in enumerable)
                 {
-                    await ProcessResult(context, item).ConfigureAwait(false);
+                    await ProcessResult(method, context, item).ConfigureAwait(false);
                 }
                 return;
             }
@@ -158,7 +197,7 @@ namespace Pipelines
             if (methodResult is Func<Bag, object> functionContext)
             {
                 var functionResult = functionContext(context);
-                await ProcessResult(context, functionResult).ConfigureAwait(false);
+                await ProcessResult(method, context, functionResult).ConfigureAwait(false);
                 return;
             }
 
@@ -204,7 +243,7 @@ namespace Pipelines
         /// A task indicating whether the processing of the <paramref name="task"/>
         /// has been completed.
         /// </returns>
-        protected virtual async Task ProcessTask(Bag context, Task task)
+        protected virtual async Task ProcessTask(MethodInfo method, Bag context, Task task)
         {
             if (task.HasNoValue())
             {
@@ -223,7 +262,7 @@ namespace Pipelines
             var result = property.GetValue(task);
             if (result.HasValue())
             {
-                await ProcessResult(context, result).ConfigureAwait(false);
+                await ProcessResult(method, context, result).ConfigureAwait(false);
             }
         }
 

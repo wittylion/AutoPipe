@@ -181,7 +181,34 @@ namespace Pipelines
         /// </returns>
         public static Task Run(this IProcessor processor, object args = null, IProcessorRunner runner = null)
         {
-            return runner.Ensure(PipelineRunner.StaticInstance).RunProcessor(processor, args);
+            runner = runner ?? PipelineRunner.StaticInstance;
+            args = args ?? new Bag();
+            return runner.RunProcessor(processor, args);
+        }
+
+        public static Task RunBag(this IProcessor processor, object args, IProcessorRunner runner = null)
+        {
+            if (!(args is Bag))
+            {
+                args = new Bag(args);
+            }
+            return processor.Run(args, runner);
+        }
+
+        public static async Task<TResult> Run<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
+        {
+            await processor.Run(args, runner);
+            return args.GetResultOrThrow<TResult>();
+        }
+
+        public static async Task<TResult> RunBag<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
+        {
+            if (!(args is Bag bag))
+            {
+                bag = new Bag(args);
+            }
+            await processor.Run(bag, runner);
+            return bag.GetResultOrThrow<TResult>();
         }
 
         /// <summary>
@@ -203,6 +230,21 @@ namespace Pipelines
         public static void RunSync(this IProcessor processor, object args = null, IProcessorRunner runner = null)
         {
             processor.Run(args, runner).Wait();
+        }
+
+        public static void RunBagSync(this IProcessor processor, object args, IProcessorRunner runner = null)
+        {
+            processor.RunBag(args, runner).Wait();
+        }
+
+        public static TResult RunSync<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
+        {
+            return processor.Run<TResult>(args, runner).Result;
+        }
+
+        public static TResult RunBagSync<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
+        {
+            return processor.RunBag<TResult>(args, runner).Result;
         }
 
         /// <summary>

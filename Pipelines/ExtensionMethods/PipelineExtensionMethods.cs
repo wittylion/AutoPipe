@@ -90,23 +90,6 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Runs a pipeline with no arguments (null)
-        /// and default runner.
-        /// </summary>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
-        /// method with null arguments passed.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static Task Run(this IPipeline pipeline)
-        {
-            return pipeline.Run<object>();
-        }
-
-        /// <summary>
         /// Runs a pipeline with <paramref name="args"/> context
         /// and <paramref name="runner"/>.
         /// </summary>
@@ -128,9 +111,20 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
+        public static Task Run(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
         {
-            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            runner = runner ?? PipelineRunner.StaticInstance;
+            args = args ?? new Bag();
+            return runner.Run(pipeline, args);
+        }
+
+        public static Task RunBag(this IPipeline pipeline, object args, IPipelineRunner runner = null)
+        {
+            runner = runner ?? PipelineRunner.StaticInstance;
+            if (!(args is Bag))
+            {
+                args = new Bag(args);
+            }
             return runner.Run(pipeline, args);
         }
 
@@ -156,25 +150,20 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static async Task<TResult> Make<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
+        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null) where TResult : class
         {
-            await pipeline.Run<Bag>(args, runner).ConfigureAwait(false);
+            await pipeline.Run(args, runner).ConfigureAwait(false);
             return args.GetResultOrThrow<TResult>();
         }
 
-        /// <summary>
-        /// Runs a pipeline with no arguments (null)
-        /// and default runner synchronously, waiting until
-        /// all processors of the pipeline will be executed.
-        /// </summary>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
-        /// method with null arguments passed.
-        /// </param>
-        public static void RunSync(this IPipeline pipeline)
+        public static async Task<TResult> RunBag<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
         {
-            pipeline.RunSync<object>();
+            if (!(args is Bag bag))
+            {
+                bag = new Bag(args);
+            }
+            await pipeline.Run(bag, runner);
+            return bag.GetResultOrThrow<TResult>();
         }
 
         /// <summary>
@@ -194,10 +183,14 @@ namespace Pipelines
         /// <param name="runner">
         /// The runner which will be used to run the wrapped pipeline.
         /// </param>
-        public static void RunSync<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
+        public static void RunSync(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
         {
-            runner = runner.Ensure(PipelineRunner.StaticInstance);
-            runner.Run(pipeline, args).Wait();
+            pipeline.Run(args, runner).Wait();
+        }
+
+        public static void RunBagSync(this IPipeline pipeline, object args, IPipelineRunner runner = null)
+        {
+            pipeline.RunBag(args, runner).Wait();
         }
 
         /// <summary>
@@ -224,10 +217,14 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static TResult MakeSync<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
+        public static TResult RunSync<TResult>(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null) where TResult : class
         {
-            Task.WaitAll(pipeline.Run(args, runner));
-            return args.GetResultOrThrow<TResult>();
+            return pipeline.Run<TResult>(args, runner).Result;
+        }
+
+        public static TResult RunBagSync<TResult>(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null) where TResult : class
+        {
+            return pipeline.RunBag<TResult>(args, runner).Result;
         }
 
         /// <summary>
@@ -284,7 +281,7 @@ namespace Pipelines
         public static async Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
             Predicate<TArgs> condition, IPipelineRunner runner)
         {
-            runner = runner.Ensure(PipelineRunner.StaticInstance);
+            runner = runner ?? PipelineRunner.StaticInstance;
             while (condition(args))
             {
                 await pipeline.Run(args, runner).ConfigureAwait(false);

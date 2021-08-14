@@ -13,7 +13,7 @@ namespace Pipelines.Tests.Units
                 .Use("one", 1)
                 .Use("two", 2)
                 .Use("string", "aqwe")
-                .RunWith(
+                .Run(
                     Pipeline.From(
                         Processor.From<Bag>(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
@@ -26,7 +26,7 @@ namespace Pipelines.Tests.Units
         public async void RunWith_Should_Run_The_Passed_Pipeline()
         {
             var context = await Bag.Create()
-                .RunWith(
+                .Run(
                     Pipeline.From(
                         new EnsureName(),
                         new EnsureMessage(),
@@ -44,7 +44,7 @@ namespace Pipelines.Tests.Units
         {
             var context = await Bag.Create()
                 .Use("message", "Hola, {name}!")
-                .RunWith(
+                .Run(
                     Pipeline.From(
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
@@ -61,7 +61,7 @@ namespace Pipelines.Tests.Units
         {
             var context = await Bag.Create()
                 .Use("name", "Bob")
-                .RunWith(
+                .Run(
                     Pipeline.From(
                         new EnsureName(),
                         new EnsureMessage(),
@@ -80,7 +80,7 @@ namespace Pipelines.Tests.Units
         {
             var context = await Bag.Create()
                 .Use("name", "Bob")
-                .RunWith(
+                .Run(
                     Pipeline.From(
                         new EnsureName(),
                         new EnsureMessage(),

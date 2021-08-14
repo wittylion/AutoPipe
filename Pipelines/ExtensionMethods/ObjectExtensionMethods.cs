@@ -29,16 +29,6 @@ namespace Pipelines
             return !HasValue(obj);
         }
 
-        public static T Ensure<T>(this T obj, T value) where T : class
-        {
-            return obj.HasValue() ? obj : value;
-        }
-
-        public static T Ensure<T>(this T obj, Func<T> or) where T : class
-        {
-            return obj.HasValue() ? obj : or();
-        }
-
         public static T[] ToAnArray<T>(this T obj)
         {
             return new[] {obj};

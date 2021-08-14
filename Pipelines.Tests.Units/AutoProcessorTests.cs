@@ -108,7 +108,7 @@ namespace Pipelines.Tests.Units
             Bag context = Bag.Create();
             Task task = null;
 
-            await processor.ProcessResult(context, task).ConfigureAwait(false);
+            await processor.ProcessResult(TestAutoProcessor.EmptyMethodInfo, context, task).ConfigureAwait(false);
 
             context.GetAllPropertyObjects().Should().BeEmpty();
         }
@@ -122,7 +122,7 @@ namespace Pipelines.Tests.Units
             Bag context = Bag.Create();
             Task task = Task.CompletedTask;
 
-            await processor.ProcessResult(context, task).ConfigureAwait(false);
+            await processor.ProcessResult(TestAutoProcessor.EmptyMethodInfo, context, task).ConfigureAwait(false);
 
             context.GetAllPropertyObjects().Should().BeEmpty();
         }
@@ -157,6 +157,9 @@ namespace Pipelines.Tests.Units
 
     public class TestAutoProcessor : AutoProcessor
     {
+        public static MethodInfo EmptyMethodInfo = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod));
+        public static MethodInfo EmptyMethod2Info = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod2));
+
         [Run]
         public void EmptyMethod() { }
 
@@ -165,9 +168,9 @@ namespace Pipelines.Tests.Units
 
         public void EmptyMethodNotForExecution() { }
 
-        public new Task ProcessResult(Bag context, object methodResult)
+        public new Task ProcessResult(MethodInfo info, Bag context, object methodResult)
         {
-            return base.ProcessResult(context, methodResult);
+            return base.ProcessResult(info, context, methodResult);
         }
     }
 
@@ -177,7 +180,8 @@ namespace Pipelines.Tests.Units
         [Run(Order = 2)]
         public void EmptyMethod2() { }
 
-        [Run(Order = -2)]
+        [Run]
+        [Order(-2)]
         public void EmptyMethodMinus2() { }
 
         [Run]

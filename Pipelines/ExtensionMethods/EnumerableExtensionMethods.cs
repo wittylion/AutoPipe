@@ -23,7 +23,7 @@ namespace Pipelines
         /// </returns>
         public static IEnumerable<T> EnsureAtLeastEmpty<T>(this IEnumerable<T> enumerable)
         {
-            return enumerable.Ensure(Enumerable.Empty<T>());
+            return enumerable ?? Enumerable.Empty<T>();
         }
 
         public static IEnumerable<T> OnlyValuable<T>(this IEnumerable<T> enumerable) where T : class

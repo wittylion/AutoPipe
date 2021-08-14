@@ -81,7 +81,7 @@ namespace Pipelines
         /// </returns>
         public virtual async Task RunProcessors<TArgs>(IEnumerable<IProcessor> processors, TArgs args)
         {
-            processors = processors.Ensure(Enumerable.Empty<IProcessor>());
+            processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)
             {
                 await RunProcessor(processor, args).ConfigureAwait(false);
