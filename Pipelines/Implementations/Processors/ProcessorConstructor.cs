@@ -9,16 +9,16 @@ namespace Pipelines.Implementations.Processors
     public class ProcessorConstructor
     {
         /// <summary>
-        /// Creates a new instance of <see cref="ActionProcessor"/>.
+        /// Creates a new instance of <see cref="Processor"/>.
         /// </summary>
         /// <typeparam name="TArgs">
-        /// Type of arguments used in <see cref="ActionProcessor"/>.
+        /// Type of arguments used in <see cref="Processor"/>.
         /// </typeparam>
         /// <param name="action">
-        /// The action that is passed into instance of <see cref="ActionProcessor"/>.
+        /// The action that is passed into instance of <see cref="Processor"/>.
         /// </param>
         /// <returns>
-        /// New instance of <see cref="ActionProcessor"/> with a passed <paramref name="action"/>.
+        /// New instance of <see cref="Processor"/> with a passed <paramref name="action"/>.
         /// </returns>
         public virtual ActionProcessor<TArgs> Action<TArgs>(Action<TArgs> action)
         {
@@ -26,16 +26,16 @@ namespace Pipelines.Implementations.Processors
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="ActionProcessor"/>.
+        /// Creates a new instance of <see cref="Processor"/>.
         /// </summary>
         /// <typeparam name="TArgs">
-        /// Type of arguments used in <see cref="ActionProcessor"/>.
+        /// Type of arguments used in <see cref="Processor"/>.
         /// </typeparam>
         /// <param name="action">
-        /// The action that is passed into instance of <see cref="ActionProcessor"/>.
+        /// The action that is passed into instance of <see cref="Processor"/>.
         /// </param>
         /// <returns>
-        /// New instance of <see cref="ActionProcessor"/> with a passed <paramref name="action"/>.
+        /// New instance of <see cref="Processor"/> with a passed <paramref name="action"/>.
         /// </returns>
         public virtual ActionProcessor<TArgs> Action<TArgs>(Func<TArgs, Task> action)
         {

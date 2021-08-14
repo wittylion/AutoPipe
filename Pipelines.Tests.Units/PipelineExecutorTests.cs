@@ -30,7 +30,7 @@ namespace Pipelines.Tests.Units
         public async void PipelineExecutor_Passes_Exact_Parameters_When_Executed()
         {
             var property = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
-            var processor = ActionProcessor.FromAction<Bag>(ctx => ctx.SetOrAddProperty(property, true));
+            var processor = Processor.From<Bag>(ctx => ctx.SetOrAddProperty(property, true));
             var pipeline = PredefinedPipeline.FromProcessors(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
 
@@ -46,7 +46,7 @@ namespace Pipelines.Tests.Units
         public async void PipelineExecutor_Returns_Exact_Value_When_Query_Is_Executed()
         {
             var propertyValue = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
-            var processor = ActionProcessor.FromAction<Bag<string>>(ctx =>
+            var processor = Processor.From<Bag<string>>(ctx =>
                 ctx.SetResultWithInformation(propertyValue, "Result is set."));
             var pipeline = PredefinedPipeline.FromProcessors(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);

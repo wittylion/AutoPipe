@@ -45,7 +45,7 @@ namespace Pipelines
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
-            return ActionProcessor.FromAction(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
+            return Processor.From(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Pipelines
         /// </returns>
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
         {
-            return ActionProcessor.FromAction<TArgs>(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
+            return Processor.From<TArgs>(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
         }
 
         /// <summary>

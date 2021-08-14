@@ -124,7 +124,7 @@ namespace Pipelines.Tests.Integrations
             }
 
             private SafeTypeProcessor<DataContainer> SortArray =>
-                ActionProcessor.FromAction<DataContainer>(SortArrayImplementation);
+                Processor.From<DataContainer>(SortArrayImplementation);
 
             private Task SortArrayImplementation(DataContainer container)
             {
@@ -135,7 +135,7 @@ namespace Pipelines.Tests.Integrations
             }
 
             private SafeTypeProcessor<DataContainer> RunSearch =>
-                ActionProcessor.FromAction<DataContainer>(RunSearchImplementation);
+                Processor.From<DataContainer>(RunSearchImplementation);
 
             private Task RunSearchImplementation(DataContainer container)
             {
@@ -157,7 +157,7 @@ namespace Pipelines.Tests.Integrations
             }
 
             private SafeTypeProcessor<DataContainer> SetCurrentIndexProcessor =>
-                ActionProcessor.FromAction<DataContainer>(SetCurrentIndexImplementation);
+                Processor.From<DataContainer>(SetCurrentIndexImplementation);
 
             private Task SetCurrentIndexImplementation(DataContainer container)
             {
@@ -166,7 +166,7 @@ namespace Pipelines.Tests.Integrations
             }
 
             private SafeTypeProcessor<DataContainer> ResizeToRightPartProcessor =>
-                ActionProcessor.FromAction<DataContainer>(ResizeToRightPartImplementation);
+                Processor.From<DataContainer>(ResizeToRightPartImplementation);
 
             private Task ResizeToRightPartImplementation(DataContainer container)
             {
@@ -177,7 +177,7 @@ namespace Pipelines.Tests.Integrations
             }
 
             private SafeTypeProcessor<DataContainer> ResizeToLeftPartProcessor =>
-                ActionProcessor.FromAction<DataContainer>(ResizeToLeftPartImplementation);
+                Processor.From<DataContainer>(ResizeToLeftPartImplementation);
 
             private Task ResizeToLeftPartImplementation(DataContainer container)
             {
@@ -188,7 +188,7 @@ namespace Pipelines.Tests.Integrations
             }
 
             private SafeTypeProcessor<DataContainer> TrySetFoundIndexProcessor =>
-                ActionProcessor.FromAction<DataContainer>(TrySetFoundIndexImplementation);
+                Processor.From<DataContainer>(TrySetFoundIndexImplementation);
 
             private Task TrySetFoundIndexImplementation(DataContainer container)
             {

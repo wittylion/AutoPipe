@@ -7,12 +7,12 @@ namespace Pipelines.Implementations.Processors
     {
         public static ActionProcessor<TArgs> Action<TArgs>(Action<TArgs> action)
         {
-            return ActionProcessor.FromAction<TArgs>(action);
+            return Processor.From<TArgs>(action);
         }
 
         public static ActionProcessor<TArgs> Action<TArgs>(Func<TArgs, Task> action)
         {
-            return ActionProcessor.FromAction<TArgs>(action);
+            return Processor.From<TArgs>(action);
         }
 
         public static EnsurePropertyProcessorConcept<TValue> EnsureProperty<TValue>(string name, TValue value)

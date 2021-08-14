@@ -99,7 +99,7 @@ namespace Pipelines
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.FromAction<TArgs>(action);
+            return Processor.From<TArgs>(action);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Pipelines
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.FromAction<TArgs>(action);
+            return Processor.From<TArgs>(action);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Pipelines
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.FromAction(action);
+            return Processor.From(action);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace Pipelines
             if (action.HasNoValue())
                 return null;
 
-            return ActionProcessor.FromAction(context => action());
+            return Processor.From(context => action());
         }
     }
 }

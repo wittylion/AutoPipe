@@ -6,44 +6,44 @@ namespace Pipelines.Implementations.Processors
     /// <summary>
     /// Processor constructed from action or function.
     /// </summary>
-    public class ActionProcessor : IProcessor
+    public class Processor : IProcessor
     {
         public static readonly string ActionMustBeSpecifiedInGenericProcessor = "Creating a generic 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<GenericType, Task>.";
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
 
-        public static ActionProcessor FromAction(Action action)
+        public static Processor From(Action action)
         {
-            return new ActionProcessor(action.ToAsync<object>());
+            return new Processor(action.ToAsync<object>());
         }
 
-        public static ActionProcessor<TArgs> FromAction<TArgs>(Action action)
+        public static ActionProcessor<TArgs> From<TArgs>(Action action)
         {
             return new ActionProcessor<TArgs>(action.ToAsync<TArgs>());
         }
 
-        public static ActionProcessor FromAction(Action<object> action)
+        public static Processor From(Action<object> action)
         {
-            return new ActionProcessor(action.ToAsync());
+            return new Processor(action.ToAsync());
         }
 
-        public static ActionProcessor<TArgs> FromAction<TArgs>(Action<TArgs> action)
+        public static ActionProcessor<TArgs> From<TArgs>(Action<TArgs> action)
         {
             return new ActionProcessor<TArgs>(action.ToAsync());
         }
 
-        public static ActionProcessor FromAction(Func<object, Task> action)
+        public static Processor From(Func<object, Task> action)
         {
-            return new ActionProcessor(action);
+            return new Processor(action);
         }
 
-        public static ActionProcessor<TArgs> FromAction<TArgs>(Func<TArgs, Task> action)
+        public static ActionProcessor<TArgs> From<TArgs>(Func<TArgs, Task> action)
         {
             return new ActionProcessor<TArgs>(action);
         }
 
-        public ActionProcessor(Func<object, Task> action)
+        public Processor(Func<object, Task> action)
         {
-            Action = action ?? throw new ArgumentNullException(ActionProcessor.ActionMustBeSpecified);
+            Action = action ?? throw new ArgumentNullException(Processor.ActionMustBeSpecified);
         }
 
         private Func<object, Task> Action { get; }
@@ -69,7 +69,7 @@ namespace Pipelines.Implementations.Processors
 
         public ActionProcessor(Func<TArgs, Task> action)
         {
-            Action = action ?? throw new ArgumentNullException(ActionProcessor.ActionMustBeSpecifiedInGenericProcessor);
+            Action = action ?? throw new ArgumentNullException(Processor.ActionMustBeSpecifiedInGenericProcessor);
         }
 
         private Func<TArgs, Task> Action { get; }
