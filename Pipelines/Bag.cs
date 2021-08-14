@@ -1141,7 +1141,7 @@ namespace Pipelines
         /// <param name="message">
         /// Error message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithErrorAndNoResult<TResult>(string message)
+        public virtual void AbortPipelineWithErrorAndNoResult(string message)
         {
             this.UnsetResult();
             this.AbortPipelineWithErrorMessage(message);
@@ -1154,7 +1154,7 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithWarningAndNoResult<TResult>(string message)
+        public virtual void AbortPipelineWithWarningAndNoResult(string message)
         {
             this.UnsetResult();
             this.AbortPipelineWithWarningMessage(message);
@@ -1167,7 +1167,7 @@ namespace Pipelines
         /// <param name="message">
         /// Information message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithInformationAndNoResult<TResult>(string message)
+        public virtual void AbortPipelineWithInformationAndNoResult(string message)
         {
             this.UnsetResult();
             this.AbortPipelineWithInformationMessage(message);
@@ -1180,7 +1180,7 @@ namespace Pipelines
         /// <param name="message">
         /// Information message describing the reason of the reset result.
         /// </param>
-        public virtual void ResetResultWithInformation<TResult>(string message)
+        public virtual void ResetResultWithInformation(string message)
         {
             this.UnsetResult();
             this.AddInformation(message);
@@ -1193,7 +1193,7 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message describing the reason of the reset result.
         /// </param>
-        public virtual void ResetResultWithWarning<TResult>(string message)
+        public virtual void ResetResultWithWarning(string message)
         {
             this.UnsetResult();
             this.AddWarning(message);
@@ -1206,7 +1206,7 @@ namespace Pipelines
         /// <param name="message">
         /// Error message describing the reason of the reset result.
         /// </param>
-        public virtual void ResetResultWithError<TResult>(string message)
+        public virtual void ResetResultWithError(string message)
         {
             this.UnsetResult();
             this.AddError(message);
