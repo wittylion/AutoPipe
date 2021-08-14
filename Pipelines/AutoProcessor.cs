@@ -123,11 +123,41 @@ namespace Pipelines
             await ProcessResult(method, context, result).ConfigureAwait(false);
         }
 
-        protected virtual IEnumerable<string> GetPropertyUpdateIndificators()
+        protected virtual IEnumerable<string> GetPropertyUpdateIdentifiers()
         {
-            yield return "Get";
             yield return "Set";
             yield return "Update";
+            yield return "Overwrite";
+        }
+
+        protected virtual IEnumerable<string> GetPropertyEnsureIdentifiers()
+        {
+            yield return "Get";
+            yield return "Ensure";
+            yield return "Add";
+        }
+
+        protected virtual void ProcessBasedOnName(MethodInfo method, IEnumerable<string> actions, Action<string> executor)
+        {
+            foreach (var identifier in actions)
+            {
+                if (method.Name.StartsWith(identifier))
+                {
+                    if (method.Name.Length == identifier.Length)
+                    {
+                        break;
+                    }
+
+                    var property = method.Name.Substring(identifier.Length);
+                    if (property.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    executor(property);
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -159,25 +189,12 @@ namespace Pipelines
                 return;
             }
 
-            foreach (var identificator in GetPropertyUpdateIndificators())
-            {
-                if (method.Name.StartsWith(identificator))
-                {
-                    if (method.Name.Length == identificator.Length)
-                    {
-                        break;
-                    }
+            bool handled = false;
+            ProcessBasedOnName(method, GetPropertyUpdateIdentifiers(), property => { context.Set(property, methodResult); handled = true; });
+            if (handled) return;
 
-                    var property = method.Name.Substring(identificator.Length);
-                    if (property.Length == 0)
-                    {
-                        continue;
-                    }
-
-                    context.Set(property, methodResult);
-                    return;
-                }
-            }
+            ProcessBasedOnName(method, GetPropertyEnsureIdentifiers(), property => { context.Set(property, methodResult, skipIfExists: true); handled = true; });
+            if (handled) return;
 
             if (methodResult is IEnumerable enumerable)
             {
