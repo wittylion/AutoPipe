@@ -19,7 +19,7 @@ namespace Pipelines.Tests.Units
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
                         Processor.From<Bag>(
-                            (ctx) => ctx.SetOrAddProperty("string", ctx.Get("one", string.Empty) + ctx.Get("two", 0)))),
+                            (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
                     PipelineRunner.StaticInstance);
 
             context.OriginalContext.Get("string", 0)

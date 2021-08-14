@@ -51,7 +51,7 @@ namespace Pipelines.Tests.Units
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.SetOrAddProperty(key, expectedValue);
+            pipelineContext.Set(key, expectedValue);
 
             pipelineContext.GetOrThrow<string>(key)
                 .Should()
@@ -65,7 +65,7 @@ namespace Pipelines.Tests.Units
             var value = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Requested_An_Incorrect_Type);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.SetOrAddProperty(key, value);
+            pipelineContext.Set(key, value);
 
             pipelineContext.Get(key, (IAsyncLifetime) null)
                 .Should()
@@ -80,7 +80,7 @@ namespace Pipelines.Tests.Units
             var key = nameof(PipelineContextTests);
             var expectedValue = 3;
 
-            pipelineContext.SetOrAddProperty(key, value);
+            pipelineContext.Set(key, value);
 
             pipelineContext.Get<int>(key, expectedValue)
                 .Should()
@@ -94,7 +94,7 @@ namespace Pipelines.Tests.Units
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_A_Proper_Value_Regardless_Name_Case);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.SetOrAddProperty(key, expectedValue);
+            pipelineContext.Set(key, expectedValue);
 
             pipelineContext.GetOrThrow<string>(key.ToUpperInvariant())
                 .Should()
@@ -153,8 +153,8 @@ namespace Pipelines.Tests.Units
             var expectedValue = nameof(SetOrAddProperty_Should_Update_Value_When_It_Has_Already_Been_Set);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.SetOrAddProperty(nameof(PipelineContextTests), value);
-            pipelineContext.SetOrAddProperty(nameof(PipelineContextTests), expectedValue);
+            pipelineContext.Set(nameof(PipelineContextTests), value);
+            pipelineContext.Set(nameof(PipelineContextTests), expectedValue);
             
             pipelineContext.GetOrThrow<string>(key)
                 .Should()
@@ -169,8 +169,8 @@ namespace Pipelines.Tests.Units
             var expectedValue = nameof(AddOrSkipPropertyIfExists_Should_Skip_Property_When_It_Has_Already_Been_Set);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.AddOrSkipPropertyIfExists(nameof(PipelineContextTests), expectedValue);
-            pipelineContext.AddOrSkipPropertyIfExists(nameof(PipelineContextTests), value);
+            pipelineContext.Set(nameof(PipelineContextTests), expectedValue, skipIfExists: true);
+            pipelineContext.Set(nameof(PipelineContextTests), value, skipIfExists: true);
 
             pipelineContext.GetOrThrow<string>(key)
                 .Should()
@@ -190,7 +190,7 @@ namespace Pipelines.Tests.Units
         {
             var pipelineContext = new Bag();
             var property = nameof(DeleteProperty_Should_Delete_Property_If_It_Is_Existing);
-            pipelineContext.AddOrSkipPropertyIfExists(property, nameof(PipelineContextTests));
+            pipelineContext.Set(property, nameof(PipelineContextTests), skipIfExists: true);
 
             pipelineContext.DeleteProperty(property);
 
@@ -214,9 +214,9 @@ namespace Pipelines.Tests.Units
         {
             var pipelineContext = new Bag();
 
-            pipelineContext.AddOrSkipPropertyIfExists(
+            pipelineContext.Set(
                 nameof(GetAllPropertyObjects_Contains_An_Element_That_Was_Added),
-                nameof(PipelineContextTests));
+                nameof(PipelineContextTests), skipIfExists: true);
 
             pipelineContext.GetAllPropertyObjects()
                 .Should()

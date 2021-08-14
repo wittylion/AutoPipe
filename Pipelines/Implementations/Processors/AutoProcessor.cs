@@ -185,7 +185,7 @@ namespace Pipelines.Implementations.Processors
             foreach (var prop in propertyContainer.GetType().GetProperties())
             {
                 var contextProperty = new PipelineProperty(prop.Name, prop.GetValue(propertyContainer, null));
-                context.SetOrAddProperty(contextProperty.Name, contextProperty.Value);
+                context.Set(contextProperty.Name, contextProperty.Value);
             }
         }
 

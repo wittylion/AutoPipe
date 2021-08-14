@@ -30,7 +30,7 @@ namespace Pipelines.Tests.Units
         public async void PipelineExecutor_Passes_Exact_Parameters_When_Executed()
         {
             var property = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
-            var processor = Processor.From<Bag>(ctx => ctx.SetOrAddProperty(property, true));
+            var processor = Processor.From<Bag>(ctx => ctx.Set(property, true));
             var pipeline = PredefinedPipeline.FromProcessors(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
 

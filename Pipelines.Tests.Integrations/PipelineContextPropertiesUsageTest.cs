@@ -22,7 +22,7 @@ namespace Pipelines.Tests.Integrations
             var name = nameof(When_Using_A_Context_With_Name_Property_Greeting_Message_Is_Retrieved);
 
             var context = new Bag();
-            context.AddOrSkipPropertyIfExists(GreeterProperties.Name, name);
+            context.Set(GreeterProperties.Name, name, skipIfExists: true);
 
             await new SetMessage().Execute(context).ConfigureAwait(false);
 
@@ -85,7 +85,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override Task SafeExecute(Bag args)
             {
-                args.UpdateOrAddProperty(GreeterProperties.Message, GreeterValues.IntermediateMessage);
+                args.Set(GreeterProperties.Message, GreeterValues.IntermediateMessage);
                 return new SetMessage().Execute(args);
             }
         }
@@ -98,12 +98,12 @@ namespace Pipelines.Tests.Integrations
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
-                    args.AddOrSkipPropertyIfExists(GreeterProperties.Message, GreeterValues.HelloWorld);
+                    args.Set(GreeterProperties.Message, GreeterValues.HelloWorld, skipIfExists: true);
                 }
                 else
                 {
-                    args.AddOrSkipPropertyIfExists(GreeterProperties.Message,
-                        string.Format(GreeterValues.WelcomeAboard, name));
+                    args.Set(GreeterProperties.Message,
+                        string.Format(GreeterValues.WelcomeAboard, name), skipIfExists: true);
                 }
 
                 return PipelineTask.CompletedTask;

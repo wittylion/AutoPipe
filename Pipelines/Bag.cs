@@ -109,7 +109,7 @@ namespace Pipelines
             {
                 foreach (var item in propertyContainer)
                 {
-                    context.SetOrAddProperty(item.Key, item.Value);
+                    context.Set(item.Key, item.Value);
                 }
             }
             return context;
@@ -149,7 +149,7 @@ namespace Pipelines
             {
                 foreach (var item in propertyContainer)
                 {
-                    context.SetOrAddProperty(item.Key, item.Value);
+                    context.Set(item.Key, item.Value);
                 }
             }
             return context;
@@ -199,14 +199,13 @@ namespace Pipelines
         {
             switch (modificator)
             {
-                case PropertyModificator.SkipIfExists:
-                    this.AddOrSkipPropertyIfExists(name, value);
-                    break;
                 case PropertyModificator.UpdateValue:
-                    this.UpdateOrAddProperty(name, value);
+                    this.Set(name, value);
                     break;
+
+                case PropertyModificator.SkipIfExists:
                 default:
-                    this.AddOrSkipPropertyIfExists(name, value);
+                    this.Set(name, value, skipIfExists: true);
                     break;
             }
         }
@@ -230,92 +229,20 @@ namespace Pipelines
         /// <param name="value">
         /// The value to be kept under the <paramref name="name"/> of the property.
         /// </param>
-        public virtual void SetOrAddProperty<TValue>(string name, TValue value)
-        {
-            this.UpdateOrAddProperty(name, value);
-        }
-
-        /// <summary>
-        /// Adds the property to the collection <see cref="Properties"/>
-        /// or updates the value if key of parameter <paramref name="name"/>
-        /// has been added previously.
-        /// </summary>
-        /// <remarks>
-        /// Parameter name will be used in case-insensetive way.
-        /// It means that if you previously added property name "MESSAGE"
-        /// it will be updated if you pass to this method property name "message".
-        /// </remarks>
-        /// <typeparam name="TValue">
-        /// The type of the added value.
-        /// </typeparam>
-        /// <param name="name">
-        /// Key to identify the property (case-insensetive).
-        /// </param>
-        /// <param name="value">
-        /// The value to be kept under the <paramref name="name"/> of the property.
-        /// </param>
-        public virtual void UpdateOrAddProperty<TValue>(string name, TValue value)
+        public virtual void Set<TValue>(string name, TValue value, bool skipIfExists = false)
         {
             var property = new PipelineProperty(name, value);
             var dictionary = Properties.Value;
-            if (dictionary.ContainsKey(name))
+            if (!dictionary.ContainsKey(name))
             {
-                dictionary[name] = property;
+                dictionary.Add(name, property);
             }
             else
             {
-                dictionary.Add(name, property);
-            }
-        }
-
-        /// <summary>
-        /// Adds the property to the collection <see cref="Properties"/>
-        /// or if the key of the parameter <paramref name="name"/>
-        /// has been added previously skips adding.
-        /// </summary>
-        /// <remarks>
-        /// Parameter name will be used in case-insensetive way.
-        /// It means that if you previously added property name "MESSAGE"
-        /// it will be skipped if you pass to this method property name "message".
-        /// </remarks>
-        /// <typeparam name="TValue">
-        /// The type of the added value.
-        /// </typeparam>
-        /// <param name="name">
-        /// Key to identify the property (case-insensetive).
-        /// </param>
-        /// <param name="value">
-        /// The value to be kept under the <paramref name="name"/> of the property.
-        /// </param>
-        public virtual void AddOrSkipPropertyIfExists<TValue>(string name, TValue value)
-        {
-            var dictionary = Properties.Value;
-            if (!dictionary.ContainsKey(name))
-            {
-                var property = new PipelineProperty(name, value);
-                dictionary.Add(name, property);
-            }
-        }
-
-        /// <summary>
-        /// Adds the property to the collection <see cref="Properties"/>
-        /// or if the key of the parameter <paramref name="property"/>
-        /// has been added previously skips adding.
-        /// </summary>
-        /// <remarks>
-        /// Parameter name will be used in case-insensetive way.
-        /// It means that if you previously added property name "MESSAGE"
-        /// it will be skipped if you pass to this method property name "message".
-        /// </remarks>
-        /// <param name="property">
-        /// The property object to be added to the collection.
-        /// </param>
-        protected virtual void AddOrSkipPropertyIfExists(PipelineProperty property)
-        {
-            var dictionary = Properties.Value;
-            if (!dictionary.ContainsKey(property.Name))
-            {
-                dictionary.Add(property.Name, property);
+                if (!skipIfExists)
+                {
+                    dictionary[name] = property;
+                }
             }
         }
 
@@ -1100,7 +1027,7 @@ namespace Pipelines
 
         public virtual void SetResult(TResult result)
         {
-            this.SetOrAddProperty(ResultProperty, result);
+            this.Set(ResultProperty, result);
         }
 
         public virtual void UnsetResult()

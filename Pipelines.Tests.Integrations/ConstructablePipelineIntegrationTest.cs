@@ -73,7 +73,7 @@ namespace Pipelines.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From<Bag>(b => b.SetOrAddProperty(ContextProperties.Messages,
+                yield return Processor.From<Bag>(b => b.Set(ContextProperties.Messages,
                     ContextValues.Messages));
 
                 yield return new AddMessagesFromPropertyPipeline().ToProcessor();
