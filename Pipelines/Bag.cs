@@ -281,7 +281,7 @@ namespace Pipelines
                 }
             }
 
-            throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
+            throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context.");
         }
 
         public virtual string StringOrEmpty(string name)
@@ -300,30 +300,12 @@ namespace Pipelines
 
         public virtual string StringOrThrow(string name)
         {
-            var propertyHolder = GetPropertyObjectOrNull(name);
-            if (propertyHolder.HasValue)
-            {
-                if (propertyHolder.Value.Value is string value)
-                {
-                    return value;
-                }
-            }
-
-            throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
+            return GetOrThrow<string>(name);
         }
 
         public virtual List<TElement> ListOrThrow<TElement>(string name)
         {
-            var propertyHolder = GetPropertyObjectOrNull(name);
-            if (propertyHolder.HasValue)
-            {
-                if (propertyHolder.Value.Value is IEnumerable<TElement> value)
-                {
-                    return value.ToList();
-                }
-            }
-
-            throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
+            return GetOrThrow<IEnumerable<TElement>>(name).ToList();
         }
 
         public virtual List<TElement> ListOrEmpty<TElement>(string name)

@@ -197,6 +197,7 @@ namespace Pipelines
 
         public static async Task<TResult> Run<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
         {
+            args = args ?? new Bag();
             await processor.Run(args, runner);
             return args.GetResultOrThrow<TResult>();
         }
