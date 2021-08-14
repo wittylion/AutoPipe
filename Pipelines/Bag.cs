@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -13,7 +14,7 @@ namespace Pipelines
     /// <see cref="IsAborted"/> identifying whether pipeline was aborted.
     /// </summary>
     [Serializable]
-    public class Bag : ISerializable
+    public class Bag : ISerializable, IDictionary<string, object>
     {
         /// <summary>
         /// Creates a new Bag that has a parameter-less constructor.
@@ -162,6 +163,16 @@ namespace Pipelines
         /// </summary>
         protected Lazy<Dictionary<string, PipelineProperty>> Properties { get; } = new Lazy<Dictionary<string, PipelineProperty>>(() =>
             new Dictionary<string, PipelineProperty>(StringComparer.InvariantCultureIgnoreCase));
+
+        public ICollection<string> Keys => throw new NotImplementedException();
+
+        public ICollection<object> Values => throw new NotImplementedException();
+
+        public int Count => throw new NotImplementedException();
+
+        public bool IsReadOnly => throw new NotImplementedException();
+
+        public object this[string key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         /// <summary>
         /// Applies property to the context. Depending on
@@ -420,7 +431,7 @@ namespace Pipelines
             var success = property?.Value is TProperty;
             if (success)
             {
-                value = (TProperty) property.Value.Value;
+                value = (TProperty)property.Value.Value;
             }
 
             return success;
@@ -1217,6 +1228,89 @@ namespace Pipelines
         {
             this.UnsetResult();
             this.AddError(message);
+        }
+
+        public void Add(string key, object value)
+        {
+            this.Set(key, value);
+        }
+
+        public bool ContainsKey(string key)
+        {
+            if (Properties.IsValueCreated)
+            {
+                return Properties.Value.ContainsKey(key);
+            }
+
+            return false;
+        }
+
+        public bool Remove(string key)
+        {
+            this.DeleteProperty(key);
+            return true;
+        }
+
+        public bool TryGetValue(string key, out object value)
+        {
+            return ContainsProperty(key, out value);
+        }
+
+        public void Add(KeyValuePair<string, object> item)
+        {
+            this.Set(item.Key, item.Value);
+        }
+
+        public void Clear()
+        {
+            if (Properties.IsValueCreated)
+            {
+                Properties.Value.Clear();
+            }
+        }
+
+        public bool Contains(KeyValuePair<string, object> item)
+        {
+            return TryGetValue(item.Key, out object val) && val == item.Value;
+        }
+
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        {
+            if (array == null) return;
+
+            if (Properties.IsValueCreated)
+            {
+                var props = Properties.Value.Skip(arrayIndex).Select(x => new KeyValuePair<string, object>(x.Key, x.Value.Value));
+                for (int i = 0; i < props.Count(); i++)
+                {
+                    if (i >= array.Length) break;
+                    array[i] = props.ElementAt(i);
+                }
+            }
+        }
+
+        public bool Remove(KeyValuePair<string, object> item)
+        {
+            if (Contains(item)) DeleteProperty(item.Key);
+            return true;
+        }
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            if (Properties.IsValueCreated)
+            {
+                foreach (var item in Properties.Value)
+                {
+                    yield return new KeyValuePair<string, object>(item.Key, item.Value.Value);
+                }
+            }
+
+            yield break;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

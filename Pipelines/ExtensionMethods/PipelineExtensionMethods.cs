@@ -222,7 +222,7 @@ namespace Pipelines
             return pipeline.Run<TResult>(args, runner).Result;
         }
 
-        public static TResult RunBagSync<TResult>(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null) where TResult : class
+        public static TResult RunBagSync<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
         {
             return pipeline.RunBag<TResult>(args, runner).Result;
         }
