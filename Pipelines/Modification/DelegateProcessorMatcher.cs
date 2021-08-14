@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines.Modifications
 {
     public class DelegateProcessorMatcher : IProcessorMatcher
     {

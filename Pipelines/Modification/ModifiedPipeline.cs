@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipelines.Implementations.Pipelines
+namespace Pipelines.Modifications
 {
     /// <summary>
     /// Pipeline that accepts a <see cref="IModificationConfiguration"/> to be used when processors returned.

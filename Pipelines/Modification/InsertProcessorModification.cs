@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pipelines.Implementations.Pipelines
+namespace Pipelines.Modifications
 {
     public class InsertProcessorModification : IModificationConfiguration
     {

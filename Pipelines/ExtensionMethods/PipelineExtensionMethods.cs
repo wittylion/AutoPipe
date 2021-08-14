@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Pipelines.Implementations.Pipelines;
+using Pipelines.Modifications;
 
 namespace Pipelines
 {

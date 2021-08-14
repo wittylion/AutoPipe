@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipelines.Implementations.Pipelines
+namespace Pipelines
 {
     public class MemoryCachePipelineWrapper : IPipeline
     {

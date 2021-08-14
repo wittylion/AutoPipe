@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Pipelines.Implementations.Processors;
+using Pipelines.Modifications;
 
 namespace Pipelines
 {

@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Pipelines;
 using System;
 using Xunit;
+using Pipelines.Modifications;
 
 namespace Pipelines.Tests.Units
 {

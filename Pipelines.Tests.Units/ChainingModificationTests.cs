@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
-using Pipelines.Implementations.Pipelines;
 using System.Linq;
 using Xunit;
+using Pipelines.Modifications;
 
 namespace Pipelines.Tests.Units
 {

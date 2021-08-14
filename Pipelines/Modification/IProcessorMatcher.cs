@@ -1,4 +1,4 @@
-﻿namespace Pipelines.Implementations.Processors
+﻿namespace Pipelines.Modifications
 {
     /// <summary>
     /// The derived class should implement a logic

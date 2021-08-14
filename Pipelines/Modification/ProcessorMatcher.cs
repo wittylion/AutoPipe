@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines.Modifications
 {
     /// <summary>
     /// A static helper that helps creating instances of <see cref="IProcessorMatcher"/>.

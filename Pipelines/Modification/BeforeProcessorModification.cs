@@ -1,7 +1,6 @@
-﻿using Pipelines.Implementations.Processors;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Pipelines.Implementations.Pipelines
+namespace Pipelines.Modifications
 {
     public class BeforeProcessorModification : IModificationConfiguration
     {

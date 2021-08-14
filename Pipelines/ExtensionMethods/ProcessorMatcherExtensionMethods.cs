@@ -1,4 +1,4 @@
-﻿using Pipelines.Implementations.Processors;
+﻿using Pipelines.Modifications;
 
 namespace Pipelines
 {

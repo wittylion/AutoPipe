@@ -1,4 +1,4 @@
-﻿namespace Pipelines.Implementations.Processors
+﻿namespace Pipelines.Modifications
 {
     /// <summary>
     /// Matcher that contains a method <see cref="Matches(IProcessor)"/>

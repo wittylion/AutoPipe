@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Pipelines;
 using Xunit;
+using Pipelines.Modifications;
 
 namespace Pipelines.Tests.Units
 {
