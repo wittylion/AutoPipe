@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Pipelines.Implementations.Pipelines;
-using Pipelines.Implementations.Processors;
 
 namespace Pipelines
 {
@@ -88,45 +87,6 @@ namespace Pipelines
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
         {
             return Processor.From<TArgs>(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
-        }
-
-        /// <summary>
-        /// Use this method in case you need to repeat pipeline's processors several times. 
-        /// </summary>
-        /// <param name="pipeline">
-        /// The pipeline which processors must be repeated.
-        /// </param>
-        /// <param name="condition">
-        /// The condition, that specifies till which point processors must be retrieved.
-        /// </param>
-        /// <returns>
-        /// New pipeline that contains processors of the <paramref name="pipeline"/>
-        /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
-        /// </returns>
-        public static IPipeline RepeatProcessorsAsPipelineWhile(this IPipeline pipeline, Func<bool> condition)
-        {
-            return new RepeatingProcessorsWhileConditionPipeline(pipeline.GetProcessors(), condition);
-        }
-
-        /// <summary>
-        /// Use this method in case you need to repeat pipeline's processors several times. 
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// The type of the arguments that are used during pipeline execution.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline which processors must be repeated.
-        /// </param>
-        /// <param name="condition">
-        /// The condition, that specifies till which point processors must be retrieved.
-        /// </param>
-        /// <returns>
-        /// New pipeline that contains processors of the <paramref name="pipeline"/>
-        /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
-        /// </returns>
-        public static SafeTypePipeline<TArgs> RepeatProcessorsAsPipelineWhile<TArgs>(this SafeTypePipeline<TArgs> pipeline, Func<bool> condition)
-        {
-            return new RepeatingProcessorsWhileConditionPipeline<TArgs>(pipeline.GetProcessorsOfType(), condition);
         }
 
         /// <summary>
@@ -350,7 +310,7 @@ namespace Pipelines
         {
             if (!useLazyLoading)
             {
-                return PredefinedPipeline.FromProcessors(pipeline.GetProcessors().ToArray());
+                return Pipeline.From(pipeline.GetProcessors().ToArray());
             }
 
             var loaded = false;

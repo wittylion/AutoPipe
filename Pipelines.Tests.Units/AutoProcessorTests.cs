@@ -1,7 +1,6 @@
 ﻿using Castle.Core.Internal;
 using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Contexts;
 using Pipelines.Implementations.Processors;
 using System.Reflection;
 using System.Threading.Tasks;

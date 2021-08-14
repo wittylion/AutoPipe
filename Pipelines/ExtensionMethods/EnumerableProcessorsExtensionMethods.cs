@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Pipelines.Implementations.Pipelines;
 
 namespace Pipelines
 {
@@ -31,10 +30,10 @@ namespace Pipelines
         {
             if (enumerable.IsNull())
             {
-                return PredefinedPipeline.Empty;
+                return Pipeline.Empty;
             }
 
-            return PredefinedPipeline.FromProcessors(enumerable);
+            return Pipeline.From(enumerable);
         }
 
         /// <summary>
@@ -62,10 +61,10 @@ namespace Pipelines
         {
             if (enumerable.IsNull())
             {
-                return PredefinedPipeline.GetEmpty<TArgs>();
+                return Pipeline.GetEmpty<TArgs>();
             }
 
-            return PredefinedPipeline.FromProcessors(enumerable);
+            return Pipeline.From(enumerable);
         }
 
         /// <summary>
@@ -148,77 +147,6 @@ namespace Pipelines
                     yield return processor;
                 }
             }
-        }
-
-        /// <summary>
-        /// Creates a pipeline, which returns processors
-        /// while the condition specified in parameter
-        /// <paramref name="condition"/> returns <c>true</c>.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="enumerable"/> is null, returns an empty
-        /// pipeline object.
-        /// </remarks>
-        /// <param name="enumerable">
-        /// Collection of processors, to be used in pipeline.
-        /// </param>
-        /// <param name="condition">
-        /// Function, that returns a value indicating whether processors
-        /// of the <paramref name="enumerable"/> have to be repeated
-        /// and returned one more time.
-        /// </param>
-        /// <returns>
-        /// Pipeline object retutning instances of <see cref="IProcessor"/>
-        /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
-        /// </returns>
-        public static IPipeline RepeatProcessorsAsPipelineWhile(
-            this IEnumerable<IProcessor> enumerable, Func<bool> condition)
-        {
-            if (enumerable.HasNoValue())
-            {
-                return PredefinedPipeline.Empty;
-            }
-
-            return new RepeatingProcessorsWhileConditionPipeline(enumerable, condition);
-        }
-
-
-        /// <summary>
-        /// Generic version of the <see cref="RepeatProcessorsAsPipelineWhile"/>,
-        /// creates a pipeline, which returns processors
-        /// while the condition specified in parameter
-        /// <paramref name="condition"/> returns <c>true</c>.
-        /// This method allows to keep type of an object during
-        /// extension method call.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="enumerable"/> or <paramref name="condition"/> is null,
-        /// returns an empty pipeline object.
-        /// </remarks>
-        /// <typeparam name="TArgs">
-        /// A type that is declared to be handled by processor.
-        /// </typeparam>
-        /// <param name="enumerable">
-        /// Collection of processors, to be used in pipeline.
-        /// </param>
-        /// <param name="condition">
-        /// Function, that returns a value indicating whether processors
-        /// of the <paramref name="enumerable"/> have to be repeated
-        /// and returned one more time.
-        /// </param>
-        /// <returns>
-        /// Pipeline object retutning instances of <see cref="IProcessor"/>
-        /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
-        /// </returns>
-        public static SafeTypePipeline<TArgs> RepeatProcessorsAsPipelineWhile<TArgs>(
-            this IEnumerable<SafeTypeProcessor<TArgs>> enumerable, Func<bool> condition)
-        {
-            if (enumerable.IsNull() || condition.IsNull())
-            {
-                return PredefinedPipeline.GetEmpty<TArgs>();
-            }
-
-            return new RepeatingProcessorsWhileConditionPipeline<TArgs>(enumerable, condition);
         }
 
         /// <summary>

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Pipelines.Implementations.Processors;
 using Xunit;
 
 namespace Pipelines.Tests.Integrations

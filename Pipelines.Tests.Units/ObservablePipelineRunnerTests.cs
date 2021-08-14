@@ -1,7 +1,6 @@
 ﻿using System;
 using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Pipelines;
 using Pipelines.Implementations.Runners;
 using Xunit;
 
@@ -83,7 +82,7 @@ namespace Pipelines.Tests.Units
             mockProcessor.Setup(x => x.Execute(It.IsAny<object>())).Callback(() => throw exception);
 
             // Creating an implementation of pipeline.
-            IPipeline mockPipeline = PredefinedPipeline.FromProcessors(mockProcessor.Object);
+            IPipeline mockPipeline = Pipeline.From(mockProcessor.Object);
 
 
             using (runner.Subscribe(mockObserver.Object))

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using FluentAssertions;
-using Pipelines.Implementations.Contexts;
 using Xunit;
 
 namespace Pipelines.Tests.Units

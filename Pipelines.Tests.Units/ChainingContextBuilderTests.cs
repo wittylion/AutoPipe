@@ -1,8 +1,5 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
-using Pipelines.Implementations.Contexts;
-using Pipelines.Implementations.Pipelines;
-using Pipelines.Implementations.Processors;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -17,7 +14,7 @@ namespace Pipelines.Tests.Units
                 .Use("two", 2)
                 .Use("string", "aqwe")
                 .RunWith(
-                    PredefinedPipeline.FromProcessors(
+                    Pipeline.From(
                         Processor.From<Bag>(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
                     PipelineRunner.StaticInstance);
@@ -32,7 +29,7 @@ namespace Pipelines.Tests.Units
         {
             var context = await Bag.Build()
                 .RunWith(
-                    PredefinedPipeline.FromProcessors(
+                    Pipeline.From(
                         new EnsureName(),
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
@@ -50,7 +47,7 @@ namespace Pipelines.Tests.Units
             var context = await Bag.Build()
                 .Use("message", "Hola, {name}!")
                 .RunWith(
-                    PredefinedPipeline.FromProcessors(
+                    Pipeline.From(
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
                     ),
@@ -67,7 +64,7 @@ namespace Pipelines.Tests.Units
             var context = await Bag.Build()
                 .Use("name", "Bob")
                 .RunWith(
-                    PredefinedPipeline.FromProcessors(
+                    Pipeline.From(
                         new EnsureName(),
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
@@ -86,7 +83,7 @@ namespace Pipelines.Tests.Units
             var context = await Bag.BuildQuery<string>()
                 .Use("name", "Bob")
                 .RunWith(
-                    PredefinedPipeline.FromProcessors(
+                    Pipeline.From(
                         new EnsureName(),
                         new EnsureMessage(),
                         new HelloMessageNameToResultReplacer()

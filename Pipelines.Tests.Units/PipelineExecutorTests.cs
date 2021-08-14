@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Pipelines;
-using Pipelines.Implementations.Processors;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -31,7 +29,7 @@ namespace Pipelines.Tests.Units
         {
             var property = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
             var processor = Processor.From<Bag>(ctx => ctx.Set(property, true));
-            var pipeline = PredefinedPipeline.FromProcessors(processor);
+            var pipeline = Pipeline.From(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
 
             var args = new Bag();
@@ -48,7 +46,7 @@ namespace Pipelines.Tests.Units
             var propertyValue = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
             var processor = Processor.From<Bag<string>>(ctx =>
                 ctx.SetResultWithInformation(propertyValue, "Result is set."));
-            var pipeline = PredefinedPipeline.FromProcessors(processor);
+            var pipeline = Pipeline.From(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
             var args = new Bag<string>();
 

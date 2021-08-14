@@ -1,10 +1,6 @@
 ﻿using FluentAssertions;
-using Moq;
 using Pipelines.Implementations.Pipelines;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Pipelines.Tests.Units
@@ -14,7 +10,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void AddLast_ShouldWorkProperly_WithGenericType()
         {
-            PredefinedPipeline.Empty.Modify(x => x.AddLast<TestProcessor>())
+            Pipeline.Empty.Modify(x => x.AddLast<TestProcessor>())
                 .GetProcessors().Should().AllBeOfType<TestProcessor>();
         }
 
@@ -245,7 +241,7 @@ namespace Pipelines.Tests.Units
                 )
                 .GetConfiguration();
 
-            PredefinedPipeline.Empty.Modify(configuration)
+            Pipeline.Empty.Modify(configuration)
                 .GetProcessors().Should().Equal(processor1, processor2, processor3);
         }
 
@@ -261,7 +257,7 @@ namespace Pipelines.Tests.Units
                 )
                 .GetConfiguration();
 
-            PredefinedPipeline.FromProcessors(processor3).Modify(configuration)
+            Pipeline.From(processor3).Modify(configuration)
                 .GetProcessors().Should().Equal(processor1, processor2, processor3);
         }
 
@@ -278,7 +274,7 @@ namespace Pipelines.Tests.Units
                 )
                 .GetConfiguration();
 
-            PredefinedPipeline.FromProcessors(processor3).Modify(configuration)
+            Pipeline.From(processor3).Modify(configuration)
                 .GetProcessors().Should().Equal(processor1, processor2, processor3);
         }
 

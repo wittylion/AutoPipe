@@ -1,7 +1,5 @@
 ﻿using Pipelines.Implementations.Processors;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Pipelines.Implementations.Pipelines
 {
