@@ -151,14 +151,14 @@ namespace Pipelines
 
         /// <summary>
         /// Runs processors of <paramref name="enumerable"/> one by one
-        /// with a default <see cref="PipelineRunner"/> instance.
+        /// with a default <see cref="Runner"/> instance.
         /// </summary>
         /// <typeparam name="TArgs">
         /// Type of arguments to be passed in each processor.
         /// </typeparam>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> to be
-        /// executed one by one with a default <see cref="PipelineRunner"/>.
+        /// executed one by one with a default <see cref="Runner"/>.
         /// </param>
         /// <param name="args">Arguments to be passed in each processor.</param>
         /// <returns>
@@ -167,19 +167,19 @@ namespace Pipelines
         /// </returns>
         public static Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args)
         {
-            return enumerable.Run(args, PipelineRunner.StaticInstance);
+            return enumerable.Run(args, Runner.StaticInstance);
         }
 
         /// <summary>
         /// Runs processors of <paramref name="enumerable"/> one by one
-        /// with a specified <see cref="PipelineRunner"/> instance.
+        /// with a specified <see cref="Runner"/> instance.
         /// </summary>
         /// <typeparam name="TArgs">
         /// Type of arguments to be passed in each processor.
         /// </typeparam>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> to be
-        /// executed one by one with a specified <see cref="PipelineRunner"/>.
+        /// executed one by one with a specified <see cref="Runner"/>.
         /// </param>
         /// <param name="args">Arguments to be passed in each processor.</param>
         /// <param name="runner">
@@ -192,7 +192,7 @@ namespace Pipelines
         /// </returns>
         public static async Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args, IProcessorRunner runner)
         {
-            runner = runner ?? PipelineRunner.StaticInstance;
+            runner = runner ?? Runner.StaticInstance;
             if (enumerable.HasNoValue())
             {
                 return;
@@ -200,13 +200,13 @@ namespace Pipelines
 
             foreach (var processor in enumerable)
             {
-                await runner.RunProcessor(processor, args).ConfigureAwait(false);
+                await runner.Run(processor, args).ConfigureAwait(false);
             }
         }
 
         /// <summary>
         /// Runs processors of <paramref name="enumerable"/> one by one
-        /// with a default <see cref="PipelineRunner"/> instance
+        /// with a default <see cref="Runner"/> instance
         /// and repeats run each time condition in method <paramref name="condition"/>
         /// returns true.
         /// </summary>
@@ -215,7 +215,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> to be
-        /// executed one by one with a default <see cref="PipelineRunner"/>
+        /// executed one by one with a default <see cref="Runner"/>
         /// while <paramref name="condition"/> returns <c>true</c>.
         /// </param>
         /// <param name="args">Arguments to be passed in each processor.</param>
@@ -231,12 +231,12 @@ namespace Pipelines
         public static Task RunProcessorsWhile<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args,
             Predicate<TArgs> condition)
         {
-            return enumerable.RunProcessorsWhile(args, condition, PipelineRunner.StaticInstance);
+            return enumerable.RunProcessorsWhile(args, condition, Runner.StaticInstance);
         }
 
         /// <summary>
         /// Runs processors of <paramref name="enumerable"/> one by one
-        /// with a specified <see cref="PipelineRunner"/> instance
+        /// with a specified <see cref="Runner"/> instance
         /// and repeats run each time condition in method <paramref name="condition"/>
         /// returns true.
         /// </summary>
@@ -245,7 +245,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> to be
-        /// executed one by one with a specified <see cref="PipelineRunner"/>
+        /// executed one by one with a specified <see cref="Runner"/>
         /// while <paramref name="condition"/> returns <c>true</c>.
         /// </param>
         /// <param name="args">Arguments to be passed in each processor.</param>
@@ -270,7 +270,7 @@ namespace Pipelines
                 return;
             }
 
-            runner = runner ?? PipelineRunner.StaticInstance;
+            runner = runner ?? Runner.StaticInstance;
 
             while (condition(args))
             {

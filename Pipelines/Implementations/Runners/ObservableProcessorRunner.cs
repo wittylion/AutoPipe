@@ -19,9 +19,9 @@ namespace Pipelines.Implementations.Runners
         public IProcessorRunner OriginalRunner { get; }
 
         /// <summary>
-        /// Default constructor uses <see cref="PipelineRunner.StaticInstance"/>.
+        /// Default constructor uses <see cref="Runner.StaticInstance"/>.
         /// </summary>
-        public ObservableProcessorRunner() : this(PipelineRunner.StaticInstance)
+        public ObservableProcessorRunner() : this(Runner.StaticInstance)
         {
         }
 
@@ -37,8 +37,8 @@ namespace Pipelines.Implementations.Runners
             OriginalRunner = originalRunner ?? throw new ArgumentNullException(ObservableProcessorRunner.OriginalRunnerIsNull);
         }
 
-        /// <inheritdoc cref="IProcessorRunner.RunProcessor{TArgs}"/>
-        public virtual async Task RunProcessor<TArgs>(IProcessor processor, TArgs args)
+        /// <inheritdoc cref="IProcessorRunner.Run{TArgs}"/>
+        public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
         {
             if (this.HasObservers())
             {
@@ -52,7 +52,7 @@ namespace Pipelines.Implementations.Runners
 
             try
             {
-                await this.OriginalRunner.RunProcessor(processor, args).ConfigureAwait(false);
+                await this.OriginalRunner.Run(processor, args).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

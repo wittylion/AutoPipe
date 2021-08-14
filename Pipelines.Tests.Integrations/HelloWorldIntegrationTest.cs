@@ -10,7 +10,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void Pipeline_Mechanism_Is_Able_To_Produce_A_Simple_Result()
         {
-            PipelineRunner runner = new PipelineRunner();
+            Runner runner = new Runner();
 
             var arguments = new HelloWorldArguments() { Name = "Sergey" };
             await runner.Run(new HelloWorldPipeline(), arguments).ConfigureAwait(false);
@@ -22,7 +22,7 @@ namespace Pipelines.Tests.Integrations
         [Fact]
         public async void Pipeline_Mechanism_Produces_A_Simple_Check_Before_Returning_A_Result()
         {
-            PipelineRunner runner = new PipelineRunner();
+            Runner runner = new Runner();
 
             var arguments = new HelloWorldArguments { Name = "   " };
             await runner.Run(new HelloWorldPipelineWithValidation(), arguments).ConfigureAwait(false);

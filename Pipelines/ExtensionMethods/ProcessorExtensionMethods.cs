@@ -167,7 +167,7 @@ namespace Pipelines
         /// </summary>
         /// <param name="processor">
         /// The processor to be executed. It will be executed
-        /// by <see cref="IProcessorRunner.RunProcessor{TArgs}"/>
+        /// by <see cref="IProcessorRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -181,9 +181,9 @@ namespace Pipelines
         /// </returns>
         public static Task Run(this IProcessor processor, object args = null, IProcessorRunner runner = null)
         {
-            runner = runner ?? PipelineRunner.StaticInstance;
+            runner = runner ?? Runner.StaticInstance;
             args = args ?? new Bag();
-            return runner.RunProcessor(processor, args);
+            return runner.Run(processor, args);
         }
 
         public static Task RunBag(this IProcessor processor, object args, IProcessorRunner runner = null)
@@ -218,7 +218,7 @@ namespace Pipelines
         /// </summary>
         /// <param name="processor">
         /// The processor to be executed. It will be executed
-        /// by <see cref="IProcessorRunner.RunProcessor{TArgs}"/>
+        /// by <see cref="IProcessorRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">

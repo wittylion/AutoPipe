@@ -20,11 +20,11 @@ namespace Pipelines
         /// </param>
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a static
-        /// instance of <see cref="PipelineRunner"/> - <see cref="PipelineRunner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline)
         {
-            return pipeline.ToProcessor(PipelineRunner.StaticInstance);
+            return pipeline.ToProcessor(Runner.StaticInstance);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Pipelines
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a <paramref name="runner"/>
         /// or if it is not specified, with a static
-        /// instance of <see cref="PipelineRunner"/> - <see cref="PipelineRunner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
@@ -59,11 +59,11 @@ namespace Pipelines
         /// </param>
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a static
-        /// instance of <see cref="PipelineRunner"/> - <see cref="PipelineRunner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
         /// </returns>
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline)
         {
-            return pipeline.ToProcessor(PipelineRunner.StaticInstance);
+            return pipeline.ToProcessor(Runner.StaticInstance);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Pipelines
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a <paramref name="runner"/>
         /// or if it is not specified, with a static
-        /// instance of <see cref="PipelineRunner"/> - <see cref="PipelineRunner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
         /// </returns>
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
         {
@@ -113,14 +113,14 @@ namespace Pipelines
         /// </returns>
         public static Task Run(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
         {
-            runner = runner ?? PipelineRunner.StaticInstance;
+            runner = runner ?? Runner.StaticInstance;
             args = args ?? new Bag();
             return runner.Run(pipeline, args);
         }
 
         public static Task RunBag(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
-            runner = runner ?? PipelineRunner.StaticInstance;
+            runner = runner ?? Runner.StaticInstance;
             if (!(args is Bag))
             {
                 args = new Bag(args);
@@ -251,7 +251,7 @@ namespace Pipelines
         public static Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
             Predicate<TArgs> condition)
         {
-            return pipeline.RunPipelineWhile(args, condition, PipelineRunner.StaticInstance);
+            return pipeline.RunPipelineWhile(args, condition, Runner.StaticInstance);
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace Pipelines
         public static async Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
             Predicate<TArgs> condition, IPipelineRunner runner)
         {
-            runner = runner ?? PipelineRunner.StaticInstance;
+            runner = runner ?? Runner.StaticInstance;
             while (condition(args))
             {
                 await pipeline.Run(args, runner).ConfigureAwait(false);

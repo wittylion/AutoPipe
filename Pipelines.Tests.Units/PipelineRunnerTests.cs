@@ -10,7 +10,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void PipelineRunner_Uses_Declared_Processors_In_Pipeline()
         {
-            var pipelineRunner = new PipelineRunner();
+            var pipelineRunner = new Runner();
             var pipeline = new Mock<IPipeline>();
             
             pipeline.Setup(x => x.GetProcessors()).Returns(Enumerable.Empty<IProcessor>());
@@ -23,7 +23,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void PipelineRunner_Does_Not_Execute_When_Processors_Collection_Is_Null()
         {
-            var pipelineRunner = new PipelineRunner();
+            var pipelineRunner = new Runner();
             var pipeline = new Mock<IPipeline>();
 
             pipeline.Setup(x => x.GetProcessors()).Returns((IEnumerable<IProcessor>) null);
@@ -34,7 +34,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void PipelineRunner_Executes_Processors_In_The_Collection_In_Exact_Order()
         {
-            var pipelineRunner = new PipelineRunner();
+            var pipelineRunner = new Runner();
             var executionSequence = new MockSequence();
             var mockRepository = new MockRepository(MockBehavior.Strict);
 

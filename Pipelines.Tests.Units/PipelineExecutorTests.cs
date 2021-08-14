@@ -10,7 +10,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void PipelineExecutor_Uses_Exact_PipelineRunner_When_Being_Executed()
         {
-            var pipelineRunner = new Mock<PipelineRunner>();
+            var pipelineRunner = new Mock<Runner>();
             var pipeline = new Mock<IPipeline>();
             var pipelineExecutor = new PipelineExecutor(pipeline.Object, pipelineRunner.Object);
 

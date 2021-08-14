@@ -22,6 +22,6 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        Task RunProcessor<TArgs>(IProcessor processor, TArgs args);
+        Task Run<TArgs>(IProcessor processor, TArgs args);
     }
 }

@@ -28,7 +28,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task RunProcessor<TArgs>(IProcessor processor, TArgs args)
+        public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
         {
             if (processor == null)
                 return;

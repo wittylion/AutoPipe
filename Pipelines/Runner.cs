@@ -8,23 +8,23 @@ namespace Pipelines
     /// <summary>
     /// Runs instances of <see cref="IProcessor"/> and <see cref="IPipeline"/>.
     /// </summary>
-    public class PipelineRunner : IPipelineRunner, IProcessorRunner
+    public class Runner : IPipelineRunner, IProcessorRunner
     {
         /// <summary>
-        /// Default instance of the <see cref="PipelineRunner"/>.
+        /// Default instance of the <see cref="Runner"/>.
         /// </summary>
-        public static readonly PipelineRunner StaticInstance = new PipelineRunner();
+        public static readonly Runner StaticInstance = new Runner();
 
         /// <summary>
-        /// The object that is responsible for running single processor in <see cref="RunProcessor{TArgs}(IProcessor, TArgs)"/>.
+        /// The object that is responsible for running single processor in <see cref="Run{TArgs}(IProcessor, TArgs)"/>.
         /// </summary>
         public IProcessorRunner ProcessorsRunner { get; }
 
-        public PipelineRunner() : this(processorRunner: ProcessorRunner.StaticInstance)
+        public Runner() : this(processorRunner: ProcessorRunner.StaticInstance)
         {
         }
 
-        public PipelineRunner(IProcessorRunner processorRunner)
+        public Runner(IProcessorRunner processorRunner)
         {
             if (processorRunner == null)
             {
@@ -58,7 +58,7 @@ namespace Pipelines
                 return PipelineTask.CompletedTask;
             }
 
-            return RunProcessors(pipeline.GetProcessors(), args);
+            return Run(pipeline.GetProcessors(), args);
         }
 
         /// <summary>
@@ -79,12 +79,12 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processors execution.
         /// </returns>
-        public virtual async Task RunProcessors<TArgs>(IEnumerable<IProcessor> processors, TArgs args)
+        public virtual async Task Run<TArgs>(IEnumerable<IProcessor> processors, TArgs args)
         {
             processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)
             {
-                await RunProcessor(processor, args).ConfigureAwait(false);
+                await Run(processor, args).ConfigureAwait(false);
             }
         }
 
@@ -104,11 +104,11 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task RunProcessor<TArgs>(IProcessor processor, TArgs args)
+        public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
         {
             if (processor.HasValue())
             {
-                await ProcessorsRunner.RunProcessor(processor, args).ConfigureAwait(false);
+                await ProcessorsRunner.Run(processor, args).ConfigureAwait(false);
             }
         }
     }

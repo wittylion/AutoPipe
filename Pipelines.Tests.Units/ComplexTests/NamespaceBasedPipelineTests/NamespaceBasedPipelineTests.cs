@@ -66,12 +66,12 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Run_With_Extension_Methods_Without_Errors()
         {
-            var mockRunner = new Mock<PipelineRunner> {CallBase = true};
+            var mockRunner = new Mock<Runner> {CallBase = true};
 
             new NamespaceBasedPipeline(OrderTestFolder).Run(runner: mockRunner.Object);
             var expectedCount = new NamespaceBasedPipeline(OrderTestFolder).GetProcessors().Count();
 
-            mockRunner.Verify(x => x.RunProcessor(It.IsAny<IProcessor>(), It.IsAny<object>()),
+            mockRunner.Verify(x => x.Run(It.IsAny<IProcessor>(), It.IsAny<object>()),
                 Times.Exactly(expectedCount), "Method run processor should be executed, since pipeline has processors");
         }
 
