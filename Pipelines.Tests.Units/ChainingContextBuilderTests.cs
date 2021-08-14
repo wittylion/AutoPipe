@@ -9,7 +9,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void RunWith_Should_Run_The_Passed_Pipeline_With_Preset_Properties()
         {
-            var context = await Bag.Build()
+            var value = await Bag.Create()
                 .Use("one", 1)
                 .Use("two", 2)
                 .Use("string", "aqwe")
@@ -17,17 +17,15 @@ namespace Pipelines.Tests.Units
                     Pipeline.From(
                         Processor.From<Bag>(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
-                    PipelineRunner.StaticInstance);
+                    PipelineRunner.StaticInstance).ContinueWith(a => a.Result.Get("string", 0));
 
-            context.OriginalContext.Get("string", 0)
-                .Should()
-                .Be(3);
+            value.Should().Be(3);
         }
 
         [Fact]
         public async void RunWith_Should_Run_The_Passed_Pipeline()
         {
-            var context = await Bag.Build()
+            var context = await Bag.Create()
                 .RunWith(
                     Pipeline.From(
                         new EnsureName(),
@@ -36,7 +34,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.Get("message", "")
+            context.Get("message", "")
                 .Should()
                 .Be("Hello, Serge!");
         }
@@ -44,7 +42,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Template_That_Will_Not_Be_Overriden()
         {
-            var context = await Bag.Build()
+            var context = await Bag.Create()
                 .Use("message", "Hola, {name}!")
                 .RunWith(
                     Pipeline.From(
@@ -53,7 +51,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.Get("message", "")
+            context.Get("message", "")
                 .Should()
                 .Be("Hola, stranger!");
         }
@@ -61,7 +59,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_Up_A_Name_That_Will_Not_Be_Overriden()
         {
-            var context = await Bag.Build()
+            var context = await Bag.Create()
                 .Use("name", "Bob")
                 .RunWith(
                     Pipeline.From(
@@ -71,7 +69,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.Get("message", "")
+            context.Get("message", "")
                 .Should()
                 .Be("Hello, Bob!");
         }
@@ -80,7 +78,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Name_That_Will_Be_Set_In_QueryContext_Result()
         {
-            var context = await Bag.BuildQuery<string>()
+            var context = await Bag.Create<Bag<string>>()
                 .Use("name", "Bob")
                 .RunWith(
                     Pipeline.From(
@@ -90,7 +88,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.GetResultOrThrow()
+            context.GetResultOrThrow()
                 .Should()
                 .Be("Hello, Bob!");
         }

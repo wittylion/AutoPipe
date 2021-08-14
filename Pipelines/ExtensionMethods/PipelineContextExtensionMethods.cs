@@ -61,14 +61,16 @@ namespace Pipelines
             context.ApplyProperty(propertyName, newValue, modificator);
         }
 
-        public static Task RunWithPipeline<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
+        public static async Task<TContext> RunWith<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
         {
-            return pipeline.Run(context, runner);
+            await pipeline.Run(context, runner);
+            return context;
         }
 
-        public static Task ExecuteWithProcessor<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
+        public static async Task<TContext> RunWith<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
         {
-            return processor.Run(context, runner);
+            await processor.Run(context, runner);
+            return context;
         }
 
         /// <summary>
@@ -115,6 +117,21 @@ namespace Pipelines
             {
                 action(context);
             }
+        }
+
+        public static TBag Use<TBag>(this TBag bag, string property, object value,
+            bool skipIfExists = true) where TBag: Bag
+        {
+            bag.Set(property, value, skipIfExists);
+            return bag;
+        }
+
+        public static TBag Use<TBag>(this TBag bag, string property, Func<TBag, object> valueProvider,
+            bool skipIfExists = true) where TBag : Bag
+        {
+            var value = valueProvider(bag);
+            bag.Set(property, value, skipIfExists);
+            return bag;
         }
     }
 }

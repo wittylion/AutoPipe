@@ -1,5 +1,4 @@
-﻿using Pipelines.Implementations.Contexts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -16,18 +15,6 @@ namespace Pipelines
     [Serializable]
     public class Bag : ISerializable
     {
-        public static ChainingContext<Bag> Build() =>
-            Build<Bag>();
-
-        public static ChainingContext<TContext> Build<TContext>() where TContext : Bag, new() =>
-            Build(new TContext());
-
-        public static ChainingContext<TContext> Build<TContext>(TContext context) where TContext : Bag =>
-            new ChainingContext<TContext>(context);
-
-        public static ChainingContext<Bag<TValue>> BuildQuery<TValue>() where TValue : class =>
-            Build<Bag<TValue>>();
-
         /// <summary>
         /// Creates a new Bag that has a parameter-less constructor.
         /// </summary>
@@ -278,6 +265,34 @@ namespace Pipelines
             if (propertyHolder.HasValue)
             {
                 if (propertyHolder.Value.Value is TValue value)
+                {
+                    return value;
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
+        }
+
+        public virtual string StringOrEmpty(string name)
+        {
+            var propertyHolder = GetPropertyObjectOrNull(name);
+            if (propertyHolder.HasValue)
+            {
+                if (propertyHolder.Value.Value is string value)
+                {
+                    return value;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public virtual string StringOrThrow(string name)
+        {
+            var propertyHolder = GetPropertyObjectOrNull(name);
+            if (propertyHolder.HasValue)
+            {
+                if (propertyHolder.Value.Value is string value)
                 {
                     return value;
                 }

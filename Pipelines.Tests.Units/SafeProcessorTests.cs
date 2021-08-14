@@ -24,7 +24,7 @@ namespace Pipelines.Tests.Units
         {
             var reachedExecution = false;
             var processor = new TestProcessor(() => reachedExecution = true);
-            await Bag.Create().ExecuteWithProcessor(processor).ConfigureAwait(false);
+            await Bag.Create().RunWith(processor).ConfigureAwait(false);
             reachedExecution.Should().BeTrue("pipeline was not aborted");
         }
     }
