@@ -95,7 +95,7 @@ namespace Pipelines.Tests.Units
 
         public class EnsureName : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(Bag args)
+            public override Task SafeRun(Bag args)
             {
                 args.ApplyProperty("name", ctx => "Serge", PropertyModificator.SkipIfExists);
                 return Done;
@@ -104,7 +104,7 @@ namespace Pipelines.Tests.Units
 
         public class HelloMessageNameReplacer : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(Bag args)
+            public override Task SafeRun(Bag args)
             {
                 args.TransformProperty(
                     "message",
@@ -118,7 +118,7 @@ namespace Pipelines.Tests.Units
 
         public class HelloMessageNameToResultReplacer : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(Bag args)
+            public override Task SafeRun(Bag args)
             {
                 args.IfHasProperty(
                     "message",
@@ -139,7 +139,7 @@ namespace Pipelines.Tests.Units
 
         public class EnsureMessage : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(Bag args)
+            public override Task SafeRun(Bag args)
             {
                 args.ApplyProperty("message", ctx => "Hello, {name}!", PropertyModificator.SkipIfExists);
                 return Done;

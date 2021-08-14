@@ -15,7 +15,7 @@ namespace Pipelines.Tests.Units
             
             pipeline.Setup(x => x.GetProcessors()).Returns(Enumerable.Empty<IProcessor>());
 
-            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty).ConfigureAwait(false);
+            await pipelineRunner.Run(pipeline.Object, string.Empty).ConfigureAwait(false);
 
             pipeline.Verify(x => x.GetProcessors(), Times.AtLeastOnce);
         }
@@ -28,7 +28,7 @@ namespace Pipelines.Tests.Units
 
             pipeline.Setup(x => x.GetProcessors()).Returns((IEnumerable<IProcessor>) null);
 
-            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty).ConfigureAwait(false);
+            await pipelineRunner.Run(pipeline.Object, string.Empty).ConfigureAwait(false);
         }
 
         [Fact]
@@ -42,14 +42,14 @@ namespace Pipelines.Tests.Units
             var b = mockRepository.Create<IProcessor>();
             var c = mockRepository.Create<IProcessor>();
 
-            a.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
-            b.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
-            c.InSequence(executionSequence).Setup(x => x.Execute(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
+            a.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
+            b.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
+            c.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
 
             var pipeline = new Mock<IPipeline>();
             pipeline.Setup(x => x.GetProcessors()).Returns(new [] { a.Object, b.Object, c.Object });
 
-            await pipelineRunner.RunPipeline(pipeline.Object, string.Empty).ConfigureAwait(false);
+            await pipelineRunner.Run(pipeline.Object, string.Empty).ConfigureAwait(false);
         }
     }
 }

@@ -32,8 +32,8 @@ namespace Pipelines.Implementations.Runners
             OriginalRunner = originalRunner;
         }
 
-        /// <inheritdoc cref="IPipelineRunner.RunPipeline{TArgs}"/>
-        public virtual async Task RunPipeline<TArgs>(IPipeline pipeline, TArgs args)
+        /// <inheritdoc cref="IPipelineRunner.Run{TArgs}"/>
+        public virtual async Task Run<TArgs>(IPipeline pipeline, TArgs args)
         {
             if (this.HasObservers())
             {
@@ -47,7 +47,7 @@ namespace Pipelines.Implementations.Runners
 
             try
             {
-                await this.OriginalRunner.RunPipeline(pipeline, args).ConfigureAwait(false);
+                await this.OriginalRunner.Run(pipeline, args).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

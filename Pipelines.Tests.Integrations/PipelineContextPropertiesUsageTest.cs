@@ -10,7 +10,7 @@ namespace Pipelines.Tests.Integrations
         public async void When_Using_An_Empty_Context_Simple_Hello_World_Message_Is_Retrieved()
         {
             var context = new Bag();
-            await new SetMessage().Execute(context).ConfigureAwait(false);
+            await new SetMessage().Run(context).ConfigureAwait(false);
             context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
                 .Be(GreeterValues.HelloWorld, "because nothing is set in the context");
@@ -24,7 +24,7 @@ namespace Pipelines.Tests.Integrations
             var context = new Bag();
             context.Set(GreeterProperties.Name, name, skipIfExists: true);
 
-            await new SetMessage().Execute(context).ConfigureAwait(false);
+            await new SetMessage().Run(context).ConfigureAwait(false);
 
             context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
@@ -37,7 +37,7 @@ namespace Pipelines.Tests.Integrations
             var name = nameof(When_Using_An_Object_Constructor_Of_Pipeline_Context_Greeting_Message_Is_Retrieved);
 
             var context = new Bag(new {Name = name});
-            await new SetMessage().Execute(context).ConfigureAwait(false);
+            await new SetMessage().Run(context).ConfigureAwait(false);
 
             context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
@@ -49,7 +49,7 @@ namespace Pipelines.Tests.Integrations
         public async void When_Using_An_Intermediate_Processor_Its_Message__Must_Be_Returned()
         {
             var context = new Bag();
-            await new DefaultMessageSetter().Execute(context).ConfigureAwait(false);
+            await new DefaultMessageSetter().Run(context).ConfigureAwait(false);
 
             context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
@@ -61,7 +61,7 @@ namespace Pipelines.Tests.Integrations
             When_Using_An_Intermediate_Processor_Its_Message__Must_Be_Returned_Even_When_Custom_Message_Is_Set()
         {
             var context = new Bag(new {Message = "DEFAULT"});
-            await new DefaultMessageSetter().Execute(context).ConfigureAwait(false);
+            await new DefaultMessageSetter().Run(context).ConfigureAwait(false);
 
             context.GetOrThrow<string>(GreeterProperties.Message)
                 .Should()
@@ -83,16 +83,16 @@ namespace Pipelines.Tests.Integrations
 
         public class DefaultMessageSetter : SafeProcessor
         {
-            public override Task SafeExecute(Bag args)
+            public override Task SafeRun(Bag args)
             {
                 args.Set(GreeterProperties.Message, GreeterValues.IntermediateMessage);
-                return new SetMessage().Execute(args);
+                return new SetMessage().Run(args);
             }
         }
 
         public class SetMessage : SafeProcessor
         {
-            public override Task SafeExecute(Bag args)
+            public override Task SafeRun(Bag args)
             {
                 var name = args.Get(GreeterProperties.Name, string.Empty);
 

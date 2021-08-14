@@ -47,7 +47,7 @@ namespace Pipelines.Implementations.Runners
         /// <returns>
         /// Returns a promise of the pipeline execution.
         /// </returns>
-        public virtual Task RunPipeline<TArgs>(IPipeline pipeline, TArgs args)
+        public virtual Task Run<TArgs>(IPipeline pipeline, TArgs args)
         {
             if (pipeline.HasNoValue())
             {

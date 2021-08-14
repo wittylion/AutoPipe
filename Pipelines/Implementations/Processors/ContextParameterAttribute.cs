@@ -4,7 +4,7 @@ namespace Pipelines.Implementations.Processors
 {
     /// <summary>
     /// This attribute is supposed to be used for parameters of
-    /// methods marked with <see cref="ExecuteMethodAttribute"/>.
+    /// methods marked with <see cref="RunAttribute"/>.
     /// Allows to provide some data before method will be executed.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]

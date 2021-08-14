@@ -48,7 +48,7 @@ namespace Pipelines
 
         private Func<object, Task> Action { get; }
 
-        public Task Execute(object arguments)
+        public Task Run(object arguments)
         {
             return this.Action(arguments);
         }
@@ -74,7 +74,7 @@ namespace Pipelines
 
         private Func<TArgs, Task> Action { get; }
 
-        public override Task SafeExecute(TArgs args)
+        public override Task SafeRun(TArgs args)
         {
             return this.Action(args);
         }

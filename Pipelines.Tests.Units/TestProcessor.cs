@@ -16,7 +16,7 @@ namespace Pipelines.Tests.Units
             Action = action;
         }
 
-        public override Task SafeExecute(Bag args)
+        public override Task SafeRun(Bag args)
         {
             return Task.Run(Action);
         }

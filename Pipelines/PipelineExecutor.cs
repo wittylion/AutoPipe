@@ -24,12 +24,12 @@ namespace Pipelines
         public IPipeline Pipeline { get; }
 
         /// <summary>
-        /// The pipeline runner that is hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used.
+        /// The pipeline runner that is hold to be used when <see cref="Run{TContext}(TContext)"/> method is used.
         /// </summary>
         public IPipelineRunner Runner { get; }
 
         /// <summary>
-        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used.
+        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Run{TContext}(TContext)"/> method is used.
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline that is hold to be executed later.
@@ -39,14 +39,14 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used
+        /// The constructor that accepts a <paramref name="pipeline"/> hold to be used when <see cref="Run{TContext}(TContext)"/> method is used
         /// and <see cref="runner"/> that runs a pipeline.
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline that is hold to be executed later.
         /// </param>
         /// <param name="runner">
-        /// The pipeline runner that is hold to be used when <see cref="Execute{TContext}(TContext)"/> method is used.
+        /// The pipeline runner that is hold to be used when <see cref="Run{TContext}(TContext)"/> method is used.
         /// </param>
         public PipelineExecutor(IPipeline pipeline, IPipelineRunner runner)
         {
@@ -76,9 +76,9 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task Execute<TContext>(TContext arguments)
+        public async Task Run<TContext>(TContext arguments)
         {
-            await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
+            await this.Runner.Run(this.Pipeline, arguments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -93,9 +93,9 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task<TResult> MakeResult<TResult>(Bag arguments) where TResult : class
+        public async Task<TResult> Make<TResult>(Bag arguments) where TResult : class
         {
-            await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
+            await this.Runner.Run(this.Pipeline, arguments).ConfigureAwait(false);
             return arguments.GetResultOrThrow<TResult>();
         }
     }

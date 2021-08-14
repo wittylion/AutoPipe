@@ -6,7 +6,7 @@ namespace Pipelines
     /// <summary>
     /// Implementation of <see cref="IProcessor"/> that
     /// checks passed arguments,
-    /// before executing main logic defined in <see cref="SafeExecute"/>.
+    /// before executing main logic defined in <see cref="SafeRun"/>.
     /// It automatically checks that the type of arguments is the same as <see cref="TArgs"/>
     /// and does additional checks defined in <see cref="SafeCondition"/> method.
     /// </summary>
@@ -28,7 +28,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a task class which is responsible of asynchronous code execution.
         /// </returns>
-        public abstract Task SafeExecute(TArgs args);
+        public abstract Task SafeRun(TArgs args);
 
         /// <summary>
         /// Method to specify all conditions that will ensure
@@ -41,7 +41,7 @@ namespace Pipelines
         /// Arguments to be processed.
         /// </param>
         /// <returns>
-        /// Returns a value defining whether <see cref="SafeExecute"/>
+        /// Returns a value defining whether <see cref="SafeRun"/>
         /// method can be safely completed and will not cause problems.
         /// </returns>
         public virtual bool SafeCondition(TArgs args)
@@ -81,7 +81,7 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Executes a logic defined in <see cref="SafeExecute"/>
+        /// Executes a logic defined in <see cref="SafeRun"/>
         /// class only if <paramref name="arguments"/> parameter
         /// is of type <see cref="TArgs"/> and <see cref="SafeCondition"/>
         /// returns true.
@@ -95,7 +95,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a task class which is responsible of asynchronous code execution.
         /// </returns>
-        public Task Execute(object arguments)
+        public Task Run(object arguments)
         {
             if (!(arguments is TArgs typedArguments))
             {
@@ -109,7 +109,7 @@ namespace Pipelines
                 return PipelineTask.CompletedTask;
             }
 
-            return SafeExecute((TArgs)arguments);
+            return SafeRun((TArgs)arguments);
         }
     }
 }

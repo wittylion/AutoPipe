@@ -13,7 +13,7 @@ namespace Pipelines
         public static readonly IProcessorRunner StaticInstance = new ProcessorRunner();
 
         /// <summary>
-        /// Runs a processor by executing its <see cref="IProcessor.Execute"/> method.
+        /// Runs a processor by executing its <see cref="IProcessor.Run"/> method.
         /// If processor is null it will be skipped.
         /// </summary>
         /// <typeparam name="TArgs">
@@ -33,7 +33,7 @@ namespace Pipelines
             if (processor == null)
                 return;
 
-            await processor.Execute(args).ConfigureAwait(false);
+            await processor.Run(args).ConfigureAwait(false);
         }
     }
 }

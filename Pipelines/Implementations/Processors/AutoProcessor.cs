@@ -10,9 +10,9 @@ namespace Pipelines.Implementations.Processors
     /// <summary>
     /// An abstract processor that can be derived to implement
     /// processor with several methods to execute.
-    /// The methods that are marked with <see cref="ExecuteMethodAttribute"/>
+    /// The methods that are marked with <see cref="RunAttribute"/>
     /// in the derived type will be executed based on 
-    /// <see cref="ExecuteMethodAttribute.Order"/>.
+    /// <see cref="RunAttribute.Order"/>.
     /// </summary>
     public abstract class AutoProcessor : SafeProcessor
     {
@@ -62,7 +62,7 @@ namespace Pipelines.Implementations.Processors
         }
 
         /// <summary>
-        /// A condition that checks for <see cref="ExecuteMethodAttribute"/> presence.
+        /// A condition that checks for <see cref="RunAttribute"/> presence.
         /// </summary>
         /// <param name="method">
         /// A method to be checked for acceptance criteria.
@@ -72,7 +72,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return method?.GetCustomAttribute<ExecuteMethodAttribute>(false) != null;
+            return method?.GetCustomAttribute<RunAttribute>(false) != null;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Pipelines.Implementations.Processors
         /// </returns>
         public virtual int GetOrderOfExecution(MethodInfo method)
         {
-            return method?.GetCustomAttribute<ExecuteMethodAttribute>()?.Order ?? default;
+            return method?.GetCustomAttribute<RunAttribute>()?.Order ?? default;
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public virtual async Task ExecuteMethod(MethodInfo method, Bag context)
+        public virtual async Task Run(MethodInfo method, Bag context)
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
@@ -450,7 +450,7 @@ namespace Pipelines.Implementations.Processors
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public override async Task SafeExecute(Bag args)
+        public override async Task SafeRun(Bag args)
         {
             if (Methods != null)
             {
@@ -463,7 +463,7 @@ namespace Pipelines.Implementations.Processors
 
                     if (AllParametersAreValid(method, args))
                     {
-                        await ExecuteMethod(method, args).ConfigureAwait(false);
+                        await Run(method, args).ConfigureAwait(false);
                     }
                 }
             }

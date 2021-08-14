@@ -95,7 +95,7 @@ namespace Pipelines
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with null arguments passed.
         /// </param>
         /// <returns>
@@ -115,7 +115,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -131,7 +131,7 @@ namespace Pipelines
         public static Task Run<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
         {
             runner = runner.Ensure(PipelineRunner.StaticInstance);
-            return runner.RunPipeline(pipeline, args);
+            return runner.Run(pipeline, args);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -156,7 +156,7 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static async Task<TResult> MakeResultAsync<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
+        public static async Task<TResult> Make<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
         {
             await pipeline.Run<Bag>(args, runner).ConfigureAwait(false);
             return args.GetResultOrThrow<TResult>();
@@ -169,7 +169,7 @@ namespace Pipelines
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with null arguments passed.
         /// </param>
         public static void RunSync(this IPipeline pipeline)
@@ -184,7 +184,7 @@ namespace Pipelines
         /// </summary>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -197,7 +197,7 @@ namespace Pipelines
         public static void RunSync<TContext>(this IPipeline pipeline, TContext args = default(TContext), IPipelineRunner runner = null)
         {
             runner = runner.Ensure(PipelineRunner.StaticInstance);
-            runner.RunPipeline(pipeline, args).Wait();
+            runner.Run(pipeline, args).Wait();
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -224,7 +224,7 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static TResult MakeResult<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
+        public static TResult MakeSync<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
         {
             Task.WaitAll(pipeline.Run(args, runner));
             return args.GetResultOrThrow<TResult>();
@@ -238,7 +238,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">
@@ -265,7 +265,7 @@ namespace Pipelines
         /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.RunPipeline{TArgs}"/>
+        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
         /// method with <paramref name="args"/> passed.
         /// </param>
         /// <param name="args">

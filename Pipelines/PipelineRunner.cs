@@ -51,7 +51,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the pipeline execution.
         /// </returns>
-        public virtual Task RunPipeline<TArgs>(IPipeline pipeline, TArgs args)
+        public virtual Task Run<TArgs>(IPipeline pipeline, TArgs args)
         {
             if (pipeline.HasNoValue())
             {
@@ -89,7 +89,7 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Runs a processor by executing its <see cref="IProcessor.Execute"/> method.
+        /// Runs a processor by executing its <see cref="IProcessor.Run"/> method.
         /// If processor is null it will be skipped.
         /// </summary>
         /// <typeparam name="TArgs">

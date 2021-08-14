@@ -29,7 +29,7 @@ namespace Pipelines.Tests.Units
 
             using (runner.Subscribe(mockObserver.Object))
             {
-                await runner.RunPipeline<object>(mockPipeline.Object, null).ConfigureAwait(false);
+                await runner.Run<object>(mockPipeline.Object, null).ConfigureAwait(false);
             }
 
 
@@ -56,7 +56,7 @@ namespace Pipelines.Tests.Units
             
 
             runner.Subscribe(mockObserver.Object).Dispose();
-            await runner.RunPipeline<object>(mockPipeline.Object, null).ConfigureAwait(false);
+            await runner.Run<object>(mockPipeline.Object, null).ConfigureAwait(false);
 
 
             completed.Should().BeFalse("because the subscriber was disposed before the RunPipeline was called");
@@ -79,7 +79,7 @@ namespace Pipelines.Tests.Units
 
             // Creating a processor that throws an exception.
             Mock<IProcessor> mockProcessor = new Mock<IProcessor>();
-            mockProcessor.Setup(x => x.Execute(It.IsAny<object>())).Callback(() => throw exception);
+            mockProcessor.Setup(x => x.Run(It.IsAny<object>())).Callback(() => throw exception);
 
             // Creating an implementation of pipeline.
             IPipeline mockPipeline = Pipeline.From(mockProcessor.Object);
@@ -87,7 +87,7 @@ namespace Pipelines.Tests.Units
 
             using (runner.Subscribe(mockObserver.Object))
             {
-                await runner.RunPipeline<object>(mockPipeline, null).ConfigureAwait(false);
+                await runner.Run<object>(mockPipeline, null).ConfigureAwait(false);
             }
 
 

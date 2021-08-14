@@ -6,7 +6,7 @@ namespace Pipelines
     /// Represents a unit which can process some information.
     /// You can think of this interface like about actions
     /// in command pattern. It defines and responsible only
-    /// for a single <see cref="Execute"/> method, which means that
+    /// for a single <see cref="Run"/> method, which means that
     /// whatever information is passed, it will be somehow processed.
     /// </summary>
     public interface IProcessor
@@ -17,6 +17,6 @@ namespace Pipelines
         /// </summary>
         /// <param name="arguments">Data that may be processed by this processor.</param>
         /// <returns>A promise class indicating whether operation has completed execution.</returns>
-        Task Execute(object arguments);
+        Task Run(object arguments);
     }
 }

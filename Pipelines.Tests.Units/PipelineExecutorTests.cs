@@ -16,10 +16,10 @@ namespace Pipelines.Tests.Units
 
             pipeline.Setup(x => x.GetProcessors()).Returns(Enumerable.Empty<IProcessor>());
 
-            await pipelineExecutor.Execute(string.Empty).ConfigureAwait(false);
+            await pipelineExecutor.Run(string.Empty).ConfigureAwait(false);
 
             pipelineRunner.Verify(
-                runner => runner.RunPipeline(
+                runner => runner.Run(
                     It.IsAny<IPipeline>(), It.IsAny<object>()
                 ), Times.AtLeastOnce);
         }
@@ -33,7 +33,7 @@ namespace Pipelines.Tests.Units
             var pipelineExecutor = new PipelineExecutor(pipeline);
 
             var args = new Bag();
-            await pipelineExecutor.Execute(args).ConfigureAwait(false);
+            await pipelineExecutor.Run(args).ConfigureAwait(false);
 
             args.Get(property, false)
                 .Should()
@@ -50,7 +50,7 @@ namespace Pipelines.Tests.Units
             var pipelineExecutor = new PipelineExecutor(pipeline);
             var args = new Bag();
 
-            (await pipelineExecutor.MakeResult<string>(args))
+            (await pipelineExecutor.Make<string>(args))
                 .Should()
                 .Be(propertyValue);
         }

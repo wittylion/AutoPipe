@@ -135,7 +135,7 @@ namespace Pipelines.Tests.Units
             var processor = new Mock<TestAbortingContextParameter>(MockBehavior.Loose) { CallBase = true };
 
             Bag context = Bag.Create();
-            await processor.Object.Execute(context).ConfigureAwait(false);
+            await processor.Object.Run(context).ConfigureAwait(false);
 
             processor.Verify(x => x.EmptyMethod(It.IsAny<object>()), Times.Never );
             processor.Verify(x => x.EmptyMethod2(), Times.Never );
@@ -144,10 +144,10 @@ namespace Pipelines.Tests.Units
 
     public class TestAbortingContextParameter : AutoProcessor
     {
-        [ExecuteMethod(Order = 1)]
+        [Run(Order = 1)]
         public virtual void EmptyMethod([ContextParameter(AbortIfNotExist = true, ErrorMessage = "Parameter does not exist.")] object parameter) { }
 
-        [ExecuteMethod(Order = 2)]
+        [Run(Order = 2)]
         public virtual void EmptyMethod2() { }
 
         public TestAbortingContextParameter()
@@ -157,10 +157,10 @@ namespace Pipelines.Tests.Units
 
     public class TestAutoProcessor : AutoProcessor
     {
-        [ExecuteMethod]
+        [Run]
         public void EmptyMethod() { }
 
-        [ExecuteMethod(Order = 2)]
+        [Run(Order = 2)]
         public void EmptyMethod2() { }
 
         public void EmptyMethodNotForExecution() { }
@@ -174,13 +174,13 @@ namespace Pipelines.Tests.Units
     public class TestOrderOfAutoProcessor : AutoProcessor
     {
 
-        [ExecuteMethod(Order = 2)]
+        [Run(Order = 2)]
         public void EmptyMethod2() { }
 
-        [ExecuteMethod(Order = -2)]
+        [Run(Order = -2)]
         public void EmptyMethodMinus2() { }
 
-        [ExecuteMethod]
+        [Run]
         public void EmptyMethod() { }
 
     }
