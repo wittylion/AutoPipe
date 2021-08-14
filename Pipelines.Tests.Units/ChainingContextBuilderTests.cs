@@ -18,8 +18,8 @@ namespace Pipelines.Tests.Units
                 .Use("string", "aqwe")
                 .RunWith(
                     PredefinedPipeline.FromProcessors(
-                        CommonProcessors.TransformProperty<Bag, int, int>("one", "string",
-                            (ctx, s) => s + ctx.Get("two", 0))),
+                        Processor.From<Bag>(
+                            (ctx) => ctx.SetOrAddProperty("string", ctx.Get("one", string.Empty) + ctx.Get("two", 0)))),
                     PipelineRunner.StaticInstance);
 
             context.OriginalContext.Get("string", 0)

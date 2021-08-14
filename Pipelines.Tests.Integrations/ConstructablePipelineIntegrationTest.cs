@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Pipelines.Implementations.Pipelines;
@@ -47,30 +48,33 @@ namespace Pipelines.Tests.Integrations
             public static readonly string[] Messages = { "One", "Two", "Ten", "Five" };
         }
 
-        public class AddMessagePipeline : ConstructablePipeline
+        public class AddMessagePipeline : IPipeline
         {
-            public override IEnumerable<IProcessor> GetProcessors()
+            public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Constructor.Action<Bag>(x =>
+                yield return Processor.From<Bag>(x =>
                     x.AddMessage(nameof(ConstructablePipelineIntegrationTest)));
             }
         }
 
-        public class AddMessagesFromPropertyPipeline : ConstructablePipeline
+        public class AddMessagesFromPropertyPipeline : IPipeline
         {
-            public override IEnumerable<IProcessor> GetProcessors()
+            public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Constructor.ExecuteForEachElementInProperty<string>(
-                    (ctx, x) => ctx.AddMessage(x), ContextProperties.Messages);
+                yield return Processor.From<Bag>(b =>
+                {
+                    var messages = b.Get(ContextProperties.Messages, Array.Empty<string>()).ToList();
+                    messages.ForEach((x) => b.AddMessage(x));
+                });
             }
         }
 
-        public class SetMessagesAndAddFromPropertyPipeline : ConstructablePipeline
+        public class SetMessagesAndAddFromPropertyPipeline : IPipeline
         {
-            public override IEnumerable<IProcessor> GetProcessors()
+            public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Constructor.EnsureProperty<IEnumerable<string>>(ContextProperties.Messages,
-                    ContextValues.Messages);
+                yield return Processor.From<Bag>(b => b.SetOrAddProperty(ContextProperties.Messages,
+                    ContextValues.Messages));
 
                 yield return new AddMessagesFromPropertyPipeline().ToProcessor();
             }

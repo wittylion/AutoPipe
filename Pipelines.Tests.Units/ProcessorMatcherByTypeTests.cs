@@ -16,7 +16,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void Instance_ReturnsFalse_WhenOtherTypeIsPassed()
         {
-            var processor = new ConditionalActionProcessor(o => true, o => PipelineTask.CompletedTask);
+            var processor = new Processor(o => PipelineTask.CompletedTask);
             new ProcessorMatcherByType(typeof(TestProcessor)).Matches(processor).Should().BeFalse();
         }
     }

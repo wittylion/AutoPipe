@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.Implementations.Processors
+namespace Pipelines
 {
     /// <summary>
     /// Processor constructed from action or function.
@@ -16,9 +16,9 @@ namespace Pipelines.Implementations.Processors
             return new Processor(action.ToAsync<object>());
         }
 
-        public static ActionProcessor<TArgs> From<TArgs>(Action action)
+        public static Processor<TArgs> From<TArgs>(Action action)
         {
-            return new ActionProcessor<TArgs>(action.ToAsync<TArgs>());
+            return new Processor<TArgs>(action.ToAsync<TArgs>());
         }
 
         public static Processor From(Action<object> action)
@@ -26,9 +26,9 @@ namespace Pipelines.Implementations.Processors
             return new Processor(action.ToAsync());
         }
 
-        public static ActionProcessor<TArgs> From<TArgs>(Action<TArgs> action)
+        public static Processor<TArgs> From<TArgs>(Action<TArgs> action)
         {
-            return new ActionProcessor<TArgs>(action.ToAsync());
+            return new Processor<TArgs>(action.ToAsync());
         }
 
         public static Processor From(Func<object, Task> action)
@@ -36,9 +36,9 @@ namespace Pipelines.Implementations.Processors
             return new Processor(action);
         }
 
-        public static ActionProcessor<TArgs> From<TArgs>(Func<TArgs, Task> action)
+        public static Processor<TArgs> From<TArgs>(Func<TArgs, Task> action)
         {
-            return new ActionProcessor<TArgs>(action);
+            return new Processor<TArgs>(action);
         }
 
         public Processor(Func<object, Task> action)
@@ -60,14 +60,14 @@ namespace Pipelines.Implementations.Processors
     /// <typeparam name="TArgs">
     /// Type of arguments which will be processed by this processor.
     /// </typeparam>
-    public class ActionProcessor<TArgs> : SafeTypeProcessor<TArgs>
+    public class Processor<TArgs> : SafeTypeProcessor<TArgs>
     {
         public static SafeTypeProcessor<TArgs> From(Func<TArgs, Task> action)
         {
-            return new ActionProcessor<TArgs>(action);
+            return new Processor<TArgs>(action);
         }
 
-        public ActionProcessor(Func<TArgs, Task> action)
+        public Processor(Func<TArgs, Task> action)
         {
             Action = action ?? throw new ArgumentNullException(Processor.ActionMustBeSpecifiedInGenericProcessor);
         }
