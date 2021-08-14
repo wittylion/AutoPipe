@@ -96,7 +96,7 @@ namespace Pipelines
         public async Task<TResult> Execute<TResult>(Bag<TResult> arguments) where TResult : class
         {
             await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
-            return arguments.GetResult();
+            return arguments.GetResultOrThrow();
         }
     }
 }

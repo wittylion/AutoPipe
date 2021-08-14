@@ -214,15 +214,13 @@ namespace Pipelines.Tests.Units
         {
             var pipelineContext = new Bag();
 
-            var property = new PipelineProperty(
+            pipelineContext.AddOrSkipPropertyIfExists(
                 nameof(GetAllPropertyObjects_Contains_An_Element_That_Was_Added),
                 nameof(PipelineContextTests));
 
-            pipelineContext.AddOrSkipPropertyIfExists(property);
-
             pipelineContext.GetAllPropertyObjects()
                 .Should()
-                .Contain(property, "because by default there are no properties");
+                .ContainSingle("because by default there are no properties");
         }
         
         [Fact]

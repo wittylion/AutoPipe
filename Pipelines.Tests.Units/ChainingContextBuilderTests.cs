@@ -93,7 +93,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.OriginalContext.GetResult()
+            context.OriginalContext.GetResultOrThrow()
                 .Should()
                 .Be("Hello, Bob!");
         }

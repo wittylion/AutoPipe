@@ -199,7 +199,7 @@ namespace Pipelines
         public static async Task<TResult> Run<TResult>(this IPipeline pipeline, Bag<TResult> args, IPipelineRunner runner = null) where TResult : class
         {
             await pipeline.Run<Bag<TResult>>(args, runner).ConfigureAwait(false);
-            return args.GetResult();
+            return args.GetResultOrThrow();
         }
 
         /// <summary>

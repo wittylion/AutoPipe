@@ -31,13 +31,12 @@ namespace Pipelines
                 return;
             }
 
-            if (modificator == PropertyModificator.SkipIfExists && context.HasProperty(toProperty))
+            if (modificator == PropertyModificator.SkipIfExists)
             {
                 return;
             }
 
-            var property = context.GetPropertyObjectOrNull(fromProperty);
-            if (property.HasValue && property.Value.Value is TValue value)
+            if (context.ContainsProperty(fromProperty, out TValue value))
             {
                 var newValue = transformFunction(context, value);
                 context.ApplyProperty(toProperty, newValue, modificator);
@@ -53,7 +52,7 @@ namespace Pipelines
                 return;
             }
 
-            if (modificator == PropertyModificator.SkipIfExists && context.HasProperty(propertyName))
+            if (modificator == PropertyModificator.SkipIfExists && context.ContainsProperty<TValue>(propertyName))
             {
                 return;
             }
@@ -89,7 +88,7 @@ namespace Pipelines
         public static void IfHasProperty<TContext>(this TContext context, string property, Action<TContext> action)
             where TContext : Bag
         {
-            if (context.HasValue() && context.HasProperty(property))
+            if (context.HasValue() && context.ContainsProperty<object>(property))
             {
                 action(context);
             }
@@ -112,7 +111,7 @@ namespace Pipelines
         public static void IfHasNoProperty<TContext>(this TContext context, string property, Action<TContext> action)
             where TContext : Bag
         {
-            if (context.HasValue() && !context.HasProperty(property))
+            if (context.HasValue() && !context.ContainsProperty<object>(property))
             {
                 action(context);
             }

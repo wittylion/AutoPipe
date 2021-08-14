@@ -8,18 +8,17 @@ namespace Pipelines.Implementations.Processors
         public override Task SafeExecute(TContext args)
         {
             var propertyName = this.GetPropertyName(args);
-            var propertyHolder = args.GetPropertyObjectOrNull(propertyName);
-            if (!propertyHolder.HasValue)
+            if (!args.ContainsProperty<object>(propertyName))
             {
                 return this.MissingPropertyHandler(args);
             }
 
-            if (!(propertyHolder.Value.Value is TProperty propertyValue))
+            if (!args.ContainsProperty(propertyName, out TProperty property))
             {
-                return this.WrongPropertyTypeHandler(args, propertyHolder.Value);
+                return this.WrongPropertyTypeHandler(args, args.GetOrThrow<object>(propertyName));
             }
 
-            return this.PropertyExecution(args, propertyValue);
+            return this.PropertyExecution(args, property);
         }
 
         public virtual Task MissingPropertyHandler(TContext args)
@@ -27,7 +26,7 @@ namespace Pipelines.Implementations.Processors
             return PipelineTask.CompletedTask;
         }
 
-        public virtual Task WrongPropertyTypeHandler(TContext args, PipelineProperty property)
+        public virtual Task WrongPropertyTypeHandler(TContext args, object property)
         {
             return PipelineTask.CompletedTask;
         }

@@ -320,19 +320,15 @@ namespace Pipelines.Implementations.Processors
                     var metadata = parameter.GetCustomAttribute<ContextParameterAttribute>();
                     if (metadata != null)
                     {
-                        if (!string.IsNullOrWhiteSpace(metadata.Name) && context.ContainsProperty(metadata.Name))
+                        if (!string.IsNullOrWhiteSpace(metadata.Name) && context.ContainsProperty<object>(metadata.Name))
                         {
                             name = metadata.Name;
                         }
                     }
 
-                    var obj = context.GetPropertyObjectOrNull(name);
-
-                    if (obj.HasValue)
+                    if (context.ContainsProperty(name, out object val))
                     {
-                        var val = obj.Value.Value;
-
-                        if (val != null && parameter.ParameterType.IsAssignableFrom(val.GetType()))
+                        if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
                         {
                             yield return val;
                         }
@@ -379,26 +375,26 @@ namespace Pipelines.Implementations.Processors
 
                 if (metadata.Required || metadata.AbortIfNotExist)
                 {
-                    PipelineProperty? property;
+                    object property;
 
                     bool containsErrorMessage = metadata.ErrorMessage.HasValue();
                     bool containsMetadataProperty =
                         metadata.Name.HasNoValue()
                             ? false
-                            : context.ContainsProperty(metadata.Name);
+                            : context.ContainsProperty<object>(metadata.Name);
 
                     bool containsPropertyName =
                         parameter.Name.HasNoValue()
                         ? false
-                        : context.ContainsProperty(parameter.Name);
+                        : context.ContainsProperty<object>(parameter.Name);
 
                     if (containsMetadataProperty)
                     {
-                        property = context.GetPropertyObjectOrNull(metadata.Name);
+                        property = context.GetOrThrow<object>(metadata.Name);
                     }
                     else if (containsPropertyName)
                     {
-                        property = context.GetPropertyObjectOrNull(parameter.Name);
+                        property = context.GetOrThrow<object>(parameter.Name);
                     }
                     else
                     {
@@ -418,7 +414,7 @@ namespace Pipelines.Implementations.Processors
                         return false;
                     }
 
-                    var val = property.Value.Value;
+                    var val = property;
                     if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
                         var messageTemplate = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";

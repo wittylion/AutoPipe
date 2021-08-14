@@ -48,7 +48,7 @@ namespace Pipelines.Implementations.Processors
             return base.MissingPropertyHandler(args);
         }
 
-        public override Task WrongPropertyTypeHandler(TContext args, PipelineProperty property)
+        public override Task WrongPropertyTypeHandler(TContext args, object property)
         {
             args.AbortPipelineWithTypedMessage(AbortMessage, MessageType);
             return base.WrongPropertyTypeHandler(args, property);

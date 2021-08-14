@@ -94,7 +94,7 @@ namespace Pipelines.Tests.Integrations
         {
             public override Task SafeExecute(Bag args)
             {
-                var name = args.Get(GreeterProperties.Name, (string) null);
+                var name = args.Get(GreeterProperties.Name, string.Empty);
 
                 if (string.IsNullOrWhiteSpace(name))
                 {

@@ -310,7 +310,7 @@ namespace Pipelines
         /// <param name="property">
         /// The property object to be added to the collection.
         /// </param>
-        public virtual void AddOrSkipPropertyIfExists(PipelineProperty property)
+        protected virtual void AddOrSkipPropertyIfExists(PipelineProperty property)
         {
             var dictionary = Properties.Value;
             if (!dictionary.ContainsKey(property.Name))
@@ -385,7 +385,7 @@ namespace Pipelines
         /// Pipeline property object of the requested
         /// <paramref name="name"/> or null if property does not exist.
         /// </returns>
-        public virtual PipelineProperty? GetPropertyObjectOrNull(string name)
+        protected virtual PipelineProperty? GetPropertyObjectOrNull(string name)
         {
             if (Properties.IsValueCreated)
             {
@@ -397,22 +397,6 @@ namespace Pipelines
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// The function returns boolean value that defines
-        /// whether property was added to the context or not (analog to <see cref="ContainsProperty"/>).
-        /// </summary>
-        /// <param name="name">
-        /// The name of the property to be checked for presence.
-        /// </param>
-        /// <returns>
-        /// Returns <c>true</c> in case property exists,
-        /// otherwise returns <c>false</c>.
-        /// </returns>
-        public virtual bool HasProperty(string name)
-        {
-            return ContainsProperty(name);
         }
 
         /// <summary>
@@ -434,36 +418,9 @@ namespace Pipelines
             return ContainsProperty<TProperty>(name);
         }
 
-        /// <summary>
-        /// The function returns boolean value that defines
-        /// whether property was added to the context or not.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the property to be checked for presence.
-        /// </param>
-        /// <returns>
-        /// Returns <c>true</c> in case property exists,
-        /// otherwise returns <c>false</c>.
-        /// </returns>
-        public virtual bool ContainsProperty(string name)
+        public virtual bool HasProperty<TProperty>(string name, out TProperty property)
         {
-            return GetPropertyObjectOrNull(name) != null;
-        }
-
-        /// <summary>
-        /// The function returns boolean value that defines
-        /// whether property is missing in context or not.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the property to be checked for absence.
-        /// </param>
-        /// <returns>
-        /// Returns <c>true</c> in case property missing,
-        /// otherwise returns <c>false</c>.
-        /// </returns>
-        public virtual bool DoesNotContainProperty(string name)
-        {
-            return !ContainsProperty(name);
+            return ContainsProperty(name, out property);
         }
 
         /// <summary>
@@ -484,6 +441,19 @@ namespace Pipelines
         {
             var property = GetPropertyObjectOrNull(name);
             return property?.Value is TProperty;
+        }
+
+        public virtual bool ContainsProperty<TProperty>(string name, out TProperty value)
+        {
+            value = default(TProperty);
+            var property = GetPropertyObjectOrNull(name);
+            var success = property?.Value is TProperty;
+            if (success)
+            {
+                value = (TProperty) property.Value.Value;
+            }
+
+            return success;
         }
 
         /// <summary>
@@ -654,7 +624,7 @@ namespace Pipelines
             }
 
             return this.GetMessages(filter)
-                .Select(messageContainer => 
+                .Select(messageContainer =>
                     format(messageContainer.Message, messageContainer.MessageType))
                 .ToArray();
         }
@@ -1054,10 +1024,7 @@ namespace Pipelines
     /// </typeparam>
     public class Bag<TResult> : Bag where TResult : class
     {
-        /// <summary>
-        /// Result of the pipeline execution.
-        /// </summary>
-        protected TResult Result { get; set; }
+        public static string ResultProperty = "result";
 
         /// <summary>
         /// Returns a value of the result property.
@@ -1067,9 +1034,9 @@ namespace Pipelines
         /// or set value was invalid.
         /// </remarks>
         /// <returns>Value of the result property.</returns>
-        public TResult GetResult()
+        public TResult GetResultOrThrow()
         {
-            return this.Result;
+            return this.GetOrThrow<TResult>(ResultProperty);
         }
 
         /// <summary>
@@ -1081,9 +1048,9 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult GetResultOr(TResult fallbackValue)
+        public TResult GetResult(TResult fallbackValue)
         {
-            return this.Result.Ensure(fallbackValue);
+            return this.Get(ResultProperty, fallbackValue);
         }
 
 
@@ -1098,7 +1065,7 @@ namespace Pipelines
         /// </returns>
         public TResult GetResultOr(Func<TResult> or)
         {
-            return this.Result.Ensure(or);
+            return this.Get(ResultProperty, or);
         }
 
         /// <summary>
@@ -1110,7 +1077,12 @@ namespace Pipelines
         /// </returns>
         public virtual bool ContainsResult()
         {
-            return GetResult() != null;
+            return this.ContainsProperty<TResult>(ResultProperty);
+        }
+
+        public virtual bool ContainsResult(out TResult result)
+        {
+            return this.ContainsProperty<TResult>(ResultProperty, out result);
         }
 
         /// <summary>
@@ -1124,6 +1096,16 @@ namespace Pipelines
         public virtual bool DoesNotContainResult()
         {
             return !ContainsResult();
+        }
+
+        public virtual void SetResult(TResult result)
+        {
+            this.SetOrAddProperty(ResultProperty, result);
+        }
+
+        public virtual void UnsetResult()
+        {
+            this.DeleteProperty(ResultProperty);
         }
 
         /// <summary>
@@ -1140,7 +1122,7 @@ namespace Pipelines
         /// </param>
         public void SetResultWithInformation(TResult result, string message)
         {
-            this.Result = result;
+            this.SetResult(result);
             this.AddInformation(message);
         }
 
@@ -1159,7 +1141,7 @@ namespace Pipelines
         /// </param>
         public void SetResultWithWarning(TResult result, string message)
         {
-            this.Result = result;
+            this.SetResult(result);
             this.AddWarning(message);
         }
 
@@ -1178,7 +1160,7 @@ namespace Pipelines
         /// </param>
         public void SetResultWithError(TResult result, string message)
         {
-            this.Result = result;
+            this.SetResult(result);
             this.AddError(message);
         }
 
@@ -1191,7 +1173,7 @@ namespace Pipelines
         /// </param>
         public virtual void AbortPipelineWithErrorAndNoResult(string message)
         {
-            this.Result = null;
+            this.UnsetResult();
             this.AbortPipelineWithErrorMessage(message);
         }
 
@@ -1204,7 +1186,7 @@ namespace Pipelines
         /// </param>
         public virtual void AbortPipelineWithWarningAndNoResult(string message)
         {
-            this.Result = null;
+            this.UnsetResult();
             this.AbortPipelineWithWarningMessage(message);
         }
 
@@ -1217,7 +1199,7 @@ namespace Pipelines
         /// </param>
         public virtual void AbortPipelineWithInformationAndNoResult(string message)
         {
-            this.Result = null;
+            this.UnsetResult();
             this.AbortPipelineWithInformationMessage(message);
         }
 
@@ -1230,7 +1212,7 @@ namespace Pipelines
         /// </param>
         public virtual void ResetResultWithInformation(string message)
         {
-            this.Result = null;
+            this.UnsetResult();
             this.AddInformation(message);
         }
 
@@ -1243,7 +1225,7 @@ namespace Pipelines
         /// </param>
         public virtual void ResetResultWithWarning(string message)
         {
-            this.Result = null;
+            this.UnsetResult();
             this.AddWarning(message);
         }
 
@@ -1256,7 +1238,7 @@ namespace Pipelines
         /// </param>
         public virtual void ResetResultWithError(string message)
         {
-            this.Result = null;
+            this.UnsetResult();
             this.AddError(message);
         }
     }
