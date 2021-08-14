@@ -156,10 +156,10 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, Bag<TResult> args, IPipelineRunner runner = null) where TResult : class
+        public static async Task<TResult> MakeResultAsync<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
         {
-            await pipeline.Run<Bag<TResult>>(args, runner).ConfigureAwait(false);
-            return args.GetResultOrThrow();
+            await pipeline.Run<Bag>(args, runner).ConfigureAwait(false);
+            return args.GetResultOrThrow<TResult>();
         }
 
         /// <summary>
@@ -224,9 +224,10 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static TResult RunSync<TResult>(this IPipeline pipeline, Bag<TResult> args, IPipelineRunner runner = null) where TResult : class
+        public static TResult MakeResult<TResult>(this IPipeline pipeline, Bag args, IPipelineRunner runner = null) where TResult : class
         {
-            return pipeline.Run(args, runner).Result;
+            Task.WaitAll(pipeline.Run(args, runner));
+            return args.GetResultOrThrow<TResult>();
         }
 
         /// <summary>

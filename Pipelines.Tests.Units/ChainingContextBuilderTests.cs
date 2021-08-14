@@ -78,7 +78,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public async void UseMethod_Should_Set_A_Name_That_Will_Be_Set_In_QueryContext_Result()
         {
-            var context = await Bag.Create<Bag<string>>()
+            var context = await Bag.Create()
                 .Use("name", "Bob")
                 .RunWith(
                     Pipeline.From(
@@ -88,7 +88,7 @@ namespace Pipelines.Tests.Units
                     ),
                     PipelineRunner.StaticInstance);
 
-            context.GetResultOrThrow()
+            context.StringResultOrEmpty()
                 .Should()
                 .Be("Hello, Bob!");
         }
@@ -116,9 +116,9 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class HelloMessageNameToResultReplacer : SafeProcessor<Bag<string>>
+        public class HelloMessageNameToResultReplacer : SafeProcessor<Bag>
         {
-            public override Task SafeExecute(Bag<string> args)
+            public override Task SafeExecute(Bag args)
             {
                 args.IfHasProperty(
                     "message",
@@ -128,7 +128,7 @@ namespace Pipelines.Tests.Units
                 return Done;
             }
 
-            public virtual void SetResult(Bag<string> ctx)
+            public virtual void SetResult(Bag ctx)
             {
                 var message = ctx.GetOrThrow<string>("message");
                 var name = ctx.Get("name", "stranger");

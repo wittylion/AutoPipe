@@ -93,10 +93,10 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task<TResult> Execute<TResult>(Bag<TResult> arguments) where TResult : class
+        public async Task<TResult> MakeResult<TResult>(Bag arguments) where TResult : class
         {
             await this.Runner.RunPipeline(this.Pipeline, arguments).ConfigureAwait(false);
-            return arguments.GetResultOrThrow();
+            return arguments.GetResultOrThrow<TResult>();
         }
     }
 }

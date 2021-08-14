@@ -44,13 +44,13 @@ namespace Pipelines.Tests.Units
         public async void PipelineExecutor_Returns_Exact_Value_When_Query_Is_Executed()
         {
             var propertyValue = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
-            var processor = Processor.From<Bag<string>>(ctx =>
+            var processor = Processor.From<Bag>(ctx =>
                 ctx.SetResultWithInformation(propertyValue, "Result is set."));
             var pipeline = Pipeline.From(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
-            var args = new Bag<string>();
+            var args = new Bag();
 
-            (await pipelineExecutor.Execute(args))
+            (await pipelineExecutor.MakeResult<string>(args))
                 .Should()
                 .Be(propertyValue);
         }

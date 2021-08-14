@@ -301,6 +301,34 @@ namespace Pipelines
             throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
         }
 
+        public virtual List<TElement> ListOrThrow<TElement>(string name)
+        {
+            var propertyHolder = GetPropertyObjectOrNull(name);
+            if (propertyHolder.HasValue)
+            {
+                if (propertyHolder.Value.Value is IEnumerable<TElement> value)
+                {
+                    return value.ToList();
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(name), "The property was not added to the Pipeline context.");
+        }
+
+        public virtual List<TElement> ListOrEmpty<TElement>(string name)
+        {
+            var propertyHolder = GetPropertyObjectOrNull(name);
+            if (propertyHolder.HasValue)
+            {
+                if (propertyHolder.Value.Value is IEnumerable<TElement> value)
+                {
+                    return value.ToList();
+                }
+            }
+
+            return new List<TElement>();
+        }
+
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             var propertyHolder = GetPropertyObjectOrNull(name);
@@ -952,20 +980,7 @@ namespace Pipelines
             info.AddValue($"{nameof(Bag)}.{nameof(IsAborted)}", IsAborted);
             info.AddValue($"{nameof(Bag)}.{nameof(Messages)}", Messages, typeof(ICollection<PipelineMessage>));
         }
-    }
 
-    /// <summary>
-    /// Implementation of the <see cref="PipelineContext"/> class,
-    /// which allows to obtain a result of <see cref="TResult"/>,
-    /// during pipeline execution.
-    /// </summary>
-    /// <typeparam name="TResult">
-    /// Type of the result, which you want to obtain during the request to the pipeline.
-    /// Note, that it is a class type, which means that value can be null,
-    /// in case something goes wrong.
-    /// </typeparam>
-    public class Bag<TResult> : Bag where TResult : class
-    {
         public static string ResultProperty = "result";
 
         /// <summary>
@@ -976,9 +991,29 @@ namespace Pipelines
         /// or set value was invalid.
         /// </remarks>
         /// <returns>Value of the result property.</returns>
-        public TResult GetResultOrThrow()
+        public TResult GetResultOrThrow<TResult>()
         {
             return this.GetOrThrow<TResult>(ResultProperty);
+        }
+
+        public string StringResultOrThrow()
+        {
+            return this.StringOrThrow(ResultProperty);
+        }
+
+        public string StringResultOrEmpty()
+        {
+            return this.StringOrEmpty(ResultProperty);
+        }
+
+        public List<TElement> ListResultOrThrow<TElement>()
+        {
+            return this.ListOrThrow<TElement>(ResultProperty);
+        }
+
+        public List<TElement> ListResultOrEmpty<TElement>()
+        {
+            return this.ListOrEmpty<TElement>(ResultProperty);
         }
 
         /// <summary>
@@ -990,7 +1025,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult GetResult(TResult fallbackValue)
+        public TResult GetResult<TResult>(TResult fallbackValue)
         {
             return this.Get(ResultProperty, fallbackValue);
         }
@@ -1005,7 +1040,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult GetResultOr(Func<TResult> or)
+        public TResult GetResultOr<TResult>(Func<TResult> or)
         {
             return this.Get(ResultProperty, or);
         }
@@ -1017,14 +1052,14 @@ namespace Pipelines
         /// Returns <c>true</c> in case value exists,
         /// otherwise <c>false</c>.
         /// </returns>
-        public virtual bool ContainsResult()
+        public virtual bool ContainsResult<TResult>()
         {
             return this.ContainsProperty<TResult>(ResultProperty);
         }
 
-        public virtual bool ContainsResult(out TResult result)
+        public virtual bool ContainsResult<TResult>(out TResult result)
         {
-            return this.ContainsProperty<TResult>(ResultProperty, out result);
+            return this.ContainsProperty(ResultProperty, out result);
         }
 
         /// <summary>
@@ -1035,12 +1070,12 @@ namespace Pipelines
         /// Returns <c>true</c> in case result is missing,
         /// otherwise <c>false</c>.
         /// </returns>
-        public virtual bool DoesNotContainResult()
+        public virtual bool DoesNotContainResult<TResult>()
         {
-            return !ContainsResult();
+            return !ContainsResult<TResult>();
         }
 
-        public virtual void SetResult(TResult result)
+        public virtual void SetResult<TResult>(TResult result)
         {
             this.Set(ResultProperty, result);
         }
@@ -1062,7 +1097,7 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithInformation(TResult result, string message)
+        public void SetResultWithInformation<TResult>(TResult result, string message)
         {
             this.SetResult(result);
             this.AddInformation(message);
@@ -1081,7 +1116,7 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithWarning(TResult result, string message)
+        public void SetResultWithWarning<TResult>(TResult result, string message)
         {
             this.SetResult(result);
             this.AddWarning(message);
@@ -1100,7 +1135,7 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithError(TResult result, string message)
+        public void SetResultWithError<TResult>(TResult result, string message)
         {
             this.SetResult(result);
             this.AddError(message);
@@ -1113,7 +1148,7 @@ namespace Pipelines
         /// <param name="message">
         /// Error message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithErrorAndNoResult(string message)
+        public virtual void AbortPipelineWithErrorAndNoResult<TResult>(string message)
         {
             this.UnsetResult();
             this.AbortPipelineWithErrorMessage(message);
@@ -1126,7 +1161,7 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithWarningAndNoResult(string message)
+        public virtual void AbortPipelineWithWarningAndNoResult<TResult>(string message)
         {
             this.UnsetResult();
             this.AbortPipelineWithWarningMessage(message);
@@ -1139,7 +1174,7 @@ namespace Pipelines
         /// <param name="message">
         /// Information message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithInformationAndNoResult(string message)
+        public virtual void AbortPipelineWithInformationAndNoResult<TResult>(string message)
         {
             this.UnsetResult();
             this.AbortPipelineWithInformationMessage(message);
@@ -1152,7 +1187,7 @@ namespace Pipelines
         /// <param name="message">
         /// Information message describing the reason of the reset result.
         /// </param>
-        public virtual void ResetResultWithInformation(string message)
+        public virtual void ResetResultWithInformation<TResult>(string message)
         {
             this.UnsetResult();
             this.AddInformation(message);
@@ -1165,7 +1200,7 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message describing the reason of the reset result.
         /// </param>
-        public virtual void ResetResultWithWarning(string message)
+        public virtual void ResetResultWithWarning<TResult>(string message)
         {
             this.UnsetResult();
             this.AddWarning(message);
@@ -1178,7 +1213,7 @@ namespace Pipelines
         /// <param name="message">
         /// Error message describing the reason of the reset result.
         /// </param>
-        public virtual void ResetResultWithError(string message)
+        public virtual void ResetResultWithError<TResult>(string message)
         {
             this.UnsetResult();
             this.AddError(message);
