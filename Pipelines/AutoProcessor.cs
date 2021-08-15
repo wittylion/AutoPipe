@@ -120,7 +120,7 @@ namespace Pipelines
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(this, values.ToArray());
-            await ProcessResult(method, context, result).ConfigureAwait(false);
+            await ProcessResult(method, context, result, skipNameBasedActions: false).ConfigureAwait(false);
         }
 
         protected virtual IEnumerable<string> GetPropertyUpdateIdentifiers()
@@ -176,7 +176,7 @@ namespace Pipelines
         /// <returns>
         /// A task indicating whether method result has been processed or not.
         /// </returns>
-        protected virtual async Task ProcessResult(MethodInfo method, Bag context, object methodResult)
+        protected virtual async Task ProcessResult(MethodInfo method, Bag context, object methodResult, bool skipNameBasedActions = true)
         {
             if (methodResult.HasNoValue())
             {
@@ -189,22 +189,6 @@ namespace Pipelines
                 return;
             }
 
-            bool handled = false;
-            ProcessBasedOnName(method, GetPropertyUpdateIdentifiers(), property => { context.Set(property, methodResult); handled = true; });
-            if (handled) return;
-
-            ProcessBasedOnName(method, GetPropertyEnsureIdentifiers(), property => { context.Set(property, methodResult, skipIfExists: true); handled = true; });
-            if (handled) return;
-
-            if (methodResult is IEnumerable enumerable)
-            {
-                foreach (var item in enumerable)
-                {
-                    await ProcessResult(method, context, item).ConfigureAwait(false);
-                }
-                return;
-            }
-
             if (methodResult is Action<Bag> action)
             {
                 action(context);
@@ -214,7 +198,26 @@ namespace Pipelines
             if (methodResult is Func<Bag, object> functionContext)
             {
                 var functionResult = functionContext(context);
-                await ProcessResult(method, context, functionResult).ConfigureAwait(false);
+                await ProcessResult(method, context, functionResult, skipNameBasedActions: false).ConfigureAwait(false);
+                return;
+            }
+
+            if (!skipNameBasedActions)
+            {
+                bool handled = false;
+                ProcessBasedOnName(method, GetPropertyUpdateIdentifiers(), property => { context.Set(property, methodResult); handled = true; });
+                if (handled) return;
+
+                ProcessBasedOnName(method, GetPropertyEnsureIdentifiers(), property => { context.Set(property, methodResult, skipIfExists: true); handled = true; });
+                if (handled) return;
+            }
+
+            if (methodResult is IEnumerable enumerable)
+            {
+                foreach (var item in enumerable)
+                {
+                    await ProcessResult(method, context, item, skipNameBasedActions: true).ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -240,8 +243,7 @@ namespace Pipelines
 
             foreach (var prop in propertyContainer.GetType().GetProperties())
             {
-                var contextProperty = new PipelineProperty(prop.Name, prop.GetValue(propertyContainer, null));
-                context.Set(contextProperty.Name, contextProperty.Value);
+                context.Set(prop.Name, prop.GetValue(propertyContainer, null));
             }
         }
 
@@ -279,7 +281,7 @@ namespace Pipelines
             var result = property.GetValue(task);
             if (result.HasValue())
             {
-                await ProcessResult(method, context, result).ConfigureAwait(false);
+                await ProcessResult(method, context, result, skipNameBasedActions: false).ConfigureAwait(false);
             }
         }
 
@@ -293,9 +295,14 @@ namespace Pipelines
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<Bag> AddInformationMessage(string message)
+        protected virtual Action<Bag> Information(string message)
         {
             return context => context.AddInformation(message);
+        }
+
+        protected virtual Action<Bag> Warning(string message)
+        {
+            return context => context.AddWarning(message);
         }
 
         /// <summary>
@@ -308,7 +315,7 @@ namespace Pipelines
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<Bag> AddErrorMessage(string message)
+        protected virtual Action<Bag> Error(string message)
         {
             return context => context.AddError(message);
         }
@@ -362,6 +369,7 @@ namespace Pipelines
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters();
+            var bagTypes = context.GroupBy(x => x.Value.GetType()).ToDictionary(x => x.Key, x => x.Select(m => m.Value).ToArray());
 
             foreach (var parameter in parameters)
             {
@@ -395,7 +403,14 @@ namespace Pipelines
                     }
                     else
                     {
-                        yield return metadata?.DefaultValue;
+                        if (bagTypes.TryGetValue(parameter.ParameterType, out var valuesOfType) && valuesOfType.Length == 1)
+                        {
+                            yield return valuesOfType[0];
+                        }
+                        else
+                        {
+                            yield return metadata?.DefaultValue;
+                        }
                     }
                 }
             }
@@ -419,6 +434,7 @@ namespace Pipelines
         protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters();
+            var bagTypes = context.GroupBy(x => x.Value.GetType()).ToDictionary(x => x.Key, x => x.Select(m => m.Value).ToArray());
 
             foreach (var parameter in parameters)
             {
@@ -451,6 +467,10 @@ namespace Pipelines
                     else if (containsPropertyName)
                     {
                         property = context.GetOrThrow<object>(parameter.Name);
+                    }
+                    else if (bagTypes.TryGetValue(parameter.ParameterType, out var valuesOfType) && valuesOfType.Length == 1)
+                    {
+                        property = valuesOfType[0];
                     }
                     else
                     {
