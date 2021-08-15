@@ -63,13 +63,13 @@ namespace Pipelines
 
         public static async Task<TContext> Run<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
         {
-            await pipeline.Run(context, runner);
+            await pipeline.Run(context, runner).ConfigureAwait(false);
             return context;
         }
 
         public static async Task<TContext> Run<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
         {
-            await processor.Run(context, runner);
+            await processor.Run(context, runner).ConfigureAwait(false);
             return context;
         }
 
