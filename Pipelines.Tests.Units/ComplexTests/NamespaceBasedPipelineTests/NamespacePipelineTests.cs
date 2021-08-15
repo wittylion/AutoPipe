@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
 {
-    public class NamespaceBasedPipelineTests
+    public class NamespacePipelineTests
     {
         protected internal static readonly string InitialTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest";
         protected internal static readonly string OrderTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest";
