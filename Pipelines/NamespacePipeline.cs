@@ -13,6 +13,17 @@ namespace Pipelines
         public string Namespace { get; }
         public bool Recursive { get; }
 
+        public NamespacePipeline(bool recursive = true)
+        {
+            var stackFrame = new StackTrace().GetFrame(1);
+            if (stackFrame != null)
+            {
+                Namespace = stackFrame.GetMethod().DeclaringType.Namespace;
+            }
+
+            Recursive = recursive;
+        }
+
         public NamespacePipeline(string @namespace, bool recursive = true)
         {
             Namespace = @namespace;
