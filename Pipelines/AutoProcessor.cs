@@ -86,13 +86,7 @@ namespace Pipelines
         /// </returns>
         public virtual int GetOrderOfExecution(MethodInfo method)
         {
-            int? order = method?.GetCustomAttribute<RunAttribute>()?.Order;
-            if (order.GetValueOrDefault() != default)
-            {
-                return order.Value;
-            }
-
-            order = method?.GetCustomAttribute<OrderAttribute>()?.Order;
+            var order = method?.GetCustomAttribute<OrderAttribute>()?.Order;
             if (order != null)
             {
                 return order.Value;
@@ -381,12 +375,13 @@ namespace Pipelines
                 {
                     var name = parameter.Name;
 
-                    var metadata = parameter.GetCustomAttribute<ParamAttribute>();
-                    if (metadata != null)
+                    var nameAttribute = parameter.GetCustomAttribute<AkaAttribute>();
+                    if (nameAttribute != null)
                     {
-                        if (!string.IsNullOrWhiteSpace(metadata.Name) && context.ContainsProperty<object>(metadata.Name))
+                        var nameFromAttribute = nameAttribute.Aliases[0];
+                        if (!string.IsNullOrWhiteSpace(nameFromAttribute) && context.ContainsProperty<object>(nameFromAttribute))
                         {
-                            name = metadata.Name;
+                            name = nameFromAttribute;
                         }
                     }
 
@@ -398,7 +393,8 @@ namespace Pipelines
                         }
                         else
                         {
-                            yield return metadata?.DefaultValue;
+                            var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                            yield return defaultValueAttribute?.DefaultValue;
                         }
                     }
                     else
@@ -409,7 +405,8 @@ namespace Pipelines
                         }
                         else
                         {
-                            yield return metadata?.DefaultValue;
+                            var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                            yield return defaultValueAttribute?.DefaultValue;
                         }
                     }
                 }
@@ -419,7 +416,7 @@ namespace Pipelines
         /// <summary>
         /// Does a predefined check to validate execution
         /// possibility of the of the <paramref name="method"/>.
-        /// Uses <see cref="ParamAttribute"/> to do some
+        /// Uses <see cref="RequiredAttribute"/> to do some
         /// parameter validation checks.
         /// </summary>
         /// <param name="method">
@@ -438,76 +435,74 @@ namespace Pipelines
 
             foreach (var parameter in parameters)
             {
-                var metadata = parameter.GetCustomAttribute<ParamAttribute>();
+                var metadata = parameter.GetCustomAttribute<RequiredAttribute>();
 
                 if (metadata == null)
                 {
                     continue;
                 }
 
-                if (metadata.Required || metadata.AbortIfNotExist)
-                {
-                    object property;
+                object property;
 
-                    bool containsErrorMessage = metadata.ErrorMessage.HasValue();
-                    bool containsMetadataProperty =
-                        metadata.Name.HasNoValue()
-                            ? false
-                            : context.ContainsProperty<object>(metadata.Name);
-
-                    bool containsPropertyName =
-                        parameter.Name.HasNoValue()
+                var nameAttribute = parameter.GetCustomAttribute<AkaAttribute>();
+                bool containsErrorMessage = metadata.Message.HasValue();
+                bool containsMetadataProperty =
+                    nameAttribute?.Aliases[0] == null
                         ? false
-                        : context.ContainsProperty<object>(parameter.Name);
+                        : context.ContainsProperty<object>(nameAttribute?.Aliases[0]);
 
-                    if (containsMetadataProperty)
+                bool containsPropertyName =
+                    parameter.Name.HasNoValue()
+                    ? false
+                    : context.ContainsProperty<object>(parameter.Name);
+
+                if (containsMetadataProperty)
+                {
+                    property = context.GetOrThrow<object>(nameAttribute?.Aliases[0]);
+                }
+                else if (containsPropertyName)
+                {
+                    property = context.GetOrThrow<object>(parameter.Name);
+                }
+                else if (bagTypes.TryGetValue(parameter.ParameterType, out var valuesOfType) && valuesOfType.Length == 1)
+                {
+                    property = valuesOfType[0];
+                }
+                else
+                {
+                    var messageTemplate = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
+                    var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
+                    var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+
+                    if (metadata.Abort)
                     {
-                        property = context.GetOrThrow<object>(metadata.Name);
-                    }
-                    else if (containsPropertyName)
-                    {
-                        property = context.GetOrThrow<object>(parameter.Name);
-                    }
-                    else if (bagTypes.TryGetValue(parameter.ParameterType, out var valuesOfType) && valuesOfType.Length == 1)
-                    {
-                        property = valuesOfType[0];
+                        context.AbortPipelineWithErrorMessage(message);
                     }
                     else
                     {
-                        var messageTemplate = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
-                        var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
-                        var message = containsErrorMessage ? formattedMessage + $" {metadata.ErrorMessage}" : formattedMessage;
-
-                        if (metadata.AbortIfNotExist)
-                        {
-                            context.AbortPipelineWithErrorMessage(message);
-                        }
-                        else
-                        {
-                            context.AddError(message);
-                        }
-
-                        return false;
+                        context.AddError(message);
                     }
 
-                    var val = property;
-                    if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
+                    return false;
+                }
+
+                var val = property;
+                if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
+                {
+                    var messageTemplate = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
+                    var formattedMessage = string.Format(messageTemplate, parameter.Name, parameter.ParameterType, val, method.Name, method.DeclaringType.Name);
+                    var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+
+                    if (metadata.Abort)
                     {
-                        var messageTemplate = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
-                        var formattedMessage = string.Format(messageTemplate, parameter.Name, parameter.ParameterType, val, method.Name, method.DeclaringType.Name);
-                        var message = containsErrorMessage ? formattedMessage + $" {metadata.ErrorMessage}" : formattedMessage;
-
-                        if (metadata.AbortIfNotExist)
-                        {
-                            context.AbortPipelineWithErrorMessage(message);
-                        }
-                        else
-                        {
-                            context.AddError(message);
-                        }
-
-                        return false;
+                        context.AbortPipelineWithErrorMessage(message);
                     }
+                    else
+                    {
+                        context.AddError(message);
+                    }
+
+                    return false;
                 }
             }
 

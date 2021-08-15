@@ -82,7 +82,7 @@ namespace Pipelines.Tests.Units
         {
             TestAutoProcessor processor = new TestAutoProcessor();
             var method = processor.GetType().GetMethod(nameof(TestAutoProcessor.EmptyMethod2));
-            processor.GetOrderOfExecution(method).Should().Be(method.GetAttribute<RunAttribute>().Order);
+            processor.GetOrderOfExecution(method).Should().Be(method.GetAttribute<OrderAttribute>().Order);
         }
 
         [Fact]
@@ -143,11 +143,13 @@ namespace Pipelines.Tests.Units
 
     public class TestAbortingContextParameter : AutoProcessor
     {
-        [Run(Order = 1)]
+        [Run]
+        [Order(1)]
         public virtual void EmptyMethod(
-            [Param(AbortIfNotExist = true, ErrorMessage = "Parameter does not exist.")] object parameter) { }
+            [Required(Abort = true, Message = "Parameter does not exist.")] object parameter) { }
 
-        [Run(Order = 2)]
+        [Run]
+        [Order(2)]
         public virtual void EmptyMethod2() { }
 
         public TestAbortingContextParameter()
@@ -163,21 +165,23 @@ namespace Pipelines.Tests.Units
         [Run]
         public void EmptyMethod() { }
 
-        [Run(Order = 2)]
+        [Run]
+        [Order(2)]
         public void EmptyMethod2() { }
 
         public void EmptyMethodNotForExecution() { }
 
-        public new Task ProcessResult(MethodInfo info, Bag context, object methodResult)
+        public new Task ProcessResult(MethodInfo info, Bag context, object methodResult, bool skip = true)
         {
-            return base.ProcessResult(info, context, methodResult);
+            return base.ProcessResult(info, context, methodResult, skip);
         }
     }
 
     public class TestOrderOfAutoProcessor : AutoProcessor
     {
 
-        [Run(Order = 2)]
+        [Run]
+        [Order(2)]
         public void EmptyMethod2() { }
 
         [Run]
