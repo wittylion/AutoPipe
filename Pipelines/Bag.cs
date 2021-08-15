@@ -232,7 +232,7 @@ namespace Pipelines
         /// <param name="value">
         /// The value to be kept under the <paramref name="name"/> of the property.
         /// </param>
-        public virtual void Set<TValue>(string name, TValue value, bool skipIfExists = false)
+        public virtual void SetProperty<TValue>(string name, TValue value, bool skipIfExists = false)
         {
             var property = new PipelineProperty(name, value);
             var dictionary = Properties.Value;
@@ -774,7 +774,7 @@ namespace Pipelines
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public virtual void Abort()
+        public virtual void AbortPipeline()
         {
             IsAborted = true;
         }
@@ -807,25 +807,8 @@ namespace Pipelines
         {
             foreach (var message in messages.EnsureAtLeastEmpty())
             {
-                this.AddMessage(message);
+                this.Message(message);
             }
-        }
-
-        /// <summary>
-        /// Adds a message to the pipeline execution context, which allows
-        /// other users of the context see what happens in current operation.
-        /// This method differs from other adding message methods by having
-        /// <paramref name="message"/> text for the message and an optional
-        /// <paramref name="messageType"/> allowing to specify kind of
-        /// the message and by default is set to information.
-        /// </summary>
-        /// <param name="message">The text of the context message.</param>
-        /// <param name="messageType">
-        /// Message type indicating status of the operation. Default is information.
-        /// </param>
-        public virtual void Message(string message, MessageType messageType = MessageType.Information)
-        {
-            AddMessage(new PipelineMessage(message, messageType));
         }
 
         /// <summary>
@@ -862,110 +845,6 @@ namespace Pipelines
         public Bag MakeCopy()
         {
             return CreateFromDictionary(this);
-        }
-
-        /// <summary>
-        /// Executes two actions: aborts pipeline and adds a default message
-        /// by using <see cref="AddMessage"/> method.
-        /// </summary>
-        /// <param name="message">
-        /// Text that describes a cause of the abortion.
-        /// </param>
-        public virtual void Abort(string message)
-        {
-            Abort();
-            Message(message);
-        }
-
-        /// <summary>
-        /// Executes two actions: aborts pipeline and adds a message
-        /// of the specified <paramref name="type"/>.
-        /// </summary>
-        /// <param name="message">
-        /// Text that describes a cause of the abortion.
-        /// </param>
-        /// <param name="type">
-        /// A type of the message, it will help you to find message
-        /// by using <see cref="GetMessages"/> method.
-        /// </param>
-        public virtual void Abort(string message, MessageType type)
-        {
-            Abort();
-            Message(message, type);
-        }
-
-        /// <summary>
-        /// Executes two actions: aborts pipeline and adds an error message
-        /// which signals about wrong pipeline abortion.
-        /// </summary>
-        /// <param name="message">
-        /// Error message text that describes a cause of the abortion.
-        /// </param>
-        public virtual void ErrorAbort(string message)
-        {
-            Abort(message, MessageType.Error);
-        }
-
-        /// <summary>
-        /// Executes two actions: aborts pipeline and adds a warning message
-        /// which signals about wrong pipeline execution.
-        /// </summary>
-        /// <param name="message">
-        /// Warning message text that describes a cause of the abortion.
-        /// </param>
-        public virtual void WarningAbort(string message)
-        {
-            Abort(message, MessageType.Warning);
-        }
-
-        /// <summary>
-        /// Executes two actions: aborts pipeline and adds an information message
-        /// which signals about early pipeline end.
-        /// </summary>
-        /// <param name="message">
-        /// Information message text that describes a cause of the abortion.
-        /// </param>
-        public virtual void InfoAbort(string message)
-        {
-            Abort(message, MessageType.Information);
-        }
-
-        /// <summary>
-        /// Adds an information message. Useful method to track what happens
-        /// during pipeline execution. It should be used often to provide
-        /// clear and understandable flow.
-        /// </summary>
-        /// <param name="message">
-        /// An information message, used to describe execution status.
-        /// </param>
-        public virtual void Info(string message)
-        {
-            Message(message, MessageType.Information);
-        }
-
-        /// <summary>
-        /// Adds a warning message. Useful method to track some unoptimized
-        /// pieces or things which could have cause an error.
-        /// </summary>
-        /// <param name="message">
-        /// Warning message, used to describe warning status.
-        /// </param>
-        public virtual void Warning(string message)
-        {
-            Message(message, MessageType.Warning);
-        }
-
-        /// <summary>
-        /// Adds an error message. Use this method when during the pipeline
-        /// execution, something goes wrong, and pipeline cannot proceed,
-        /// so it must be stopped.
-        /// </summary>
-        /// <param name="message">
-        /// Error message, used to describe an error occured during execution.
-        /// </param>
-        public virtual void Error(string message)
-        {
-            Message(message, MessageType.Error);
         }
 
         /// <summary>
@@ -1033,7 +912,6 @@ namespace Pipelines
             return this.Get(ResultProperty, fallbackValue);
         }
 
-
         /// <summary>
         /// In case the value of the result is null, you can specify a
         /// <paramref name="fallbackValue"/> which will be returned
@@ -1076,150 +954,6 @@ namespace Pipelines
         public virtual bool DoesNotContainResult<TResult>()
         {
             return !ContainsResult<TResult>();
-        }
-
-        public virtual void SetResult<TResult>(TResult result)
-        {
-            this.Set(ResultProperty, result);
-        }
-
-        public virtual void UnsetResult()
-        {
-            this.DeleteProperty(ResultProperty);
-        }
-
-        /// <summary>
-        /// Provide a result and some information about the result
-        /// or about the process of getting this result.
-        /// </summary>
-        /// <param name="result">
-        /// Result object which is obtained during pipeline execution.
-        /// </param>
-        /// <param name="message">
-        /// Provide several words about the result or about the process
-        /// of obtaining this result. It will be helpful to understand
-        /// why this result was provided.
-        /// </param>
-        public void InfoResult<TResult>(TResult result, string message)
-        {
-            this.SetResult(result);
-            this.Info(message);
-        }
-
-        /// <summary>
-        /// Provide a result and warning message indicating some
-        /// problems related to the result or to the process of
-        /// getting this result.
-        /// </summary>
-        /// <param name="result">
-        /// Result object which is obtained during pipeline execution.
-        /// </param>
-        /// <param name="message">
-        /// Provide several words about the result or about the process
-        /// of obtaining this result. It will be helpful to understand
-        /// why this result was provided.
-        /// </param>
-        public void WarningResult<TResult>(TResult result, string message)
-        {
-            this.SetResult(result);
-            this.Warning(message);
-        }
-
-        /// <summary>
-        /// Provide a result and error message indicating encountered
-        /// problems related to the result or to the process of
-        /// getting this result.
-        /// </summary>
-        /// <param name="result">
-        /// Result object which is obtained during pipeline execution.
-        /// </param>
-        /// <param name="message">
-        /// Provide several words about the result or about the process
-        /// of obtaining this result. It will be helpful to understand
-        /// why this result was provided.
-        /// </param>
-        public void ErrorResult<TResult>(TResult result, string message)
-        {
-            this.SetResult(result);
-            this.Error(message);
-        }
-
-        /// <summary>
-        /// Executes 3 actions: aborts pipeline, adds error message,
-        /// resets result to null.
-        /// </summary>
-        /// <param name="message">
-        /// Error message indicating the reason of the aborted pipeline and no result.
-        /// </param>
-        public virtual void ErrorAbortNoResult(string message)
-        {
-            this.UnsetResult();
-            this.ErrorAbort(message);
-        }
-
-        /// <summary>
-        /// Executes 3 actions: aborts pipeline, adds warning message,
-        /// resets result to null.
-        /// </summary>
-        /// <param name="message">
-        /// Warning message indicating the reason of the aborted pipeline and no result.
-        /// </param>
-        public virtual void WarningAbortNoResult(string message)
-        {
-            this.UnsetResult();
-            this.WarningAbort(message);
-        }
-
-        /// <summary>
-        /// Executes 3 actions: aborts pipeline, adds information message,
-        /// resets result to null.
-        /// </summary>
-        /// <param name="message">
-        /// Information message indicating the reason of the aborted pipeline and no result.
-        /// </param>
-        public virtual void InfoAbortNoResult(string message)
-        {
-            this.UnsetResult();
-            this.InfoAbort(message);
-        }
-
-        /// <summary>
-        /// Resets the result to null and adds an information message
-        /// describing the reason of the reset result.
-        /// </summary>
-        /// <param name="message">
-        /// Information message describing the reason of the reset result.
-        /// </param>
-        public virtual void ResetResultWithInformation(string message)
-        {
-            this.UnsetResult();
-            this.Info(message);
-        }
-
-        /// <summary>
-        /// Resets the result to null and adds a warning message
-        /// describing the reason of the reset result.
-        /// </summary>
-        /// <param name="message">
-        /// Warning message describing the reason of the reset result.
-        /// </param>
-        public virtual void ResetResultWithWarning(string message)
-        {
-            this.UnsetResult();
-            this.Warning(message);
-        }
-
-        /// <summary>
-        /// Resets the result to null and adds a error message
-        /// describing the reason of the reset result.
-        /// </summary>
-        /// <param name="message">
-        /// Error message describing the reason of the reset result.
-        /// </param>
-        public virtual void ResetResultWithError(string message)
-        {
-            this.UnsetResult();
-            this.Error(message);
         }
 
         public void Add(string key, object value)

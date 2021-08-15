@@ -10,10 +10,10 @@ namespace Pipelines.Tests.Units
         public void GetMessages_Returns_Information_Messages_When_All_Types_Of_Messages_Are_Added()
         {
             var information = new PipelineMessage(nameof(Bag), MessageType.Information);
-            var pipelineContext = new PipelineContextTestObject()
-                .WithWarning(nameof(Bag))
-                .WithMessage(information)
-                .WithError(nameof(Bag));
+            var pipelineContext = new Bag()
+                .Warning(nameof(Bag))
+                .Message(information)
+                .Error(nameof(Bag));
 
             pipelineContext.GetMessages(MessageFilter.Informations).Should()
                 .HaveCount(1, "only one information message was added")
@@ -24,7 +24,7 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void AbortMessageWithError_Calls_Abort_Pipeline_Method()
         {
-            var pipelineContext = new PipelineContextTestObject();
+            var pipelineContext = new Bag();
             pipelineContext.ErrorAbort(nameof(Bag));
             pipelineContext.IsAborted.Should().BeTrue("because the method should abort pipeline");
         }
@@ -32,10 +32,10 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetInformationsAndWarnings_Should_Retrieve_Warnings_And_Informations_When_Several_Message_Are_Added()
         {
-            var pipelineContext = new PipelineContextTestObject()
-                .WithError("Error")
-                .WithInformation("Information")
-                .WithWarning("Warning");
+            var pipelineContext = new Bag()
+                .Error("Error")
+                .Info("Information")
+                .Warning("Warning");
 
             pipelineContext.GetInformationsAndWarnings().Should()
                 .HaveCount(2, "because three messages were added, where only one of them is error")
@@ -262,45 +262,6 @@ namespace Pipelines.Tests.Units
 
             context.ContainsProperty<string>(nameof(members.Message))
                 .Should().BeTrue();
-        }
-    }
-
-    public class PipelineContextTestObject : Bag
-    {
-        public virtual PipelineContextTestObject WithMessage(PipelineMessage message)
-        {
-            this.AddMessage(message);
-            return this;
-        }
-
-        public virtual PipelineContextTestObject WithMessage(string message)
-        {
-            this.Message(message);
-            return this;
-        }
-
-        public virtual PipelineContextTestObject WithMessage(string message, MessageType type)
-        {
-            this.Message(message, type);
-            return this;
-        }
-
-        public virtual PipelineContextTestObject WithWarning(string message)
-        {
-            this.Warning(message);
-            return this;
-        }
-
-        public virtual PipelineContextTestObject WithInformation(string message)
-        {
-            this.Info(message);
-            return this;
-        }
-
-        public virtual PipelineContextTestObject WithError(string message)
-        {
-            this.Error(message);
-            return this;
         }
     }
 }
