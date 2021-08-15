@@ -286,7 +286,8 @@ namespace Pipelines
                 }
             }
 
-            throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context.");
+            var summaryMessage = Summary();
+            throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context. Try to go through messages:\r\n{summaryMessage}");
         }
 
         public virtual string StringOrEmpty(string name)
@@ -907,7 +908,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult Result<TResult>(TResult fallbackValue)
+        public TResult GetResult<TResult>(TResult fallbackValue)
         {
             return this.Get(ResultProperty, fallbackValue);
         }
@@ -921,7 +922,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult ResultOr<TResult>(Func<TResult> or)
+        public TResult GetResult<TResult>(Func<TResult> or)
         {
             return this.Get(ResultProperty, or);
         }
