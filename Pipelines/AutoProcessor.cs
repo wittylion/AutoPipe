@@ -324,7 +324,7 @@ namespace Pipelines
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<Bag> AddMessageObjects(params PipelineMessage[] messages)
+        protected virtual Action<Bag> AddMessages(params PipelineMessage[] messages)
         {
             return context => context.AddMessages(messages);
         }
@@ -339,9 +339,49 @@ namespace Pipelines
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<Bag> AbortPipelineWithErrorMessage(string message)
+        protected virtual Action<Bag> ErrorAbort(string message)
         {
             return context => context.ErrorAbort(message);
+        }
+
+        protected virtual Action<Bag> WarningAbort(string message)
+        {
+            return context => context.WarningAbort(message);
+        }
+
+        protected virtual Action<Bag> InfoAbort(string message)
+        {
+            return context => context.InfoAbort(message);
+        }
+
+        protected virtual Action<Bag> InfoAbortNoResult(string message)
+        {
+            return context => context.InfoAbortNoResult(message);
+        }
+
+        protected virtual Action<Bag> WarningAbortNoResult(string message)
+        {
+            return context => context.WarningAbortNoResult(message);
+        }
+
+        protected virtual Action<Bag> ErrorAbortNoResult(string message)
+        {
+            return context => context.ErrorAbortNoResult(message);
+        }
+
+        protected virtual Action<Bag> InfoResult(object result, string message)
+        {
+            return context => context.InfoResult(result, message);
+        }
+
+        protected virtual Action<Bag> WarningResult(object result, string message)
+        {
+            return context => context.WarningResult(result, message);
+        }
+
+        protected virtual Action<Bag> ErrorResult(object result, string message)
+        {
+            return context => context.ErrorResult(result, message);
         }
 
         /// <summary>

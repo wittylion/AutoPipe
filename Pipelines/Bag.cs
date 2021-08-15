@@ -234,6 +234,11 @@ namespace Pipelines
         /// </param>
         public virtual void SetProperty<TValue>(string name, TValue value, bool skipIfExists = false)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value), $"You cannot set null value properties. Please check the \"{name}\" parameter.");
+            }
+
             var property = new PipelineProperty(name, value);
             var dictionary = Properties.Value;
             if (!dictionary.ContainsKey(name))
@@ -959,7 +964,7 @@ namespace Pipelines
 
         public void Add(string key, object value)
         {
-            this.Set(key, value);
+            this.SetProperty(key, value);
         }
 
         public bool ContainsKey(string key)
