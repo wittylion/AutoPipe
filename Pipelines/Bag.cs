@@ -169,15 +169,15 @@ namespace Pipelines
         protected Lazy<Dictionary<string, PipelineProperty>> Properties { get; } = new Lazy<Dictionary<string, PipelineProperty>>(() =>
             new Dictionary<string, PipelineProperty>(StringComparer.InvariantCultureIgnoreCase));
 
-        public ICollection<string> Keys => throw new NotImplementedException();
+        public ICollection<string> Keys => Properties.IsValueCreated ? Properties.Value.Keys : (ICollection<string>)Array.Empty<string>();
 
-        public ICollection<object> Values => throw new NotImplementedException();
+        public ICollection<object> Values => Properties.IsValueCreated ? Properties.Value.Values.Select(x => x.Value).ToList() : (ICollection<object>)Array.Empty<object>();
 
-        public int Count => throw new NotImplementedException();
+        public int Count => Properties.IsValueCreated ? Properties.Value.Count : 0;
 
-        public bool IsReadOnly => throw new NotImplementedException();
+        public bool IsReadOnly => false;
 
-        public object this[string key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public object this[string key] { get => this.GetOrThrow<object>(key); set => this.SetProperty(key, value); }
 
         /// <summary>
         /// Applies property to the context. Depending on
@@ -387,14 +387,14 @@ namespace Pipelines
         /// Returns <c>true</c> in case property of specified type exists,
         /// otherwise returns <c>false</c>.
         /// </returns>
-        public virtual bool HasProperty<TProperty>(string name)
+        public virtual bool Has<TProperty>(string name)
         {
-            return ContainsProperty<TProperty>(name);
+            return Contains<TProperty>(name);
         }
 
-        public virtual bool HasProperty<TProperty>(string name, out TProperty property)
+        public virtual bool Has<TProperty>(string name, out TProperty property)
         {
-            return ContainsProperty(name, out property);
+            return Contains(name, out property);
         }
 
         /// <summary>
@@ -411,13 +411,13 @@ namespace Pipelines
         /// Returns <c>true</c> in case property of specified type exists,
         /// otherwise returns <c>false</c>.
         /// </returns>
-        public virtual bool ContainsProperty<TProperty>(string name)
+        public virtual bool Contains<TProperty>(string name)
         {
             var property = GetPropertyObjectOrNull(name);
             return property?.Value is TProperty;
         }
 
-        public virtual bool ContainsProperty<TProperty>(string name, out TProperty value)
+        public virtual bool Contains<TProperty>(string name, out TProperty value)
         {
             value = default(TProperty);
             var property = GetPropertyObjectOrNull(name);
@@ -444,9 +444,9 @@ namespace Pipelines
         /// Returns <c>true</c> in case property of specified type is missing,
         /// otherwise returns <c>false</c>.
         /// </returns>
-        public virtual bool DoesNotContainProperty<TProperty>(string name)
+        public virtual bool DoesNotContain<TProperty>(string name)
         {
-            return !ContainsProperty<TProperty>(name);
+            return !Contains<TProperty>(name);
         }
 
         /// <summary>
@@ -473,7 +473,7 @@ namespace Pipelines
         /// An array of property objects that
         /// are contained in context.
         /// </returns>
-        public virtual PipelineProperty[] GetAllPropertyObjects()
+        protected virtual PipelineProperty[] GetAllPropertyObjects()
         {
             if (this.Properties.IsValueCreated)
             {
@@ -714,7 +714,7 @@ namespace Pipelines
         /// Information and warning messages of the context,
         /// that have been added during pipeline execution.
         /// </returns>
-        public virtual PipelineMessage[] GetInformationsAndWarnings()
+        public virtual PipelineMessage[] InfosAndWarnings()
         {
             return this.GetMessages(MessageFilter.Informations | MessageFilter.Warnings);
         }
@@ -728,7 +728,7 @@ namespace Pipelines
         /// Warning and error messages of the context,
         /// that have been added during pipeline execution.
         /// </returns>
-        public virtual PipelineMessage[] GetWarningsAndErrors()
+        public virtual PipelineMessage[] WarningsAndErrors()
         {
             return this.GetMessages(MessageFilter.Warnings | MessageFilter.Errors);
         }
@@ -941,12 +941,12 @@ namespace Pipelines
         /// </returns>
         public virtual bool ContainsResult<TResult>()
         {
-            return this.ContainsProperty<TResult>(ResultProperty);
+            return this.Contains<TResult>(ResultProperty);
         }
 
         public virtual bool ContainsResult<TResult>(out TResult result)
         {
-            return this.ContainsProperty(ResultProperty, out result);
+            return this.Contains(ResultProperty, out result);
         }
 
         /// <summary>
@@ -985,7 +985,7 @@ namespace Pipelines
 
         public bool TryGetValue(string key, out object value)
         {
-            return ContainsProperty(key, out value);
+            return Contains(key, out value);
         }
 
         public void Add(KeyValuePair<string, object> item)

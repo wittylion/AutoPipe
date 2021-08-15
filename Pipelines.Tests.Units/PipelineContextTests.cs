@@ -37,7 +37,7 @@ namespace Pipelines.Tests.Units
                 .Info("Information")
                 .Warning("Warning");
 
-            pipelineContext.GetInformationsAndWarnings().Should()
+            pipelineContext.InfosAndWarnings().Should()
                 .HaveCount(2, "because three messages were added, where only one of them is error")
                 .And
                 .Match(collection => collection.All(x => x.MessageType != MessageType.Error), "because collection should contain no Error type");
@@ -197,30 +197,6 @@ namespace Pipelines.Tests.Units
                 .Should()
                 .BeNull("because value has been deleted by 'DeleteProperty' method");
         }
-
-        [Fact]
-        public void GetAllPropertyObjects_Retrieves_Empty_Array_By_Default()
-        {
-            var pipelineContext = new Bag();
-            
-            pipelineContext.GetAllPropertyObjects()
-                .Should()
-                .BeEmpty("because by default there are no properties");
-        }
-        
-        [Fact]
-        public void GetAllPropertyObjects_Contains_An_Element_That_Was_Added()
-        {
-            var pipelineContext = new Bag();
-
-            pipelineContext.Set(
-                nameof(GetAllPropertyObjects_Contains_An_Element_That_Was_Added),
-                nameof(PipelineContextTests), skipIfExists: true);
-
-            pipelineContext.GetAllPropertyObjects()
-                .Should()
-                .ContainSingle("because by default there are no properties");
-        }
         
         [Fact]
         public void ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property()
@@ -249,7 +225,7 @@ namespace Pipelines.Tests.Units
             var members = new { Message = name };
             var context = Bag.Create(members);
 
-            context.ContainsProperty<bool>(nameof(members.Message))
+            context.Contains<bool>(nameof(members.Message))
                 .Should().BeFalse();
         }
         
@@ -260,7 +236,7 @@ namespace Pipelines.Tests.Units
             var members = new { Message = name };
             var context = Bag.Create(members);
 
-            context.ContainsProperty<string>(nameof(members.Message))
+            context.Contains<string>(nameof(members.Message))
                 .Should().BeTrue();
         }
     }

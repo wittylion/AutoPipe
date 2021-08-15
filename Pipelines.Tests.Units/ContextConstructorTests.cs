@@ -17,7 +17,7 @@ namespace Pipelines.Tests.Units
             };
             var context = Bag.CreateFromDictionary(dictionary);
 
-            context.GetAllPropertyObjects().ToDictionary(x => x.Name, x => x.Value).Should().BeEquivalentTo(dictionary);
+            context.Should().BeEquivalentTo(dictionary);
         }
     }
 }

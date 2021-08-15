@@ -419,13 +419,13 @@ namespace Pipelines
                     if (nameAttribute != null)
                     {
                         var nameFromAttribute = nameAttribute.Aliases[0];
-                        if (!string.IsNullOrWhiteSpace(nameFromAttribute) && context.ContainsProperty<object>(nameFromAttribute))
+                        if (!string.IsNullOrWhiteSpace(nameFromAttribute) && context.Contains<object>(nameFromAttribute))
                         {
                             name = nameFromAttribute;
                         }
                     }
 
-                    if (context.ContainsProperty(name, out object val))
+                    if (context.Contains(name, out object val))
                     {
                         if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
                         {
@@ -489,12 +489,12 @@ namespace Pipelines
                 bool containsMetadataProperty =
                     nameAttribute?.Aliases[0] == null
                         ? false
-                        : context.ContainsProperty<object>(nameAttribute?.Aliases[0]);
+                        : context.Contains<object>(nameAttribute?.Aliases[0]);
 
                 bool containsPropertyName =
                     parameter.Name.HasNoValue()
                     ? false
-                    : context.ContainsProperty<object>(parameter.Name);
+                    : context.Contains<object>(parameter.Name);
 
                 if (containsMetadataProperty)
                 {

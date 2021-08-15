@@ -110,7 +110,7 @@ namespace Pipelines.Tests.Units
 
             await processor.ProcessResult(TestAutoProcessor.EmptyMethodInfo, context, task).ConfigureAwait(false);
 
-            context.GetAllPropertyObjects().Should().BeEmpty();
+            context.Should().BeEmpty();
         }
 
 
@@ -124,7 +124,7 @@ namespace Pipelines.Tests.Units
 
             await processor.ProcessResult(TestAutoProcessor.EmptyMethodInfo, context, task).ConfigureAwait(false);
 
-            context.GetAllPropertyObjects().Should().BeEmpty();
+            context.Should().BeEmpty();
         }
 
 
