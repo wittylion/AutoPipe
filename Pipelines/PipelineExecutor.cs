@@ -76,7 +76,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task Run<TContext>(TContext arguments)
+        public async Task Run(object arguments)
         {
             await this.Runner.Run(this.Pipeline, arguments).ConfigureAwait(false);
         }
@@ -93,7 +93,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task<TResult> Make<TResult>(Bag arguments) where TResult : class
+        public async Task<TResult> Run<TResult>(Bag arguments) where TResult : class
         {
             await this.Runner.Run(this.Pipeline, arguments).ConfigureAwait(false);
             return arguments.GetResultOrThrow<TResult>();

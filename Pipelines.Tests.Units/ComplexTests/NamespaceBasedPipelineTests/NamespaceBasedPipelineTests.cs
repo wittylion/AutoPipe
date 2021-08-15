@@ -16,7 +16,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Have_Processors_When_Creating_From_Related_Test_Folder()
         {
-            new NamespaceBasedPipeline(InitialTestFolder)
+            new NamespacePipeline(InitialTestFolder)
                 .GetProcessors()
                 .Should()
                 .NotBeEmpty("because there are processors in folder");
@@ -25,7 +25,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Have_Processor1_When_Creating_From_Related_Test_Folder()
         {
-            new NamespaceBasedPipeline(InitialTestFolder)
+            new NamespacePipeline(InitialTestFolder)
                 .GetProcessors()
                 .Should()
                 .Contain(x => x is TestProcessor1, "the test processor of type TestProcessor1 is defined in the folder");
@@ -34,7 +34,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Create_Processors_Using_Order_Attribute_When_Creating_From_Related_Test_Folder()
         {
-            var processors = new NamespaceBasedPipeline(InitialTestFolder)
+            var processors = new NamespacePipeline(InitialTestFolder)
                 .GetProcessors();
 
             processors.ElementAt(0)
@@ -45,7 +45,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Create_Processors_Of_Same_Order_Attribute_Sorted_By_Name_When_Creating_From_Related_Test_Folder()
         {
-            var processors = new NamespaceBasedPipeline(OrderTestFolder)
+            var processors = new NamespacePipeline(OrderTestFolder)
                 .GetProcessors();
 
             processors.ElementAt(0)
@@ -58,7 +58,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Return_Empty_Enumerable_When_Namespace_Does_Not_Exist()
         {
-            new NamespaceBasedPipeline("Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.NamespaceDoesNotExist")
+            new NamespacePipeline("Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.NamespaceDoesNotExist")
                 .GetProcessors()
                 .Should().BeEmpty("the namespace does not exist");
         }
@@ -68,8 +68,8 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         {
             var mockRunner = new Mock<Runner> {CallBase = true};
 
-            new NamespaceBasedPipeline(OrderTestFolder).Run(runner: mockRunner.Object);
-            var expectedCount = new NamespaceBasedPipeline(OrderTestFolder).GetProcessors().Count();
+            new NamespacePipeline(OrderTestFolder).Run(runner: mockRunner.Object);
+            var expectedCount = new NamespacePipeline(OrderTestFolder).GetProcessors().Count();
 
             mockRunner.Verify(x => x.Run(It.IsAny<IProcessor>(), It.IsAny<object>()),
                 Times.Exactly(expectedCount), "Method run processor should be executed, since pipeline has processors");
@@ -78,7 +78,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Not_Contain_Processor_With_SkipProcessor_Attribute()
         {
-            new NamespaceBasedPipeline(SkipTestFolder).GetProcessors()
+            new NamespacePipeline(SkipTestFolder).GetProcessors()
                 .Should().Contain(x => x.GetType() == typeof(SkipTest.IncludedProcessor))
                 .And
                 .NotContain(x => x.GetType() == typeof(SkipTest.SkippedProcessor));

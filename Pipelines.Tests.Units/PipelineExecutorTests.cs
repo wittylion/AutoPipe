@@ -50,7 +50,7 @@ namespace Pipelines.Tests.Units
             var pipelineExecutor = new PipelineExecutor(pipeline);
             var args = new Bag();
 
-            (await pipelineExecutor.Make<string>(args))
+            (await pipelineExecutor.Run<string>(args))
                 .Should()
                 .Be(propertyValue);
         }

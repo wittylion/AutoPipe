@@ -8,13 +8,15 @@ using System.Text;
 
 namespace Pipelines
 {
-    public class NamespaceBasedPipeline : IPipeline
+    public class NamespacePipeline : IPipeline
     {
         public string Namespace { get; }
+        public bool Recursive { get; }
 
-        public NamespaceBasedPipeline(string @namespace)
+        public NamespacePipeline(string @namespace, bool recursive = true)
         {
             Namespace = @namespace;
+            Recursive = recursive;
         }
 
         public IEnumerable<IProcessor> GetProcessors()
@@ -33,7 +35,20 @@ namespace Pipelines
 
         protected virtual bool FilterProcessors(Type type)
         {
-            return type.Namespace == Namespace 
+            bool matchesNamespace = false;
+            if (Recursive)
+            {
+                if (!string.IsNullOrWhiteSpace(type.Namespace))
+                {
+                    matchesNamespace = type.Namespace.StartsWith(Namespace);
+                }
+            }
+            else
+            {
+                matchesNamespace = type.Namespace == Namespace;
+            }
+
+            return matchesNamespace
                 && typeof(IProcessor).IsAssignableFrom(type) 
                 && type.GetCustomAttribute<SkipAttribute>() == null;
         }
