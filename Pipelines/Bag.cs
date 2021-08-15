@@ -27,6 +27,11 @@ namespace Pipelines
             return new Bag();
         }
 
+        public static Bag Copy(Bag bag)
+        {
+            return CreateFromDictionary(bag);
+        }
+
         /// <summary>
         /// Creates a new <see cref="PipelineContext"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
@@ -852,6 +857,11 @@ namespace Pipelines
         /// <param name="context">Streaming context.</param>
         protected Bag(SerializationInfo info, StreamingContext context)
         {
+        }
+
+        public Bag MakeCopy()
+        {
+            return CreateFromDictionary(this);
         }
 
         /// <summary>
