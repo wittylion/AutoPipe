@@ -1,4 +1,6 @@
-﻿namespace Pipelines
+﻿using System.Collections.Generic;
+
+namespace Pipelines
 {
     /// <summary>
     /// Implementation of <see cref="SafeTypeProcessor{TArgs}"/>
@@ -28,7 +30,35 @@
         /// </returns>
         public override bool SafeCondition(TArgs args)
         {
+            var containProperties = MustHaveProperties();
+            foreach (var property in containProperties)
+            {
+                if (!args.ContainsKey(property))
+                {
+                    return false;
+                }
+            }
+
+            var missProperties = MustMissProperties();
+            foreach (var property in missProperties)
+            {
+                if (args.ContainsKey(property))
+                {
+                    return false;
+                }
+            }
+
             return base.SafeCondition(args) && !args.IsAborted;
+        }
+
+        public virtual IEnumerable<string> MustHaveProperties()
+        {
+            yield break;
+        }
+
+        public virtual IEnumerable<string> MustMissProperties()
+        {
+            yield break;
         }
     }
 
