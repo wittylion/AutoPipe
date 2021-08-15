@@ -688,7 +688,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a string of joined texts of message collection.
         /// </returns>
-        public virtual string GetSummaryMessage(
+        public virtual string Summary(
             string separator = null, MessageFilter filter = MessageFilter.All,
             Func<PipelineMessage, string> format = null)
         {
@@ -774,7 +774,7 @@ namespace Pipelines
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public virtual void AbortPipeline()
+        public virtual void Abort()
         {
             IsAborted = true;
         }
@@ -788,7 +788,7 @@ namespace Pipelines
         /// <param name="message">
         /// A pipeline message object, that contains a text and a value of the message.
         /// </param>
-        public virtual void AddMessageObject(PipelineMessage message)
+        public virtual void AddMessage(PipelineMessage message)
         {
             Messages.Value.Add(message);
         }
@@ -803,11 +803,11 @@ namespace Pipelines
         /// Pipeline message collection, that contains <see cref="PipelineMessage"/>
         /// objects indicating the status of the operation.
         /// </param>
-        public virtual void AddMessageObjects(IEnumerable<PipelineMessage> messages)
+        public virtual void AddMessages(IEnumerable<PipelineMessage> messages)
         {
             foreach (var message in messages.EnsureAtLeastEmpty())
             {
-                this.AddMessageObject(message);
+                this.AddMessage(message);
             }
         }
 
@@ -823,9 +823,9 @@ namespace Pipelines
         /// <param name="messageType">
         /// Message type indicating status of the operation. Default is information.
         /// </param>
-        public virtual void AddMessage(string message, MessageType messageType = MessageType.Information)
+        public virtual void Message(string message, MessageType messageType = MessageType.Information)
         {
-            AddMessageObject(new PipelineMessage(message, messageType));
+            AddMessage(new PipelineMessage(message, messageType));
         }
 
         /// <summary>
@@ -871,10 +871,10 @@ namespace Pipelines
         /// <param name="message">
         /// Text that describes a cause of the abortion.
         /// </param>
-        public virtual void AbortPipelineWithMessage(string message)
+        public virtual void Abort(string message)
         {
-            AbortPipeline();
-            AddMessage(message);
+            Abort();
+            Message(message);
         }
 
         /// <summary>
@@ -888,10 +888,10 @@ namespace Pipelines
         /// A type of the message, it will help you to find message
         /// by using <see cref="GetMessages"/> method.
         /// </param>
-        public virtual void AbortPipelineWithTypedMessage(string message, MessageType type)
+        public virtual void Abort(string message, MessageType type)
         {
-            AbortPipeline();
-            AddMessage(message, type);
+            Abort();
+            Message(message, type);
         }
 
         /// <summary>
@@ -901,9 +901,9 @@ namespace Pipelines
         /// <param name="message">
         /// Error message text that describes a cause of the abortion.
         /// </param>
-        public virtual void AbortPipelineWithErrorMessage(string message)
+        public virtual void ErrorAbort(string message)
         {
-            AbortPipelineWithTypedMessage(message, MessageType.Error);
+            Abort(message, MessageType.Error);
         }
 
         /// <summary>
@@ -913,9 +913,9 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message text that describes a cause of the abortion.
         /// </param>
-        public virtual void AbortPipelineWithWarningMessage(string message)
+        public virtual void WarningAbort(string message)
         {
-            AbortPipelineWithTypedMessage(message, MessageType.Warning);
+            Abort(message, MessageType.Warning);
         }
 
         /// <summary>
@@ -925,9 +925,9 @@ namespace Pipelines
         /// <param name="message">
         /// Information message text that describes a cause of the abortion.
         /// </param>
-        public virtual void AbortPipelineWithInformationMessage(string message)
+        public virtual void InfoAbort(string message)
         {
-            AbortPipelineWithTypedMessage(message, MessageType.Information);
+            Abort(message, MessageType.Information);
         }
 
         /// <summary>
@@ -938,9 +938,9 @@ namespace Pipelines
         /// <param name="message">
         /// An information message, used to describe execution status.
         /// </param>
-        public virtual void AddInformation(string message)
+        public virtual void Info(string message)
         {
-            AddMessage(message, MessageType.Information);
+            Message(message, MessageType.Information);
         }
 
         /// <summary>
@@ -950,9 +950,9 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message, used to describe warning status.
         /// </param>
-        public virtual void AddWarning(string message)
+        public virtual void Warning(string message)
         {
-            AddMessage(message, MessageType.Warning);
+            Message(message, MessageType.Warning);
         }
 
         /// <summary>
@@ -963,9 +963,9 @@ namespace Pipelines
         /// <param name="message">
         /// Error message, used to describe an error occured during execution.
         /// </param>
-        public virtual void AddError(string message)
+        public virtual void Error(string message)
         {
-            AddMessage(message, MessageType.Error);
+            Message(message, MessageType.Error);
         }
 
         /// <summary>
@@ -994,7 +994,7 @@ namespace Pipelines
         /// or set value was invalid.
         /// </remarks>
         /// <returns>Value of the result property.</returns>
-        public TResult GetResultOrThrow<TResult>()
+        public TResult ResultOrThrow<TResult>()
         {
             return this.GetOrThrow<TResult>(ResultProperty);
         }
@@ -1028,7 +1028,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult GetResult<TResult>(TResult fallbackValue)
+        public TResult Result<TResult>(TResult fallbackValue)
         {
             return this.Get(ResultProperty, fallbackValue);
         }
@@ -1043,7 +1043,7 @@ namespace Pipelines
         /// Value of the result property or <paramref name="fallbackValue"/>
         /// if value of the result is null.
         /// </returns>
-        public TResult GetResultOr<TResult>(Func<TResult> or)
+        public TResult ResultOr<TResult>(Func<TResult> or)
         {
             return this.Get(ResultProperty, or);
         }
@@ -1100,10 +1100,10 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithInformation<TResult>(TResult result, string message)
+        public void InfoResult<TResult>(TResult result, string message)
         {
             this.SetResult(result);
-            this.AddInformation(message);
+            this.Info(message);
         }
 
         /// <summary>
@@ -1119,10 +1119,10 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithWarning<TResult>(TResult result, string message)
+        public void WarningResult<TResult>(TResult result, string message)
         {
             this.SetResult(result);
-            this.AddWarning(message);
+            this.Warning(message);
         }
 
         /// <summary>
@@ -1138,10 +1138,10 @@ namespace Pipelines
         /// of obtaining this result. It will be helpful to understand
         /// why this result was provided.
         /// </param>
-        public void SetResultWithError<TResult>(TResult result, string message)
+        public void ErrorResult<TResult>(TResult result, string message)
         {
             this.SetResult(result);
-            this.AddError(message);
+            this.Error(message);
         }
 
         /// <summary>
@@ -1151,10 +1151,10 @@ namespace Pipelines
         /// <param name="message">
         /// Error message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithErrorAndNoResult(string message)
+        public virtual void ErrorAbortNoResult(string message)
         {
             this.UnsetResult();
-            this.AbortPipelineWithErrorMessage(message);
+            this.ErrorAbort(message);
         }
 
         /// <summary>
@@ -1164,10 +1164,10 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithWarningAndNoResult(string message)
+        public virtual void WarningAbortNoResult(string message)
         {
             this.UnsetResult();
-            this.AbortPipelineWithWarningMessage(message);
+            this.WarningAbort(message);
         }
 
         /// <summary>
@@ -1177,10 +1177,10 @@ namespace Pipelines
         /// <param name="message">
         /// Information message indicating the reason of the aborted pipeline and no result.
         /// </param>
-        public virtual void AbortPipelineWithInformationAndNoResult(string message)
+        public virtual void InfoAbortNoResult(string message)
         {
             this.UnsetResult();
-            this.AbortPipelineWithInformationMessage(message);
+            this.InfoAbort(message);
         }
 
         /// <summary>
@@ -1193,7 +1193,7 @@ namespace Pipelines
         public virtual void ResetResultWithInformation(string message)
         {
             this.UnsetResult();
-            this.AddInformation(message);
+            this.Info(message);
         }
 
         /// <summary>
@@ -1206,7 +1206,7 @@ namespace Pipelines
         public virtual void ResetResultWithWarning(string message)
         {
             this.UnsetResult();
-            this.AddWarning(message);
+            this.Warning(message);
         }
 
         /// <summary>
@@ -1219,7 +1219,7 @@ namespace Pipelines
         public virtual void ResetResultWithError(string message)
         {
             this.UnsetResult();
-            this.AddError(message);
+            this.Error(message);
         }
 
         public void Add(string key, object value)

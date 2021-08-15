@@ -25,7 +25,7 @@ namespace Pipelines.Tests.Units
         public void AbortMessageWithError_Calls_Abort_Pipeline_Method()
         {
             var pipelineContext = new PipelineContextTestObject();
-            pipelineContext.AbortPipelineWithErrorMessage(nameof(Bag));
+            pipelineContext.ErrorAbort(nameof(Bag));
             pipelineContext.IsAborted.Should().BeTrue("because the method should abort pipeline");
         }
 
@@ -269,37 +269,37 @@ namespace Pipelines.Tests.Units
     {
         public virtual PipelineContextTestObject WithMessage(PipelineMessage message)
         {
-            this.AddMessageObject(message);
+            this.AddMessage(message);
             return this;
         }
 
         public virtual PipelineContextTestObject WithMessage(string message)
         {
-            this.AddMessage(message);
+            this.Message(message);
             return this;
         }
 
         public virtual PipelineContextTestObject WithMessage(string message, MessageType type)
         {
-            this.AddMessage(message, type);
+            this.Message(message, type);
             return this;
         }
 
         public virtual PipelineContextTestObject WithWarning(string message)
         {
-            this.AddWarning(message);
+            this.Warning(message);
             return this;
         }
 
         public virtual PipelineContextTestObject WithInformation(string message)
         {
-            this.AddInformation(message);
+            this.Info(message);
             return this;
         }
 
         public virtual PipelineContextTestObject WithError(string message)
         {
-            this.AddError(message);
+            this.Error(message);
             return this;
         }
     }

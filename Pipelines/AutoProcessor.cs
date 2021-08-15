@@ -291,12 +291,12 @@ namespace Pipelines
         /// </returns>
         protected virtual Action<Bag> Information(string message)
         {
-            return context => context.AddInformation(message);
+            return context => context.Info(message);
         }
 
         protected virtual Action<Bag> Warning(string message)
         {
-            return context => context.AddWarning(message);
+            return context => context.Warning(message);
         }
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace Pipelines
         /// </returns>
         protected virtual Action<Bag> Error(string message)
         {
-            return context => context.AddError(message);
+            return context => context.Error(message);
         }
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace Pipelines
         /// </returns>
         protected virtual Action<Bag> AddMessageObjects(params PipelineMessage[] messages)
         {
-            return context => context.AddMessageObjects(messages);
+            return context => context.AddMessages(messages);
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace Pipelines
         /// </returns>
         protected virtual Action<Bag> AbortPipelineWithErrorMessage(string message)
         {
-            return context => context.AbortPipelineWithErrorMessage(message);
+            return context => context.ErrorAbort(message);
         }
 
         /// <summary>
@@ -476,11 +476,11 @@ namespace Pipelines
 
                     if (metadata.Abort)
                     {
-                        context.AbortPipelineWithErrorMessage(message);
+                        context.ErrorAbort(message);
                     }
                     else
                     {
-                        context.AddError(message);
+                        context.Error(message);
                     }
 
                     return false;
@@ -495,11 +495,11 @@ namespace Pipelines
 
                     if (metadata.Abort)
                     {
-                        context.AbortPipelineWithErrorMessage(message);
+                        context.ErrorAbort(message);
                     }
                     else
                     {
-                        context.AddError(message);
+                        context.Error(message);
                     }
 
                     return false;

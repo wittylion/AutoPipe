@@ -52,7 +52,7 @@ namespace Pipelines.Tests.Integrations
             public IEnumerable<IProcessor> GetProcessors()
             {
                 yield return Processor.From<Bag>(x =>
-                    x.AddMessage(nameof(ConstructablePipelineIntegrationTest)));
+                    x.Message(nameof(ConstructablePipelineIntegrationTest)));
             }
         }
 
@@ -63,7 +63,7 @@ namespace Pipelines.Tests.Integrations
                 yield return Processor.From<Bag>(b =>
                 {
                     var messages = b.Get(ContextProperties.Messages, Array.Empty<string>()).ToList();
-                    messages.ForEach((x) => b.AddMessage(x));
+                    messages.ForEach((x) => b.Message(x));
                 });
             }
         }

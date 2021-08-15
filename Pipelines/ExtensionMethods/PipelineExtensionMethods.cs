@@ -154,7 +154,7 @@ namespace Pipelines
         {
             args = args ?? new Bag();
             await pipeline.Run(args, runner).ConfigureAwait(false);
-            return args.GetResultOrThrow<TResult>();
+            return args.ResultOrThrow<TResult>();
         }
 
         public static async Task<TResult> RunBag<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
@@ -164,7 +164,7 @@ namespace Pipelines
                 bag = new Bag(args);
             }
             await pipeline.Run(bag, runner).ConfigureAwait(false);
-            return bag.GetResultOrThrow<TResult>();
+            return bag.ResultOrThrow<TResult>();
         }
 
         /// <summary>

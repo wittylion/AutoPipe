@@ -199,7 +199,7 @@ namespace Pipelines
         {
             args = args ?? new Bag();
             await processor.Run(args, runner);
-            return args.GetResultOrThrow<TResult>();
+            return args.ResultOrThrow<TResult>();
         }
 
         public static async Task<TResult> RunBag<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
@@ -209,7 +209,7 @@ namespace Pipelines
                 bag = new Bag(args);
             }
             await processor.Run(bag, runner);
-            return bag.GetResultOrThrow<TResult>();
+            return bag.ResultOrThrow<TResult>();
         }
 
         /// <summary>

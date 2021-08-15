@@ -133,7 +133,7 @@ namespace Pipelines.Tests.Units
                 var message = ctx.GetOrThrow<string>("message");
                 var name = ctx.Get("name", "stranger");
                 var result = message.Replace("{name}", name);
-                ctx.SetResultWithInformation(result, "The message has been set with name token replaced.");
+                ctx.InfoResult(result, "The message has been set with name token replaced.");
             }
         }
 

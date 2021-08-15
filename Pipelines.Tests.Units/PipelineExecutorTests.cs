@@ -45,7 +45,7 @@ namespace Pipelines.Tests.Units
         {
             var propertyValue = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
             var processor = Processor.From<Bag>(ctx =>
-                ctx.SetResultWithInformation(propertyValue, "Result is set."));
+                ctx.InfoResult(propertyValue, "Result is set."));
             var pipeline = Pipeline.From(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
             var args = new Bag();

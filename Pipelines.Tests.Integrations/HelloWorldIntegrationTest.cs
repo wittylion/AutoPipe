@@ -67,7 +67,7 @@ namespace Pipelines.Tests.Integrations
     {
         public override Task SafeRun(HelloWorldArguments args)
         {
-            args.AbortPipelineWithErrorMessage(HelloWorldPipelineMessages.NameMustBeProvided);
+            args.ErrorAbort(HelloWorldPipelineMessages.NameMustBeProvided);
             return PipelineTask.CompletedTask;
         }
 
