@@ -169,9 +169,9 @@ namespace Pipelines
         protected Lazy<Dictionary<string, PipelineProperty>> Properties { get; } = new Lazy<Dictionary<string, PipelineProperty>>(() =>
             new Dictionary<string, PipelineProperty>(StringComparer.InvariantCultureIgnoreCase));
 
-        public ICollection<string> Keys => Properties.IsValueCreated ? Properties.Value.Keys : (ICollection<string>)Array.Empty<string>();
+        public ICollection<string> Keys => Properties.IsValueCreated ? Properties.Value.Keys : (ICollection<string>)Enumerable.Empty<string>();
 
-        public ICollection<object> Values => Properties.IsValueCreated ? Properties.Value.Values.Select(x => x.Value).ToList() : (ICollection<object>)Array.Empty<object>();
+        public ICollection<object> Values => Properties.IsValueCreated ? Properties.Value.Values.Select(x => x.Value).ToList() : (ICollection<object>)Enumerable.Empty<object>();
 
         public int Count => Properties.IsValueCreated ? Properties.Value.Count : 0;
 
