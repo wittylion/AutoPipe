@@ -166,12 +166,12 @@ namespace Pipelines
         /// or obtained values during pipeline execution or before
         /// execution is started <see cref="PipelineContext(object)"/>.
         /// </summary>
-        protected Lazy<Dictionary<string, PipelineProperty>> Properties { get; } = new Lazy<Dictionary<string, PipelineProperty>>(() =>
-            new Dictionary<string, PipelineProperty>(StringComparer.InvariantCultureIgnoreCase));
+        protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>(() =>
+            new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
 
         public ICollection<string> Keys => Properties.IsValueCreated ? Properties.Value.Keys : (ICollection<string>)Enumerable.Empty<string>();
 
-        public ICollection<object> Values => Properties.IsValueCreated ? Properties.Value.Values.Select(x => x.Value).ToList() : (ICollection<object>)Enumerable.Empty<object>();
+        public ICollection<object> Values => Properties.IsValueCreated ? Properties.Value.Values.ToList() : (ICollection<object>)Enumerable.Empty<object>();
 
         public int Count => Properties.IsValueCreated ? Properties.Value.Count : 0;
 
@@ -239,17 +239,16 @@ namespace Pipelines
                 throw new ArgumentNullException(nameof(value), $"You cannot set null value properties. Please check the \"{name}\" parameter.");
             }
 
-            var property = new PipelineProperty(name, value);
             var dictionary = Properties.Value;
             if (!dictionary.ContainsKey(name))
             {
-                dictionary.Add(name, property);
+                dictionary.Add(name, value);
             }
             else
             {
                 if (!skipIfExists)
                 {
-                    dictionary[name] = property;
+                    dictionary[name] = value;
                 }
             }
         }
@@ -282,10 +281,9 @@ namespace Pipelines
 
         public virtual TValue GetOrThrow<TValue>(string name)
         {
-            var propertyHolder = GetPropertyObjectOrNull(name);
-            if (propertyHolder.HasValue)
+            if (Properties.IsValueCreated && Properties.Value.TryGetValue(name, out object maybeValue))
             {
-                if (propertyHolder.Value.Value is TValue value)
+                if (maybeValue is TValue value)
                 {
                     return value;
                 }
@@ -297,13 +295,9 @@ namespace Pipelines
 
         public virtual string StringOrEmpty(string name)
         {
-            var propertyHolder = GetPropertyObjectOrNull(name);
-            if (propertyHolder.HasValue)
+            if (Has(name, out string value))
             {
-                if (propertyHolder.Value.Value is string value)
-                {
-                    return value;
-                }
+                return value;
             }
 
             return string.Empty;
@@ -321,56 +315,20 @@ namespace Pipelines
 
         public virtual List<TElement> ListOrEmpty<TElement>(string name)
         {
-            var propertyHolder = GetPropertyObjectOrNull(name);
-            if (propertyHolder.HasValue)
-            {
-                if (propertyHolder.Value.Value is IEnumerable<TElement> value)
-                {
-                    return value.ToList();
-                }
-            }
-
-            return new List<TElement>();
+            return Get(name, or: Enumerable.Empty<TElement>()).ToList();
         }
 
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
-            var propertyHolder = GetPropertyObjectOrNull(name);
-            if (propertyHolder.HasValue)
+            if (Properties.IsValueCreated && Properties.Value.TryGetValue(name, out object maybeValue))
             {
-                if (propertyHolder.Value.Value is TValue value)
+                if (maybeValue is TValue value)
                 {
                     return value;
                 }
             }
 
             return or();
-        }
-
-        /// <summary>
-        /// Retrieves a <see cref="PipelineProperty"/> that
-        /// is kept in this context or if property does not
-        /// exist retrieves <c>null</c>.
-        /// </summary>
-        /// <param name="name">
-        /// The name of the property to be retrieved.
-        /// </param>
-        /// <returns>
-        /// Pipeline property object of the requested
-        /// <paramref name="name"/> or null if property does not exist.
-        /// </returns>
-        protected virtual PipelineProperty? GetPropertyObjectOrNull(string name)
-        {
-            if (Properties.IsValueCreated)
-            {
-                var dictionary = Properties.Value;
-                if (dictionary.ContainsKey(name))
-                {
-                    return dictionary[name];
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -413,21 +371,31 @@ namespace Pipelines
         /// </returns>
         public virtual bool Contains<TProperty>(string name)
         {
-            var property = GetPropertyObjectOrNull(name);
-            return property?.Value is TProperty;
+            return Properties.IsValueCreated &&
+                Properties.Value.TryGetValue(name, out object foundValue) &&
+                foundValue is TProperty;
         }
 
         public virtual bool Contains<TProperty>(string name, out TProperty value)
         {
             value = default(TProperty);
-            var property = GetPropertyObjectOrNull(name);
-            var success = property?.Value is TProperty;
-            if (success)
+            if (!Properties.IsValueCreated)
             {
-                value = (TProperty)property.Value.Value;
+                return false;
             }
 
-            return success;
+            if (!Properties.Value.TryGetValue(name, out object foundValue))
+            {
+                return false;
+            }
+
+            if (foundValue is TProperty result)
+            {
+                value = result;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -463,24 +431,6 @@ namespace Pipelines
                 var dictionary = Properties.Value;
                 dictionary.Remove(name);
             }
-        }
-
-        /// <summary>
-        /// Retrieves all the property objects
-        /// contained in the context.
-        /// </summary>
-        /// <returns>
-        /// An array of property objects that
-        /// are contained in context.
-        /// </returns>
-        protected virtual PipelineProperty[] GetAllPropertyObjects()
-        {
-            if (this.Properties.IsValueCreated)
-            {
-                return this.Properties.Value.Values.ToArray();
-            }
-
-            return new PipelineProperty[0];
         }
 
         /// <summary>
@@ -830,8 +780,7 @@ namespace Pipelines
             {
                 foreach (var prop in propertyContainer.GetType().GetProperties())
                 {
-                    var contextProperty = new PipelineProperty(prop.Name, prop.GetValue(propertyContainer, null));
-                    this.Properties.Value.Add(contextProperty.Name, contextProperty);
+                    this.Properties.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
                 }
             }
         }
@@ -1012,7 +961,7 @@ namespace Pipelines
 
             if (Properties.IsValueCreated)
             {
-                var props = Properties.Value.Skip(arrayIndex).Select(x => new KeyValuePair<string, object>(x.Key, x.Value.Value));
+                var props = Properties.Value.Skip(arrayIndex);
                 for (int i = 0; i < props.Count(); i++)
                 {
                     if (i >= array.Length) break;
@@ -1033,7 +982,7 @@ namespace Pipelines
             {
                 foreach (var item in Properties.Value)
                 {
-                    yield return new KeyValuePair<string, object>(item.Key, item.Value.Value);
+                    yield return item;
                 }
             }
 
