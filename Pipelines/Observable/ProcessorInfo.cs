@@ -1,9 +1,9 @@
-﻿namespace Pipelines.Implementations.Runners
+﻿namespace Pipelines.Observable
 {
     /// <summary>
     /// Class to be used by observer of processor runner.
     /// </summary>
-    public class RunningProcessorObservableInformation
+    public class ProcessorInfo
     {
         /// <summary>
         /// Processor that is supposed to be run.

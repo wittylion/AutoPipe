@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipelines.Implementations.Runners
+namespace Pipelines.Observable
 {
     /// <summary>
     /// Implementation of <see cref="IObservable{T}"/>

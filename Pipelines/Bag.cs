@@ -152,8 +152,6 @@ namespace Pipelines
         /// Flag identifying whether pipeline must be ended/stopped,
         /// it can be used as a cancelation identifier for the execution flow.
         /// </summary>
-        // public bool Ended { get; set; }
-        // public bool Ended { get; set; }
         public bool Ended { get; set; }
 
         /// <summary>

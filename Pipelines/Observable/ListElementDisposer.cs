@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipelines.Implementations.Runners
+namespace Pipelines.Observable
 {
     /// <summary>
     /// An implementation of <see cref="IDisposable"/>

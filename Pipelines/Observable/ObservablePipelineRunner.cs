@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.Implementations.Runners
+namespace Pipelines.Observable
 {
     /// <summary>
     /// Pipeline runner that uses observers to notify about actions.
     /// </summary>
-    public class ObservablePipelineRunner : ObservableConcept<RunningPipelineObservableInformation>, IPipelineRunner
+    public class ObservablePipelineRunner : ObservableConcept<PipelineInfo>, IPipelineRunner
     {
         /// <summary>
         /// The original runner that is being wrapped by this class.
@@ -37,7 +37,7 @@ namespace Pipelines.Implementations.Runners
         {
             if (this.HasObservers())
             {
-                var info = new RunningPipelineObservableInformation()
+                var info = new PipelineInfo()
                 {
                     Pipeline = pipeline,
                     Arguments = args

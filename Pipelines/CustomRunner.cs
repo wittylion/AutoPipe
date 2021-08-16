@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipelines.Implementations.Runners
+namespace Pipelines
 {
     /// <summary>
     /// Wrapper for pipeline processor, that allow to iterate
     /// through processor and use a passed processor executor
     /// for each of them.
     /// </summary>
-    public class CustomizedPipelineRunner : IPipelineRunner
+    public class CustomRunner : IPipelineRunner
     {
         public static readonly string ProcessorRunnerMustBeSpecified = "Processor runner should have object value, but was null.";
         
@@ -25,7 +25,7 @@ namespace Pipelines.Implementations.Runners
         /// <param name="processorRunner">
         /// Processor runner that defines how the processor should be executed.
         /// </param>
-        public CustomizedPipelineRunner(IProcessorRunner processorRunner)
+        public CustomRunner(IProcessorRunner processorRunner)
         {
             ProcessorRunner = processorRunner ?? throw new ArgumentNullException(nameof(processorRunner), ProcessorRunnerMustBeSpecified);
         }

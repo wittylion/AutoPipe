@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.Implementations.Runners
+namespace Pipelines.Observable
 {
     /// <summary>
     /// Processor runner that uses observers to notify about actions.
     /// </summary>
-    public class ObservableProcessorRunner : ObservableConcept<RunningProcessorObservableInformation>, IProcessorRunner
+    public class ObservableProcessorRunner : ObservableConcept<ProcessorInfo>, IProcessorRunner
     {
         /// <summary>
         /// A message that is used by constructor to identify that wrapped runner is <c>null</c>.
@@ -42,7 +42,7 @@ namespace Pipelines.Implementations.Runners
         {
             if (this.HasObservers())
             {
-                var info = new RunningProcessorObservableInformation()
+                var info = new ProcessorInfo()
                 {
                     Processor = processor,
                     Arguments = args

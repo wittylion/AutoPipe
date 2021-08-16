@@ -1,9 +1,9 @@
-﻿namespace Pipelines.Implementations.Runners
+﻿namespace Pipelines.Observable
 {
     /// <summary>
     /// Class to be used by observer of pipeline runner.
     /// </summary>
-    public class RunningPipelineObservableInformation
+    public class PipelineInfo
     {
         /// <summary>
         /// Pipeline that is supposed to be run.

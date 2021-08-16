@@ -1,8 +1,8 @@
 ﻿using System;
 using FluentAssertions;
 using Moq;
-using Pipelines.Implementations.Runners;
 using Xunit;
+using Pipelines.Observable;
 
 namespace Pipelines.Tests.Units
 {
@@ -17,8 +17,8 @@ namespace Pipelines.Tests.Units
             ObservablePipelineRunner runner = new ObservablePipelineRunner();
 
             // Creating an implementation of observer.
-            Mock<IObserver<RunningPipelineObservableInformation>> mockObserver =
-                new Mock<IObserver<RunningPipelineObservableInformation>>();
+            Mock<IObserver<PipelineInfo>> mockObserver =
+                new Mock<IObserver<PipelineInfo>>();
             mockObserver
                 .Setup(observer => observer.OnCompleted())
                 .Callback(() => completed = true);
@@ -45,8 +45,8 @@ namespace Pipelines.Tests.Units
             ObservablePipelineRunner runner = new ObservablePipelineRunner();
 
             // Creating an implementation of observer.
-            Mock<IObserver<RunningPipelineObservableInformation>> mockObserver =
-                new Mock<IObserver<RunningPipelineObservableInformation>>();
+            Mock<IObserver<PipelineInfo>> mockObserver =
+                new Mock<IObserver<PipelineInfo>>();
             mockObserver
                 .Setup(observer => observer.OnCompleted())
                 .Callback(() => completed = true);
@@ -71,8 +71,8 @@ namespace Pipelines.Tests.Units
             ObservablePipelineRunner runner = new ObservablePipelineRunner();
 
             // Creating an implementation of observer.
-            Mock<IObserver<RunningPipelineObservableInformation>> mockObserver =
-                new Mock<IObserver<RunningPipelineObservableInformation>>();
+            Mock<IObserver<PipelineInfo>> mockObserver =
+                new Mock<IObserver<PipelineInfo>>();
             mockObserver
                 .Setup(observer => observer.OnError(It.Is<Exception>(er => er == exception)))
                 .Verifiable("The exception thrown must be the same as specified in test method");

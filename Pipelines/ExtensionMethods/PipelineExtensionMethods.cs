@@ -313,7 +313,7 @@ namespace Pipelines
             }
 
             var loaded = false;
-            return new MemoryCachePipelineWrapper(pipeline, () => {
+            return new CachedPipeline(pipeline, () => {
                 var result = !loaded;
                 loaded = true;
                 return result;
@@ -342,7 +342,7 @@ namespace Pipelines
         public static IPipeline CacheInMemoryForPeriod(this IPipeline pipeline, TimeSpan period, bool useLazyLoading = true)
         {
             DateTime? startedTime = null;
-            return new MemoryCachePipelineWrapper(pipeline, () =>
+            return new CachedPipeline(pipeline, () =>
             {
                 if (!startedTime.HasValue || DateTime.Now - startedTime > period)
                 {
