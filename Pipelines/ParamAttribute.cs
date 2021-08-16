@@ -11,15 +11,15 @@ namespace Pipelines
     public class RequiredAttribute : Attribute
     {
         /// <summary>
-        /// If true pipeline will abort execution if
+        /// If true pipeline will end execution if
         /// <see cref="PipelineContext"/> does not contain 
         /// a property called as <see cref="Name"/> or parameter name.
-        /// Will add an <see cref="ErrorMessage"/> as the abort reason.
+        /// Will add an <see cref="ErrorMessage"/> as the end reason.
         /// </summary>
-        public bool Abort { get; set; }
+        public bool End { get; set; }
 
         /// <summary>
-        /// In case <see cref="AbortIfNotExist"/> true and property is not found,
+        /// In case <see cref="EndIfNotExist"/> true and property is not found,
         /// this message will be added to the messages collection of the <see cref="PipelineContext"/>.
         /// </summary>
         public string Message { get; set; }

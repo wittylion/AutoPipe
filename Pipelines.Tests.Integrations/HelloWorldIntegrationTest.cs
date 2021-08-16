@@ -49,7 +49,7 @@ namespace Pipelines.Tests.Integrations
         {
             return new HelloWorldProcessors[]
             {
-                new WhenTheNameIsNotProvidedAbortWithErrorMessage(),
+                new WhenTheNameIsNotProvidedEndWithErrorMessage(),
                 new PutNameIntoThePhrase()
             };
         }
@@ -63,11 +63,11 @@ namespace Pipelines.Tests.Integrations
 
     public abstract class HelloWorldProcessors : SafeProcessor<HelloWorldArguments> { }
 
-    public class WhenTheNameIsNotProvidedAbortWithErrorMessage : HelloWorldProcessors
+    public class WhenTheNameIsNotProvidedEndWithErrorMessage : HelloWorldProcessors
     {
         public override Task SafeRun(HelloWorldArguments args)
         {
-            args.ErrorAbort(HelloWorldPipelineMessages.NameMustBeProvided);
+            args.ErrorEnd(HelloWorldPipelineMessages.NameMustBeProvided);
             return PipelineTask.CompletedTask;
         }
 

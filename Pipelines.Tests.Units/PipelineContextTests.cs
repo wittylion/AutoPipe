@@ -22,11 +22,11 @@ namespace Pipelines.Tests.Units
         }
 
         [Fact]
-        public void AbortMessageWithError_Calls_Abort_Pipeline_Method()
+        public void EndMessageWithError_Calls_End_Pipeline_Method()
         {
             var pipelineContext = new Bag();
-            pipelineContext.ErrorAbort(nameof(Bag));
-            pipelineContext.IsAborted.Should().BeTrue("because the method should abort pipeline");
+            pipelineContext.ErrorEnd(nameof(Bag));
+            pipelineContext.Ended.Should().BeTrue("because the method should End pipeline");
         }
 
         [Fact]

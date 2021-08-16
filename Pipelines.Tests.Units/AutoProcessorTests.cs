@@ -129,9 +129,9 @@ namespace Pipelines.Tests.Units
 
 
         [Fact]
-        public async Task AutoProcessor_ShouldSkipOtherMethods_WhenOneAborts()
+        public async Task AutoProcessor_ShouldSkipOtherMethods_WhenOneEnds()
         {
-            var processor = new Mock<TestAbortingContextParameter>(MockBehavior.Loose) { CallBase = true };
+            var processor = new Mock<TestEndingContextParameter>(MockBehavior.Loose) { CallBase = true };
 
             Bag context = Bag.Create();
             await processor.Object.Run(context).ConfigureAwait(false);
@@ -141,18 +141,18 @@ namespace Pipelines.Tests.Units
         }
     }
 
-    public class TestAbortingContextParameter : AutoProcessor
+    public class TestEndingContextParameter : AutoProcessor
     {
         [Run]
         [Order(1)]
         public virtual void EmptyMethod(
-            [Required(Abort = true, Message = "Parameter does not exist.")] object parameter) { }
+            [Required(End = true, Message = "Parameter does not exist.")] object parameter) { }
 
         [Run]
         [Order(2)]
         public virtual void EmptyMethod2() { }
 
-        public TestAbortingContextParameter()
+        public TestEndingContextParameter()
         {
         }
     }

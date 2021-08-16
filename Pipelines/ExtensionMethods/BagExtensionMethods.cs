@@ -168,78 +168,78 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Aborts pipeline by setting a flag <see cref="IsAborted"/> to true.
+        /// Ends pipeline by setting a flag <see cref="Ended"/> to true.
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public static TBag Abort<TBag>(this TBag bag) where TBag : Bag
+        public static TBag End<TBag>(this TBag bag) where TBag : Bag
         {
-            bag.AbortPipeline();
+            bag.EndPipeline();
             return bag;
         }
 
         /// <summary>
-        /// Executes two actions: aborts pipeline and adds a default message
+        /// Executes two actions: ends pipeline and adds a default message
         /// by using <see cref="Message"/> method.
         /// </summary>
         /// <param name="message">
-        /// Text that describes a cause of the abortion.
+        /// Text that describes a cause of the end.
         /// </param>
-        public static TBag Abort<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag End<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.Abort().Message(message);
+            return bag.End().Message(message);
         }
 
         /// <summary>
-        /// Executes two actions: aborts pipeline and adds a message
+        /// Executes two actions: ends pipeline and adds a message
         /// of the specified <paramref name="type"/>.
         /// </summary>
         /// <param name="message">
-        /// Text that describes a cause of the abortion.
+        /// Text that describes a cause of the end.
         /// </param>
         /// <param name="type">
         /// A type of the message, it will help you to find message
         /// by using <see cref="GetMessages"/> method.
         /// </param>
-        public static TBag Abort<TBag>(this TBag bag, string message, MessageType type) where TBag : Bag
+        public static TBag End<TBag>(this TBag bag, string message, MessageType type) where TBag : Bag
         {
-            return bag.Abort().Message(message, type);
+            return bag.End().Message(message, type);
         }
 
         /// <summary>
-        /// Executes two actions: aborts pipeline and adds an error message
-        /// which signals about wrong pipeline abortion.
+        /// Executes two actions: ends pipeline and adds an error message
+        /// which signals about wrong pipeline end.
         /// </summary>
         /// <param name="message">
-        /// Error message text that describes a cause of the abortion.
+        /// Error message text that describes a cause of the end.
         /// </param>
-        public static TBag ErrorAbort<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag ErrorEnd<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.Abort(message, MessageType.Error);
+            return bag.End(message, MessageType.Error);
         }
 
         /// <summary>
-        /// Executes two actions: aborts pipeline and adds a warning message
+        /// Executes two actions: end pipeline and adds a warning message
         /// which signals about wrong pipeline execution.
         /// </summary>
         /// <param name="message">
-        /// Warning message text that describes a cause of the abortion.
+        /// Warning message text that describes a cause of the end.
         /// </param>
-        public static TBag WarningAbort<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag WarningEnd<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.Abort(message, MessageType.Warning);
+            return bag.End(message, MessageType.Warning);
         }
 
         /// <summary>
-        /// Executes two actions: aborts pipeline and adds an information message
+        /// Executes two actions: end pipeline and adds an information message
         /// which signals about early pipeline end.
         /// </summary>
         /// <param name="message">
-        /// Information message text that describes a cause of the abortion.
+        /// Information message text that describes a cause of the end.
         /// </param>
-        public static TBag InfoAbort<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag InfoEnd<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.Abort(message, MessageType.Information);
+            return bag.End(message, MessageType.Information);
         }
 
         /// <summary>
@@ -356,39 +356,39 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Executes 3 actions: aborts pipeline, adds error message,
+        /// Executes 3 actions: end pipeline, adds error message,
         /// resets result to null.
         /// </summary>
         /// <param name="message">
-        /// Error message indicating the reason of the aborted pipeline and no result.
+        /// Error message indicating the reason of the ended pipeline and no result.
         /// </param>
-        public static TBag ErrorAbortNoResult<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag ErrorEndNoResult<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.UnsetResult().ErrorAbort(message);
+            return bag.UnsetResult().ErrorEnd(message);
         }
 
         /// <summary>
-        /// Executes 3 actions: aborts pipeline, adds warning message,
+        /// Executes 3 actions: end pipeline, adds warning message,
         /// resets result to null.
         /// </summary>
         /// <param name="message">
-        /// Warning message indicating the reason of the aborted pipeline and no result.
+        /// Warning message indicating the reason of the ended pipeline and no result.
         /// </param>
-        public static TBag WarningAbortNoResult<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag WarningEndNoResult<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.UnsetResult().WarningAbort(message);
+            return bag.UnsetResult().WarningEnd(message);
         }
 
         /// <summary>
-        /// Executes 3 actions: aborts pipeline, adds information message,
+        /// Executes 3 actions: end pipeline, adds information message,
         /// resets result to null.
         /// </summary>
         /// <param name="message">
-        /// Information message indicating the reason of the aborted pipeline and no result.
+        /// Information message indicating the reason of the ended pipeline and no result.
         /// </param>
-        public static TBag InfoAbortNoResult<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag InfoEndNoResult<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.UnsetResult().InfoAbort(message);
+            return bag.UnsetResult().InfoEnd(message);
         }
 
         /// <summary>

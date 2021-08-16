@@ -11,7 +11,7 @@ namespace Pipelines
     /// about the flow of the pipeline. By default it has
     /// messages collection which can be accessed by using
     /// <see cref="GetMessages"/> method and a flag
-    /// <see cref="IsAborted"/> identifying whether pipeline was aborted.
+    /// <see cref="Ended"/> identifying whether pipeline was ended.
     /// </summary>
     [Serializable]
     public class Bag : ISerializable, IDictionary<string, object>
@@ -149,10 +149,12 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Flag identifying whether pipeline must be aborted/stopped,
+        /// Flag identifying whether pipeline must be ended/stopped,
         /// it can be used as a cancelation identifier for the execution flow.
         /// </summary>
-        public bool IsAborted { get; set; }
+        // public bool Ended { get; set; }
+        // public bool Ended { get; set; }
+        public bool Ended { get; set; }
 
         /// <summary>
         /// Collection of messages that keeps all the text passed to the
@@ -776,13 +778,13 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Aborts pipeline by setting a flag <see cref="IsAborted"/> to true.
+        /// Ends pipeline by setting a flag <see cref="Ended"/> to true.
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public virtual void AbortPipeline()
+        public virtual void EndPipeline()
         {
-            IsAborted = true;
+            Ended = true;
         }
 
         /// <summary>
@@ -865,7 +867,7 @@ namespace Pipelines
         /// </param>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue($"{nameof(Bag)}.{nameof(IsAborted)}", IsAborted);
+            info.AddValue($"{nameof(Bag)}.{nameof(Ended)}", Ended);
             info.AddValue($"{nameof(Bag)}.{nameof(Messages)}", Messages, typeof(ICollection<PipelineMessage>));
         }
 

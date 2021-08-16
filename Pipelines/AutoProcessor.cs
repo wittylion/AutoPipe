@@ -331,42 +331,42 @@ namespace Pipelines
 
         /// <summary>
         /// A quick reference to be returned in custom methods
-        /// to execute <see cref="PipelineContext.AbortPipelineWithErrorMessage(string)"/> method.
+        /// to execute <see cref="PipelineContext.EndPipelineWithErrorMessage(string)"/> method.
         /// </summary>
         /// <param name="message">
-        /// A message to be passed to <see cref="PipelineContext.AbortPipelineWithErrorMessage(string)"/> method.
+        /// A message to be passed to <see cref="PipelineContext.EndPipelineWithErrorMessage(string)"/> method.
         /// </param>
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<Bag> ErrorAbort(string message)
+        protected virtual Action<Bag> ErrorEnd(string message)
         {
-            return context => context.ErrorAbort(message);
+            return context => context.ErrorEnd(message);
         }
 
-        protected virtual Action<Bag> WarningAbort(string message)
+        protected virtual Action<Bag> WarningEnd(string message)
         {
-            return context => context.WarningAbort(message);
+            return context => context.WarningEnd(message);
         }
 
-        protected virtual Action<Bag> InfoAbort(string message)
+        protected virtual Action<Bag> InfoEnd(string message)
         {
-            return context => context.InfoAbort(message);
+            return context => context.InfoEnd(message);
         }
 
-        protected virtual Action<Bag> InfoAbortNoResult(string message)
+        protected virtual Action<Bag> InfoEndNoResult(string message)
         {
-            return context => context.InfoAbortNoResult(message);
+            return context => context.InfoEndNoResult(message);
         }
 
-        protected virtual Action<Bag> WarningAbortNoResult(string message)
+        protected virtual Action<Bag> WarningEndNoResult(string message)
         {
-            return context => context.WarningAbortNoResult(message);
+            return context => context.WarningEndNoResult(message);
         }
 
-        protected virtual Action<Bag> ErrorAbortNoResult(string message)
+        protected virtual Action<Bag> ErrorEndNoResult(string message)
         {
-            return context => context.ErrorAbortNoResult(message);
+            return context => context.ErrorEndNoResult(message);
         }
 
         protected virtual Action<Bag> InfoResult(object result, string message)
@@ -514,9 +514,9 @@ namespace Pipelines
                     var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
                     var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                    if (metadata.Abort)
+                    if (metadata.End)
                     {
-                        context.ErrorAbort(message);
+                        context.ErrorEnd(message);
                     }
                     else
                     {
@@ -533,9 +533,9 @@ namespace Pipelines
                     var formattedMessage = string.Format(messageTemplate, parameter.Name, parameter.ParameterType, val, method.Name, method.DeclaringType.Name);
                     var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                    if (metadata.Abort)
+                    if (metadata.End)
                     {
-                        context.ErrorAbort(message);
+                        context.ErrorEnd(message);
                     }
                     else
                     {
@@ -567,7 +567,7 @@ namespace Pipelines
             {
                 foreach (var method in Methods)
                 {
-                    if (args.IsAborted)
+                    if (args.Ended)
                     {
                         break;
                     }

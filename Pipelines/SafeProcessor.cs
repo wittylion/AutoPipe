@@ -16,7 +16,7 @@ namespace Pipelines
         /// <summary>
         /// Additionally to the base class method
         /// <see cref="SafeTypeProcessor{TArgs}.SafeCondition"/>,
-        /// checks <see cref="PipelineContext.IsAborted"/> status.
+        /// checks <see cref="PipelineContext.Ended"/> status.
         /// In case it true, the processor should not be executed.
         /// </summary>
         /// <param name="args">
@@ -24,7 +24,7 @@ namespace Pipelines
         /// </param>
         /// <returns>
         /// Returns <c>true</c> in case base condition is true and
-        /// <see cref="PipelineContext.IsAborted"/> property is false,
+        /// <see cref="PipelineContext.Ended"/> property is false,
         /// otherwise returns <c>false</c> which means that the processor
         /// should not be executed.
         /// </returns>
@@ -48,7 +48,7 @@ namespace Pipelines
                 }
             }
 
-            return base.SafeCondition(args) && !args.IsAborted;
+            return base.SafeCondition(args) && !args.Ended;
         }
 
         public virtual IEnumerable<string> MustHaveProperties()
