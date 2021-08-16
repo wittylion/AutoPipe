@@ -250,9 +250,11 @@ namespace Pipelines
         /// <param name="message">
         /// An information message, used to describe execution status.
         /// </param>
-        public static TBag Info<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag Info<TBag>(this TBag bag, string message, bool end = false) where TBag : Bag
         {
-            return bag.Message(message, MessageType.Information);
+            bag.Message(message, MessageType.Information);
+            if (end) { bag.End(); }
+            return bag;
         }
 
         /// <summary>
@@ -262,9 +264,11 @@ namespace Pipelines
         /// <param name="message">
         /// Warning message, used to describe warning status.
         /// </param>
-        public static TBag Warning<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag Warning<TBag>(this TBag bag, string message, bool end = false) where TBag : Bag
         {
-            return bag.Message(message, MessageType.Warning);
+            bag.Message(message, MessageType.Warning);
+            if (end) { bag.End(); }
+            return bag;
         }
 
         /// <summary>
@@ -275,9 +279,11 @@ namespace Pipelines
         /// <param name="message">
         /// Error message, used to describe an error occured during execution.
         /// </param>
-        public static TBag Error<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag Error<TBag>(this TBag bag, string message, bool end = false) where TBag : Bag
         {
-            return bag.Message(message, MessageType.Error);
+            bag.Message(message, MessageType.Error);
+            if (end) { bag.End(); }
+            return bag;
         }
 
         public static TBag Delete<TBag>(this TBag bag, string name) where TBag : Bag
@@ -425,6 +431,27 @@ namespace Pipelines
         public static TBag ResetResultWithError<TBag>(this TBag bag, string message) where TBag : Bag
         {
             return bag.UnsetResult().Error(message);
+        }
+
+        public static TBag EndResult<TBag>(this TBag bag, object result) where TBag : Bag
+        {
+            return bag.SetResult(result).End();
+        }
+
+        public static TBag InfoEndResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
+        {
+            return bag.SetResult(result).InfoEnd(message);
+        }
+
+        public static TBag ErrorEndResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
+        {
+            return bag.SetResult(result).ErrorEnd(message);
+        }
+
+
+        public static TBag WarningEndResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
+        {
+            return bag.SetResult(result).WarningEnd(message);
         }
 
     }

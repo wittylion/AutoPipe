@@ -289,7 +289,7 @@ namespace Pipelines
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
         /// </returns>
-        protected virtual Action<Bag> Information(string message)
+        protected virtual Action<Bag> Info(string message)
         {
             return context => context.Info(message);
         }
@@ -354,6 +354,36 @@ namespace Pipelines
             return context => context.InfoEnd(message);
         }
 
+        protected virtual Action<Bag> End()
+        {
+            return context => context.End();
+        }
+
+        protected virtual Action<Bag> EndResult(object result)
+        {
+            return context => context.EndResult(result);
+        }
+
+        protected virtual Action<Bag> Result(object result)
+        {
+            return context => context.SetResult(result);
+        }
+
+        protected virtual Action<Bag> InfoEndResult(object result, string message)
+        {
+            return context => context.InfoEndResult(result, message);
+        }
+
+        protected virtual Action<Bag> WarningEndResult(object result, string message)
+        {
+            return context => context.WarningEndResult(result, message);
+        }
+
+        protected virtual Action<Bag> ErrorEndResult(object result, string message)
+        {
+            return context => context.ErrorEndResult(result, message);
+        }
+
         protected virtual Action<Bag> InfoEndNoResult(string message)
         {
             return context => context.InfoEndNoResult(message);
@@ -403,7 +433,7 @@ namespace Pipelines
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters();
-            var bagTypes = context.GroupBy(x => x.Value.GetType()).ToDictionary(x => x.Key, x => x.Select(m => m.Value).ToArray());
+            var bagTypes = context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
 
             foreach (var parameter in parameters)
             {
@@ -413,19 +443,9 @@ namespace Pipelines
                 }
                 else
                 {
-                    var name = parameter.Name;
+                    var names = GetParameterNames(parameter);
 
-                    var nameAttribute = parameter.GetCustomAttribute<AkaAttribute>();
-                    if (nameAttribute != null)
-                    {
-                        var nameFromAttribute = nameAttribute.Aliases[0];
-                        if (!string.IsNullOrWhiteSpace(nameFromAttribute) && context.Contains<object>(nameFromAttribute))
-                        {
-                            name = nameFromAttribute;
-                        }
-                    }
-
-                    if (context.Contains(name, out object val))
+                    if (context.ContainsAny(names, out object val))
                     {
                         if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
                         {
@@ -439,9 +459,9 @@ namespace Pipelines
                     }
                     else
                     {
-                        if (bagTypes.TryGetValue(parameter.ParameterType, out var valuesOfType) && valuesOfType.Length == 1)
+                        if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
                         {
-                            yield return valuesOfType[0];
+                            yield return valueOfType;
                         }
                         else
                         {
@@ -451,6 +471,21 @@ namespace Pipelines
                     }
                 }
             }
+        }
+
+        protected virtual IEnumerable<string> GetParameterNames(ParameterInfo parameter)
+        {
+            yield return parameter.Name;
+
+            var nameAttribute = parameter.GetCustomAttribute<AkaAttribute>();
+            if (nameAttribute != null)
+            {
+                foreach (var alias in nameAttribute.Aliases)
+                {
+                    yield return alias;
+                }
+            }
+            
         }
 
         /// <summary>
@@ -471,7 +506,7 @@ namespace Pipelines
         protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters();
-            var bagTypes = context.GroupBy(x => x.Value.GetType()).ToDictionary(x => x.Key, x => x.Select(m => m.Value).ToArray());
+            var bagTypes = context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
 
             foreach (var parameter in parameters)
             {
@@ -482,48 +517,21 @@ namespace Pipelines
                     continue;
                 }
 
-                object property;
-
-                var nameAttribute = parameter.GetCustomAttribute<AkaAttribute>();
                 bool containsErrorMessage = metadata.Message.HasValue();
-                bool containsMetadataProperty =
-                    nameAttribute?.Aliases[0] == null
-                        ? false
-                        : context.Contains<object>(nameAttribute?.Aliases[0]);
+                var names = GetParameterNames(parameter);
 
-                bool containsPropertyName =
-                    parameter.Name.HasNoValue()
-                    ? false
-                    : context.Contains<object>(parameter.Name);
-
-                if (containsMetadataProperty)
+                if (!context.ContainsAny(names, out object property))
                 {
-                    property = context.GetOrThrow<object>(nameAttribute?.Aliases[0]);
-                }
-                else if (containsPropertyName)
-                {
-                    property = context.GetOrThrow<object>(parameter.Name);
-                }
-                else if (bagTypes.TryGetValue(parameter.ParameterType, out var valuesOfType) && valuesOfType.Length == 1)
-                {
-                    property = valuesOfType[0];
-                }
-                else
-                {
-                    var messageTemplate = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
-                    var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
-                    var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
-
-                    if (metadata.End)
+                    if (!bagTypes.TryGetValue(parameter.ParameterType, out property))
                     {
-                        context.ErrorEnd(message);
-                    }
-                    else
-                    {
-                        context.Error(message);
-                    }
+                        var messageTemplate = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
+                        var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
+                        var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                    return false;
+                        context.Error(message, metadata.End);
+
+                        return false;
+                    }
                 }
 
                 var val = property;
@@ -533,14 +541,7 @@ namespace Pipelines
                     var formattedMessage = string.Format(messageTemplate, parameter.Name, parameter.ParameterType, val, method.Name, method.DeclaringType.Name);
                     var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                    if (metadata.End)
-                    {
-                        context.ErrorEnd(message);
-                    }
-                    else
-                    {
-                        context.Error(message);
-                    }
+                    context.Error(message, metadata.End);
 
                     return false;
                 }

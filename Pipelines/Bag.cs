@@ -398,6 +398,41 @@ namespace Pipelines
             return false;
         }
 
+        public virtual bool ContainsAny<TProperty>(IEnumerable<string> names, out TProperty value)
+        {
+            value = default;
+
+            foreach (var name in names)
+            {
+                if (Contains(name, out TProperty val))
+                {
+                    value = val;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public virtual bool ContainsSingle<TProperty>(out TProperty value)
+        {
+            value = default;
+
+            if (!Properties.IsValueCreated)
+            {
+                return false;
+            }
+
+            var types = Properties.Value.Values.OfType<TProperty>().Take(2);
+            if (types.Count() == 1)
+            {
+                value = types.First();
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// The function returns boolean value that indicates whether property
         /// of specified type is missing in collection of properties.
