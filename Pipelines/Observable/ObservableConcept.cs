@@ -4,22 +4,22 @@ using System.Collections.Generic;
 namespace Pipelines.Observable
 {
     /// <summary>
-    /// Implementation of <see cref="IObservable{T}"/>
+    /// Implementation of <see cref="IObservableRunner{T}"/>
     /// that uses list of observers.
     /// </summary>
     /// <typeparam name="TContext">
     /// Type of the context used for observers.
     /// </typeparam>
-    public class ObservableConcept<TContext> : IObservable<TContext>
+    public class ObservableConcept<TContext> : IObservableRunner<TContext>
     {
         /// <summary>
         /// List of observers that subscribed to the observable class.
         /// </summary>
-        private Lazy<List<IObserver<TContext>>> Observers { get; } =
-            new Lazy<List<IObserver<TContext>>>();
+        private Lazy<List<IRunnerObserver<TContext>>> Observers { get; } =
+            new Lazy<List<IRunnerObserver<TContext>>>();
 
-        /// <inheritdoc cref="IObservable{T}.Subscribe"/>
-        public virtual IDisposable Subscribe(IObserver<TContext> observer)
+        /// <inheritdoc cref="IObservableRunner{T}.Subscribe"/>
+        public virtual IDisposable Subscribe(IRunnerObserver<TContext> observer)
         {
             if (observer.HasNoValue())
             {
@@ -28,7 +28,7 @@ namespace Pipelines.Observable
 
             Observers.Value.Add(observer);
 
-            return new ListElementDisposer<IObserver<TContext>>(Observers.Value, observer);
+            return new ListElementDisposer<IRunnerObserver<TContext>>(Observers.Value, observer);
         }
 
         /// <summary>
@@ -43,11 +43,11 @@ namespace Pipelines.Observable
         }
 
         /// <summary>
-        /// Calls <see cref="IObserver{T}.OnNext"/> method on
+        /// Calls <see cref="IRunnerObserver{T}.OnNext"/> method on
         /// each observer, that has subscribed to this collection.
         /// </summary>
         /// <param name="context">
-        /// The context that is used in <see cref="IObserver{T}"/>.
+        /// The context that is used in <see cref="IRunnerObserver{T}"/>.
         /// </param>
         public virtual void OnNext(TContext context)
         {
@@ -61,34 +61,34 @@ namespace Pipelines.Observable
         }
 
         /// <summary>
-        /// Calls <see cref="IObserver{T}.OnError"/> method on
+        /// Calls <see cref="IRunnerObserver{T}.OnError"/> method on
         /// each observer, that has subscribed to this collection.
         /// </summary>
         /// <param name="exception">
-        /// The exception that is used in <see cref="IObserver{T}"/>.
+        /// The exception that is used in <see cref="IRunnerObserver{T}"/>.
         /// </param>
-        public virtual void OnError(Exception exception)
+        public virtual void OnError(Exception exception, TContext context)
         {
             if (this.HasObservers())
             {
                 foreach (var observer in Observers.Value)
                 {
-                    observer.OnError(exception);
+                    observer.OnError(exception, context);
                 }
             }
         }
 
         /// <summary>
-        /// Calls <see cref="IObserver{T}.OnCompleted"/> method on
+        /// Calls <see cref="IRunnerObserver{T}.OnCompleted"/> method on
         /// each observer, that has subscribed to this collection.
         /// </summary>
-        public virtual void OnCompleted()
+        public virtual void OnCompleted(TContext context)
         {
             if (this.HasObservers())
             {
                 foreach (var observer in Observers.Value)
                 {
-                    observer.OnCompleted();
+                    observer.OnCompleted(context);
                 }
             }
         }

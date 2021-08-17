@@ -5,14 +5,27 @@ namespace Pipelines
     [System.AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
     public class AkaAttribute : Attribute
     {
+        public static readonly string NameParameterIsEmpty = "The name attribute must contain a meaningful name, but contained null or empty string.";
+        public static readonly string AliasIsEmpty = "The {0} parameter must contain a meaningful name, but contained null or empty string.";
+
         public string[] Aliases { get; }
         public AkaAttribute(string name, params string[] aliases)
         {
             Aliases = new string[aliases.Length + 1];
-            Aliases[0] = name;
-            if (aliases.Length > 0)
+            if (name.HasNoValue())
             {
-                Array.Copy(aliases, 0, Aliases, 1, aliases.Length);
+                throw new ArgumentException(NameParameterIsEmpty, nameof(name));
+            }
+            Aliases[0] = name;
+
+            for (int i = 0; i < aliases.Length; i++)
+            {
+                var alias = aliases[i];
+                if (alias.HasNoValue())
+                {
+                    throw new ArgumentException(AliasIsEmpty.FormatWith(i + 2), nameof(aliases));
+                }
+                Aliases[i + 1] = alias;
             }
         }
     }

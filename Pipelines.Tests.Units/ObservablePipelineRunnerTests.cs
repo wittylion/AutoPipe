@@ -17,10 +17,10 @@ namespace Pipelines.Tests.Units
             ObservablePipelineRunner runner = new ObservablePipelineRunner();
 
             // Creating an implementation of observer.
-            Mock<IObserver<PipelineInfo>> mockObserver =
-                new Mock<IObserver<PipelineInfo>>();
+            var mockObserver =
+                new Mock<IRunnerObserver<PipelineInfo>>();
             mockObserver
-                .Setup(observer => observer.OnCompleted())
+                .Setup(observer => observer.OnCompleted(It.IsAny<PipelineInfo>()))
                 .Callback(() => completed = true);
 
             // Creating an implementation of pipeline.
@@ -45,10 +45,10 @@ namespace Pipelines.Tests.Units
             ObservablePipelineRunner runner = new ObservablePipelineRunner();
 
             // Creating an implementation of observer.
-            Mock<IObserver<PipelineInfo>> mockObserver =
-                new Mock<IObserver<PipelineInfo>>();
+            var mockObserver =
+                new Mock<IRunnerObserver<PipelineInfo>>();
             mockObserver
-                .Setup(observer => observer.OnCompleted())
+                .Setup(observer => observer.OnCompleted(It.IsAny<PipelineInfo>()))
                 .Callback(() => completed = true);
 
             // Creating an implementation of pipeline.
@@ -71,10 +71,10 @@ namespace Pipelines.Tests.Units
             ObservablePipelineRunner runner = new ObservablePipelineRunner();
 
             // Creating an implementation of observer.
-            Mock<IObserver<PipelineInfo>> mockObserver =
-                new Mock<IObserver<PipelineInfo>>();
+            var mockObserver =
+                new Mock<IRunnerObserver<PipelineInfo>>();
             mockObserver
-                .Setup(observer => observer.OnError(It.Is<Exception>(er => er == exception)))
+                .Setup(observer => observer.OnError(It.Is<Exception>(er => er == exception), It.IsAny<PipelineInfo>()))
                 .Verifiable("The exception thrown must be the same as specified in test method");
 
             // Creating a processor that throws an exception.

@@ -40,15 +40,13 @@ namespace Pipelines.Observable
         /// <inheritdoc cref="IProcessorRunner.Run{TArgs}"/>
         public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
         {
-            if (this.HasObservers())
+            var info = new ProcessorInfo()
             {
-                var info = new ProcessorInfo()
-                {
-                    Processor = processor,
-                    Arguments = args
-                };
-                this.OnNext(info);
-            }
+                Processor = processor,
+                Arguments = args
+            };
+
+            this.OnNext(info);
 
             try
             {
@@ -56,10 +54,10 @@ namespace Pipelines.Observable
             }
             catch (Exception exception)
             {
-                this.OnError(exception);
+                this.OnError(exception, info);
             }
 
-            this.OnCompleted();
+            this.OnCompleted(info);
         }
     }
 }

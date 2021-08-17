@@ -35,15 +35,14 @@ namespace Pipelines.Observable
         /// <inheritdoc cref="IPipelineRunner.Run{TArgs}"/>
         public virtual async Task Run<TArgs>(IPipeline pipeline, TArgs args)
         {
-            if (this.HasObservers())
+            var info = new PipelineInfo()
             {
-                var info = new PipelineInfo()
-                {
-                    Pipeline = pipeline,
-                    Arguments = args
-                };
-                this.OnNext(info);
-            }
+                Pipeline = pipeline,
+                Arguments = args
+            };
+
+            this.OnNext(info);
+            
 
             try
             {
@@ -51,10 +50,10 @@ namespace Pipelines.Observable
             }
             catch (Exception exception)
             {
-                this.OnError(exception);
+                this.OnError(exception, info);
             }
 
-            this.OnCompleted();
+            this.OnCompleted(info);
         }
     }
 }

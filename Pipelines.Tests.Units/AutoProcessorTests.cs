@@ -1,6 +1,8 @@
 ﻿using Castle.Core.Internal;
 using FluentAssertions;
 using Moq;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,10 +14,10 @@ namespace Pipelines.Tests.Units
         [Fact]
         public void GetMethodsToExecute_ShouldReturnEmptyCollection_WhenGetMethodBindingAttributesReturnsNull()
         {
-            Mock<AutoProcessor> mock = new Mock<AutoProcessor>();
-            mock.Setup(x => x.GetMethodBindingAttributes()).Returns(() => null);
+            var mock = new TestAutoProcessor();
+            mock.GetFlags = () => null;
 
-            mock.Object.GetMethodsToExecute().Should().BeEmpty();
+            mock.GetMethodsToExecute().Should().BeEmpty();
         }
 
         [Fact]
@@ -162,6 +164,8 @@ namespace Pipelines.Tests.Units
         public static MethodInfo EmptyMethodInfo = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod));
         public static MethodInfo EmptyMethod2Info = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod2));
 
+        public Func<IEnumerable<BindingFlags>> GetFlags { get; set; }
+
         [Run]
         public void EmptyMethod() { }
 
@@ -174,6 +178,16 @@ namespace Pipelines.Tests.Units
         public new Task ProcessResult(MethodInfo info, Bag context, object methodResult, bool skip = true)
         {
             return base.ProcessResult(info, context, methodResult, skip);
+        }
+
+        protected override IEnumerable<BindingFlags> GetMethodBindingAttributes()
+        {
+            if (GetFlags != null)
+            {
+                return GetFlags();
+            }
+
+            return base.GetMethodBindingAttributes();
         }
     }
 

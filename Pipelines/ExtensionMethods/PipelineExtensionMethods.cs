@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Pipelines.Modifications;
 
@@ -459,6 +460,11 @@ namespace Pipelines
         {
             var modification = Modification.Configure(configurators);
             return Modify(pipeline, modification);
+        }
+
+        public static string Name(this IPipeline pipeline)
+        {
+            return pipeline.GetType().GetName();
         }
     }
 }

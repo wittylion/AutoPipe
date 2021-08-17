@@ -263,5 +263,10 @@ namespace Pipelines
         {
             return ProcessorMatcher.ByInstance(processor);
         }
+
+        public static string Name(this IProcessor processor)
+        {
+            return processor.GetType().GetName();
+        }
     }
 }

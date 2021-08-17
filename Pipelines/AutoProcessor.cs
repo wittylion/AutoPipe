@@ -16,6 +16,9 @@ namespace Pipelines
     /// </summary>
     public abstract class AutoProcessor : SafeProcessor
     {
+        public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
+        public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
+
         /// <summary>
         /// Collection of methods that will be executed one by one.
         /// </summary>
@@ -56,7 +59,7 @@ namespace Pipelines
         /// <returns>
         /// Attributes of the methods to be found during methods search.
         /// </returns>
-        public virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
+        protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
             return new[] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static };
         }
@@ -432,7 +435,7 @@ namespace Pipelines
         /// </returns>
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
-            var parameters = method.GetParameters();
+            var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
             var bagTypes = context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
 
             foreach (var parameter in parameters)
@@ -440,34 +443,33 @@ namespace Pipelines
                 if (typeof(Bag).IsAssignableFrom(parameter.ParameterType))
                 {
                     yield return context;
+                    continue;
                 }
-                else
-                {
-                    var names = GetParameterNames(parameter);
 
-                    if (context.ContainsAny(names, out object val))
+                var names = GetParameterNames(parameter);
+
+                if (context.ContainsAny(names, out object val))
+                {
+                    if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
-                        if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
-                        {
-                            yield return val;
-                        }
-                        else
-                        {
-                            var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                            yield return defaultValueAttribute?.DefaultValue;
-                        }
+                        yield return val;
                     }
                     else
                     {
-                        if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
-                        {
-                            yield return valueOfType;
-                        }
-                        else
-                        {
-                            var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                            yield return defaultValueAttribute?.DefaultValue;
-                        }
+                        var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                        yield return defaultValueAttribute?.DefaultValue;
+                    }
+                }
+                else
+                {
+                    if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
+                    {
+                        yield return valueOfType;
+                    }
+                    else
+                    {
+                        var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                        yield return defaultValueAttribute?.DefaultValue;
                     }
                 }
             }
@@ -485,7 +487,7 @@ namespace Pipelines
                     yield return alias;
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -505,11 +507,16 @@ namespace Pipelines
         /// </returns>
         protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
-            var parameters = method.GetParameters();
+            var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
             var bagTypes = context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
 
             foreach (var parameter in parameters)
             {
+                if (typeof(Bag).IsAssignableFrom(parameter.ParameterType))
+                {
+                    continue;
+                }
+
                 var metadata = parameter.GetCustomAttribute<RequiredAttribute>();
 
                 if (metadata == null)
@@ -517,16 +524,20 @@ namespace Pipelines
                     continue;
                 }
 
-                bool containsErrorMessage = metadata.Message.HasValue();
-                var names = GetParameterNames(parameter);
+                var orAttribute = parameter.GetCustomAttribute<OrAttribute>();
 
+                if (orAttribute != null)
+                {
+                    continue;
+                }
+
+                var names = GetParameterNames(parameter);
                 if (!context.ContainsAny(names, out object property))
                 {
                     if (!bagTypes.TryGetValue(parameter.ParameterType, out property))
                     {
-                        var messageTemplate = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
-                        var formattedMessage = string.Format(messageTemplate, parameter.Name, method.Name, method.DeclaringType.Name);
-                        var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+                        var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
+                        var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
                         context.Error(message, metadata.End);
 
@@ -537,9 +548,8 @@ namespace Pipelines
                 var val = property;
                 if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
                 {
-                    var messageTemplate = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
-                    var formattedMessage = string.Format(messageTemplate, parameter.Name, parameter.ParameterType, val, method.Name, method.DeclaringType.Name);
-                    var message = containsErrorMessage ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+                    var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
+                    var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
                     context.Error(message, metadata.End);
 
