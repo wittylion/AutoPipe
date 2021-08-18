@@ -38,7 +38,7 @@ namespace Pipelines.Observable
             var info = new PipelineInfo()
             {
                 Pipeline = pipeline,
-                Arguments = args
+                Context = args
             };
 
             this.OnNext(info);

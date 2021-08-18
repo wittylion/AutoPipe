@@ -43,7 +43,7 @@ namespace Pipelines.Observable
             var info = new ProcessorInfo()
             {
                 Processor = processor,
-                Arguments = args
+                Context = args
             };
 
             this.OnNext(info);
