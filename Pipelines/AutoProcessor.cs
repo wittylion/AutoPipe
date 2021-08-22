@@ -12,7 +12,7 @@ namespace Pipelines
     /// processor with several methods to execute.
     /// The methods that are marked with <see cref="RunAttribute"/>
     /// in the derived type will be executed based on 
-    /// <see cref="RunAttribute.Order"/>.
+    /// <see cref="OrderAttribute"/>.
     /// </summary>
     public abstract class AutoProcessor : SafeProcessor
     {
