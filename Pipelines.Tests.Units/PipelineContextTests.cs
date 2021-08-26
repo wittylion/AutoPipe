@@ -15,7 +15,7 @@ namespace Pipelines.Tests.Units
                 .Message(information)
                 .Error(nameof(Bag));
 
-            pipelineContext.GetMessages(MessageFilter.Informations).Should()
+            pipelineContext.GetMessages(MessageFilter.Info).Should()
                 .HaveCount(1, "only one information message was added")
                 .And
                 .AllBeEquivalentTo(information, "this message was added to collection");

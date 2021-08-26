@@ -34,7 +34,7 @@ namespace Pipelines
         /// <param name="pipeline">
         /// The pipeline that is hold to be executed later.
         /// </param>
-        public PipelineExecutor(IPipeline pipeline) : this(pipeline, Pipelines.Runner.StaticInstance)
+        public PipelineExecutor(IPipeline pipeline) : this(pipeline, Pipelines.Runner.Instance)
         {
         }
 

@@ -167,7 +167,7 @@ namespace Pipelines
         /// </returns>
         public static Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args)
         {
-            return enumerable.Run(args, Runner.StaticInstance);
+            return enumerable.Run(args, Runner.Instance);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Pipelines
         /// </returns>
         public static async Task Run<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args, IProcessorRunner runner)
         {
-            runner = runner ?? Runner.StaticInstance;
+            runner = runner ?? Runner.Instance;
             if (enumerable.HasNoValue())
             {
                 return;
@@ -231,7 +231,7 @@ namespace Pipelines
         public static Task RunProcessorsWhile<TArgs>(this IEnumerable<IProcessor> enumerable, TArgs args,
             Predicate<TArgs> condition)
         {
-            return enumerable.RunProcessorsWhile(args, condition, Runner.StaticInstance);
+            return enumerable.RunProcessorsWhile(args, condition, Runner.Instance);
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace Pipelines
                 return;
             }
 
-            runner = runner ?? Runner.StaticInstance;
+            runner = runner ?? Runner.Instance;
 
             while (condition(args))
             {

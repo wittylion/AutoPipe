@@ -13,22 +13,30 @@ namespace Pipelines
         /// <summary>
         /// Represents a filter for information messages only.
         /// </summary>
-        Informations = 1,
+        Info = MessageType.Information,
 
         /// <summary>
         /// Represents a filter for warning messages only.
         /// </summary>
-        Warnings = 2,
+        Warning = MessageType.Warning,
 
         /// <summary>
         /// Represents a filter for error messages only.
         /// </summary>
-        Errors = 4,
+        Error = MessageType.Error,
+
+        Debug = MessageType.Debug,
+
+        InfoWarning = Info | Warning,
+
+        InfoError = Info | Error,
+
+        WarningError = Warning | Error,
 
         /// <summary>
         /// Represents a filter for all possible messages,
         /// including: Informations, Warnings and Errors.
         /// </summary>
-        All = 7
+        All = int.MaxValue,
     }
 }

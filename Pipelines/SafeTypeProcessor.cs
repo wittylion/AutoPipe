@@ -63,8 +63,8 @@ namespace Pipelines
             Debug.WriteLine(
                 "Skipping Processor [{0}]. Expected type [{1}]. Received type [{2}].",
                 this.Name(),
-                typeof(TArgs).Name,
-                arguments.GetType().Name);
+                typeof(TArgs).GetName(),
+                arguments.GetType().GetName());
         }
 
         /// <summary>

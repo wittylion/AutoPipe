@@ -17,7 +17,7 @@ namespace Pipelines.Tests.Units
                     Pipeline.From(
                         Processor.From<Bag>(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
-                    Runner.StaticInstance).ContinueWith(a => a.Result.Get("string", 0));
+                    Runner.Instance).ContinueWith(a => a.Result.Get("string", 0));
 
             value.Should().Be(3);
         }
@@ -32,7 +32,7 @@ namespace Pipelines.Tests.Units
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
                     ),
-                    Runner.StaticInstance);
+                    Runner.Instance);
 
             context.Get("message", "")
                 .Should()
@@ -49,7 +49,7 @@ namespace Pipelines.Tests.Units
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
                     ),
-                    Runner.StaticInstance);
+                    Runner.Instance);
 
             context.Get("message", "")
                 .Should()
@@ -67,7 +67,7 @@ namespace Pipelines.Tests.Units
                         new EnsureMessage(),
                         new HelloMessageNameReplacer()
                     ),
-                    Runner.StaticInstance);
+                    Runner.Instance);
 
             context.Get("message", "")
                 .Should()
@@ -86,7 +86,7 @@ namespace Pipelines.Tests.Units
                         new EnsureMessage(),
                         new HelloMessageNameToResultReplacer()
                     ),
-                    Runner.StaticInstance);
+                    Runner.Instance);
 
             context.StringResultOrEmpty()
                 .Should()

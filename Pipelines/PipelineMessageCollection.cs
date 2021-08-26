@@ -190,7 +190,7 @@ namespace Pipelines
         /// </returns>
         public virtual PipelineMessage[] GetInformationsAndWarnings()
         {
-            return this.GetMessages(MessageFilter.Informations | MessageFilter.Warnings);
+            return this.GetMessages(MessageFilter.Info | MessageFilter.Warning);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace Pipelines
         /// </returns>
         public virtual PipelineMessage[] GetWarningsAndErrors()
         {
-            return this.GetMessages(MessageFilter.Warnings | MessageFilter.Errors);
+            return this.GetMessages(MessageFilter.Warning | MessageFilter.Error);
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Pipelines
         /// </returns>
         public virtual PipelineMessage[] GetInformationMessages()
         {
-            return this.GetMessages(MessageFilter.Informations);
+            return this.GetMessages(MessageFilter.Info);
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace Pipelines
         /// </returns>
         public virtual PipelineMessage[] GetWarningMessages()
         {
-            return this.GetMessages(MessageFilter.Warnings);
+            return this.GetMessages(MessageFilter.Warning);
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Pipelines
         /// </returns>
         public virtual PipelineMessage[] GetErrorMessages()
         {
-            return this.GetMessages(MessageFilter.Errors);
+            return this.GetMessages(MessageFilter.Error);
         }
     }
 }

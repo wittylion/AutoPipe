@@ -21,11 +21,11 @@ namespace Pipelines
         /// </param>
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a static
-        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.Instance"/>.
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline)
         {
-            return pipeline.ToProcessor(Runner.StaticInstance);
+            return pipeline.ToProcessor(Runner.Instance);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Pipelines
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a <paramref name="runner"/>
         /// or if it is not specified, with a static
-        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.Instance"/>.
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
@@ -60,11 +60,11 @@ namespace Pipelines
         /// </param>
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a static
-        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.Instance"/>.
         /// </returns>
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline)
         {
-            return pipeline.ToProcessor(Runner.StaticInstance);
+            return pipeline.ToProcessor(Runner.Instance);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Pipelines
         /// <returns>
         /// The processor that simply wraps a call to pipeline with a <paramref name="runner"/>
         /// or if it is not specified, with a static
-        /// instance of <see cref="Runner"/> - <see cref="Runner.StaticInstance"/>.
+        /// instance of <see cref="Runner"/> - <see cref="Runner.Instance"/>.
         /// </returns>
         public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
         {
@@ -114,14 +114,14 @@ namespace Pipelines
         /// </returns>
         public static Task Run(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
         {
-            runner = runner ?? Runner.StaticInstance;
+            runner = runner ?? Runner.Instance;
             args = args ?? new Bag();
             return runner.Run(pipeline, args);
         }
 
         public static Task RunBag(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
-            runner = runner ?? Runner.StaticInstance;
+            runner = runner ?? Runner.Instance;
             if (!(args is Bag))
             {
                 args = new Bag(args);
@@ -253,7 +253,7 @@ namespace Pipelines
         public static Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
             Predicate<TArgs> condition)
         {
-            return pipeline.RunPipelineWhile(args, condition, Runner.StaticInstance);
+            return pipeline.RunPipelineWhile(args, condition, Runner.Instance);
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace Pipelines
         public static async Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
             Predicate<TArgs> condition, IPipelineRunner runner)
         {
-            runner = runner ?? Runner.StaticInstance;
+            runner = runner ?? Runner.Instance;
             while (condition(args))
             {
                 await pipeline.Run(args, runner).ConfigureAwait(false);
@@ -465,6 +465,11 @@ namespace Pipelines
         public static string Name(this IPipeline pipeline)
         {
             return pipeline.GetType().GetName();
+        }
+
+        public static string Description(this IPipeline pipeline)
+        {
+            return pipeline.GetType().GetDescription();
         }
     }
 }

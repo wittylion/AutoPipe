@@ -14,9 +14,9 @@ namespace Pipelines.Observable
         public IPipelineRunner OriginalRunner { get; }
 
         /// <summary>
-        /// Default constructor uses <see cref="Runner.StaticInstance"/>.
+        /// Default constructor uses <see cref="Runner.Instance"/>.
         /// </summary>
-        public ObservablePipelineRunner() : this(Runner.StaticInstance)
+        public ObservablePipelineRunner() : this(Runner.Instance)
         {
         }
 

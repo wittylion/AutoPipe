@@ -27,7 +27,7 @@ namespace Pipelines.Tests.Integrations
             var arguments = new HelloWorldArguments { Name = "   " };
             await runner.Run(new HelloWorldPipelineWithValidation(), arguments).ConfigureAwait(false);
 
-            arguments.GetMessages(MessageFilter.Errors).Should().ContainSingle(pipelineMessage =>
+            arguments.GetMessages(MessageFilter.Error).Should().ContainSingle(pipelineMessage =>
                 pipelineMessage.Message.Equals(HelloWorldPipelineMessages.NameMustBeProvided));
         }
     }

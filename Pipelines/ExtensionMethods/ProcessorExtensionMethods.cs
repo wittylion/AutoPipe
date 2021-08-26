@@ -181,7 +181,7 @@ namespace Pipelines
         /// </returns>
         public static Task Run(this IProcessor processor, object args = null, IProcessorRunner runner = null)
         {
-            runner = runner ?? Runner.StaticInstance;
+            runner = runner ?? Runner.Instance;
             args = args ?? new Bag();
             return runner.Run(processor, args);
         }
@@ -267,6 +267,11 @@ namespace Pipelines
         public static string Name(this IProcessor processor)
         {
             return processor.GetType().GetName();
+        }
+
+        public static string Description(this IProcessor processor)
+        {
+            return processor.GetType().GetDescription();
         }
 
         public static int Order(this IProcessor processor)

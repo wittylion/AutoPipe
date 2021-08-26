@@ -2,10 +2,10 @@
 
 namespace Pipelines
 {
-    [System.AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
     public class AkaAttribute : Attribute
     {
-        public static readonly string NameParameterIsEmpty = "The name attribute must contain a meaningful name, but contained null or empty string.";
+        public static readonly string NameParameterIsEmpty = "The name parameter must contain a meaningful value, but contained null or empty string.";
         public static readonly string AliasIsEmpty = "The {0} parameter must contain a meaningful name, but contained null or empty string.";
 
         public string[] Aliases { get; }

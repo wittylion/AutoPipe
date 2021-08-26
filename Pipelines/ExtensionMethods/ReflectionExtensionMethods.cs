@@ -35,5 +35,10 @@ namespace Pipelines
             var skipAttribute = member?.GetCustomAttribute<SkipAttribute>();
             return skipAttribute != null;
         }
+
+        public static string GetDescription(this MemberInfo member)
+        {
+            return member?.GetCustomAttribute<IsAttribute>()?.Description;
+        }
     }
 }

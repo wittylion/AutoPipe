@@ -10,7 +10,7 @@ namespace Pipelines
         /// <summary>
         /// Default instance of the <see cref="ProcessorRunner"/>.
         /// </summary>
-        public static readonly IProcessorRunner StaticInstance = new ProcessorRunner();
+        public static readonly IProcessorRunner Instance = new ProcessorRunner();
 
         /// <summary>
         /// Runs a processor by executing its <see cref="IProcessor.Run"/> method.

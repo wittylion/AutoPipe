@@ -13,14 +13,14 @@ namespace Pipelines
         /// <summary>
         /// Default instance of the <see cref="Runner"/>.
         /// </summary>
-        public static readonly Runner StaticInstance = new Runner();
+        public static readonly Runner Instance = new Runner();
 
         /// <summary>
         /// The object that is responsible for running single processor in <see cref="Run{TArgs}(IProcessor, TArgs)"/>.
         /// </summary>
         public IProcessorRunner ProcessorsRunner { get; }
 
-        public Runner() : this(processorRunner: ProcessorRunner.StaticInstance)
+        public Runner() : this(processorRunner: ProcessorRunner.Instance)
         {
         }
 

@@ -7,53 +7,67 @@ namespace Pipelines
 {
     public class NamespacePipeline : IPipeline
     {
+        public static readonly string NamespaceCannotBeEmptyMessage = "You cannot set empty namespace. Please check the namespace parameter.";
         public string Namespace { get; }
         public bool Recursive { get; }
+        public bool LeaveSkipped { get; }
 
-        public NamespacePipeline(bool recursive = true)
+        public NamespacePipeline(string @namespace = null, bool recursive = true, bool leaveSkipped = false)
         {
-            var stackFrame = new StackTrace().GetFrame(1);
-            if (stackFrame != null)
+            if (@namespace == null)
             {
-                Namespace = stackFrame.GetMethod().DeclaringType.Namespace;
+                var stackFrame = new StackTrace().GetFrame(1);
+                if (stackFrame != null)
+                {
+                    Namespace = stackFrame.GetMethod().DeclaringType.Namespace;
+                }
+            }
+            else if (string.IsNullOrWhiteSpace(@namespace))
+            {
+                throw new ArgumentNullException(nameof(@namespace), NamespaceCannotBeEmptyMessage);
+            }
+            else
+            {
+                Namespace = @namespace;
             }
 
             Recursive = recursive;
-        }
-
-        public NamespacePipeline(string @namespace, bool recursive = true)
-        {
-            if (string.IsNullOrWhiteSpace(@namespace))
-            {
-                throw new ArgumentNullException(nameof(@namespace), $"You cannot set empty namespace. Please check the namespace parameter.");
-            }
-
-            Namespace = @namespace;
-            Recursive = recursive;
+            LeaveSkipped = leaveSkipped;
         }
 
         public IEnumerable<IProcessor> GetProcessors()
         {
-            return Repository.Instance.Types.Where(FilterProcessors).OrderBy(GetProcessorOrder).Select(ConstructProcessor);
+            return Repository.Instance.Types
+                .Where(FilterProcessors)
+                .OrderBy(GetProcessorOrder)
+                .Select(ConstructProcessor);
         }
 
         protected virtual bool FilterProcessors(Type type)
         {
-            bool matchesNamespace = false;
             if (Recursive)
             {
-                if (!string.IsNullOrWhiteSpace(type.Namespace))
+                if (string.IsNullOrWhiteSpace(type.Namespace))
                 {
-                    matchesNamespace = type.Namespace.StartsWith(Namespace);
+                    return false;
+                }
+
+                if (!type.Namespace.StartsWith(Namespace))
+                {
+                    return false;
                 }
             }
             else
             {
-                matchesNamespace = type.Namespace == Namespace;
+                if (type.Namespace != Namespace)
+                {
+                    return false;
+                }
             }
 
-            return matchesNamespace
-                && !type.ShouldSkip();
+            if (!LeaveSkipped && type.ShouldSkip()) return false;
+
+            return true;
         }
 
         protected virtual int GetProcessorOrder(Type type)
@@ -63,7 +77,7 @@ namespace Pipelines
 
         protected virtual IProcessor ConstructProcessor(Type type)
         {
-            return type?.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as IProcessor ?? null;
+            return type?.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as IProcessor;
         }
     }
 }
