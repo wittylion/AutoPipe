@@ -268,5 +268,15 @@ namespace Pipelines
         {
             return processor.GetType().GetName();
         }
+
+        public static int Order(this IProcessor processor)
+        {
+            return processor.GetType().GetOrder();
+        }
+
+        public static bool Skip(this IProcessor processor)
+        {
+            return processor.GetType().ShouldSkip();
+        }
     }
 }

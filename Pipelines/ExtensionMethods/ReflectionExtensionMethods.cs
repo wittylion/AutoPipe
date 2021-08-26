@@ -18,5 +18,22 @@ namespace Pipelines
 
             return member.Name;
         }
+
+        public static int GetOrder(this MemberInfo member)
+        {
+            var orderAttribute = member?.GetCustomAttribute<OrderAttribute>();
+            if (orderAttribute != null)
+            {
+                return orderAttribute.Order;
+            }
+
+            return default;
+        }
+
+        public static bool ShouldSkip(this MemberInfo member)
+        {
+            var skipAttribute = member?.GetCustomAttribute<SkipAttribute>();
+            return skipAttribute != null;
+        }
     }
 }

@@ -30,6 +30,8 @@
         /// can quickly make a decision regarding
         /// the incorrect flow.
         /// </summary>
-        Error = 4
+        Error = 4,
+
+        Debug = 8,
     }
 }
