@@ -34,11 +34,11 @@ namespace Pipelines.Observable
         /// </param>
         public ObservableProcessorRunner(IProcessorRunner originalRunner)
         {
-            OriginalRunner = originalRunner ?? throw new ArgumentNullException(ObservableProcessorRunner.OriginalRunnerIsNull);
+            OriginalRunner = originalRunner ?? throw new ArgumentNullException(OriginalRunnerIsNull);
         }
 
         /// <inheritdoc cref="IProcessorRunner.Run{TArgs}"/>
-        public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
+        public virtual async Task Run(IProcessor processor, object args)
         {
             var info = new ProcessorInfo()
             {

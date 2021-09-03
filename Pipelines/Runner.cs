@@ -51,14 +51,47 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the pipeline execution.
         /// </returns>
-        public virtual Task Run<TArgs>(IPipeline pipeline, TArgs args)
+        public virtual Task Run(IPipeline pipeline, object args)
         {
+            if (args is Bag bag)
+            {
+                return Run(pipeline, bag);
+            }
+
             if (pipeline.HasNoValue())
             {
                 return PipelineTask.CompletedTask;
             }
 
-            return Run(pipeline.GetProcessors(), args);
+            var processors = pipeline.GetProcessors();
+
+            return Run(processors, args);
+        }
+
+        public virtual async Task Run(IPipeline pipeline, Bag bag)
+        {
+            if (pipeline.HasNoValue())
+            {
+                bag.Debug(() => "Cannot run the pipeline because its value is null.");
+                return;
+            }
+
+            var processors = pipeline.GetProcessors();
+
+            var pipelineName = pipeline.Name();
+            var description = pipeline.Description();
+
+            if (description.HasValue())
+            {
+                bag.Debug(() => "Running pipeline [{0}]. Pipeline is {1}".FormatWith(pipelineName, description.ToLower()));
+            }
+            else
+            {
+                bag.Debug(() => "Running pipeline [{0}].".FormatWith(pipelineName));
+            }
+
+            await Run(processors, bag).ConfigureAwait(false);
+            bag.Debug(() => "Completed pipeline [{0}].".FormatWith(pipelineName));
         }
 
         /// <summary>
@@ -79,12 +112,46 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processors execution.
         /// </returns>
-        public virtual async Task Run<TArgs>(IEnumerable<IProcessor> processors, TArgs args)
+        public virtual async Task Run(IEnumerable<IProcessor> processors, object args)
         {
             processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)
             {
                 await Run(processor, args).ConfigureAwait(false);
+            }
+        }
+
+        public virtual async Task Run(IEnumerable<IProcessor> processors, Bag bag)
+        {
+            int index = 0;
+            processors = processors ?? Enumerable.Empty<IProcessor>();
+            foreach (var processor in processors)
+            {
+                var processorName = processor.Name();
+                var description = processor.Description();
+
+                if (description.HasValue())
+                {
+                    bag.Debug(() => "Running processor at index [{1}]: [{0}]. Processor is {2}".FormatWith(processorName, index, description.ToLower()));
+                }
+                else
+                {
+                    bag.Debug(() => "Running processor at index [{1}]: [{0}].".FormatWith(processorName, index));
+                }
+
+                await Run(processor, bag).ConfigureAwait(false);
+
+                if (bag.Ended)
+                {
+                    bag.Debug(() => "Completed processor [{0}]. Ending signal has been sent.".FormatWith(processorName));
+                    break;
+                }
+                else
+                {
+                    bag.Debug(() => "Completed processor [{0}]. Continue to the next one.".FormatWith(processorName));
+                }
+
+                ++index;
             }
         }
 
@@ -104,7 +171,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
+        public virtual async Task Run(IProcessor processor, object args)
         {
             if (processor.HasValue())
             {

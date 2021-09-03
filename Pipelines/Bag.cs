@@ -10,7 +10,7 @@ namespace Pipelines
     /// Introduces possibility to keep context information
     /// about the flow of the pipeline. By default it has
     /// messages collection which can be accessed by using
-    /// <see cref="GetMessages"/> method and a flag
+    /// <see cref="MessageObjects"/> method and a flag
     /// <see cref="Ended"/> identifying whether pipeline was ended.
     /// </summary>
     [Serializable]
@@ -27,9 +27,9 @@ namespace Pipelines
             return new Bag();
         }
 
-        public static Bag Copy(Bag bag)
+        public static Bag Copy(Bag bag, bool includeMessages = false)
         {
-            return CreateFromDictionary(bag);
+            return bag.MakeCopy(includeMessages);
         }
 
         /// <summary>
@@ -152,13 +152,23 @@ namespace Pipelines
         /// Flag identifying whether pipeline must be ended/stopped,
         /// it can be used as a cancelation identifier for the execution flow.
         /// </summary>
-        public bool Ended { get; set; }
+        public bool Ended
+        {
+            get => Get(EndedProperty, false);
+            set => SetProperty(EndedProperty, value);
+        }
+
+        public bool Debug
+        {
+            get => Get(DebugProperty, true);
+            set => SetProperty(DebugProperty, value);
+        }
 
         /// <summary>
         /// Collection of messages that keeps all the text passed to the
         /// context during the pipeline execution.
         /// </summary>
-        protected Lazy<ICollection<PipelineMessage>> Messages { get; } =
+        protected Lazy<ICollection<PipelineMessage>> MessagesCollection { get; } =
             new Lazy<ICollection<PipelineMessage>>(() => new PipelineMessageCollection());
 
         /// <summary>
@@ -166,18 +176,22 @@ namespace Pipelines
         /// or obtained values during pipeline execution or before
         /// execution is started <see cref="PipelineContext(object)"/>.
         /// </summary>
-        protected Lazy<Dictionary<string, object>> Properties { get; } = new Lazy<Dictionary<string, object>>(() =>
+        protected Lazy<Dictionary<string, object>> PropertiesDictionary { get; } = new Lazy<Dictionary<string, object>>(() =>
             new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
 
-        public ICollection<string> Keys => Properties.IsValueCreated ? Properties.Value.Keys : (ICollection<string>)Enumerable.Empty<string>();
+        public ICollection<string> Keys => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Keys : (ICollection<string>)Enumerable.Empty<string>();
 
-        public ICollection<object> Values => Properties.IsValueCreated ? Properties.Value.Values.ToList() : (ICollection<object>)Enumerable.Empty<object>();
+        public ICollection<object> Values => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Values.ToList() : (ICollection<object>)Enumerable.Empty<object>();
 
-        public int Count => Properties.IsValueCreated ? Properties.Value.Count : 0;
+        public int Count => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Count : 0;
 
         public bool IsReadOnly => false;
 
-        public object this[string key] { get => this.GetOrThrow<object>(key); set => this.SetProperty(key, value); }
+        public object this[string key]
+        {
+            get => this.GetOrThrow<object>(key);
+            set => this.SetProperty(key, value);
+        }
 
         /// <summary>
         /// Applies property to the context. Depending on
@@ -214,7 +228,7 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Adds the property to the collection <see cref="Properties"/>
+        /// Adds the property to the collection <see cref="PropertiesDictionary"/>
         /// or updates the value if key of parameter <paramref name="name"/>
         /// has been added previously (alias to <see cref="UpdateOrAddProperty{TValue}"/>).
         /// </summary>
@@ -239,7 +253,7 @@ namespace Pipelines
                 throw new ArgumentNullException(nameof(value), $"You cannot set null value properties. Please check the \"{name}\" parameter.");
             }
 
-            var dictionary = Properties.Value;
+            var dictionary = PropertiesDictionary.Value;
             if (!dictionary.ContainsKey(name))
             {
                 dictionary.Add(name, value);
@@ -281,7 +295,7 @@ namespace Pipelines
 
         public virtual TValue GetOrThrow<TValue>(string name)
         {
-            if (Properties.IsValueCreated && Properties.Value.TryGetValue(name, out object maybeValue))
+            if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
             {
                 if (maybeValue is TValue value)
                 {
@@ -320,7 +334,7 @@ namespace Pipelines
 
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
-            if (Properties.IsValueCreated && Properties.Value.TryGetValue(name, out object maybeValue))
+            if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
             {
                 if (maybeValue is TValue value)
                 {
@@ -371,20 +385,20 @@ namespace Pipelines
         /// </returns>
         public virtual bool Contains<TProperty>(string name)
         {
-            return Properties.IsValueCreated &&
-                Properties.Value.TryGetValue(name, out object foundValue) &&
+            return PropertiesDictionary.IsValueCreated &&
+                PropertiesDictionary.Value.TryGetValue(name, out object foundValue) &&
                 foundValue is TProperty;
         }
 
         public virtual bool Contains<TProperty>(string name, out TProperty value)
         {
             value = default(TProperty);
-            if (!Properties.IsValueCreated)
+            if (!PropertiesDictionary.IsValueCreated)
             {
                 return false;
             }
 
-            if (!Properties.Value.TryGetValue(name, out object foundValue))
+            if (!PropertiesDictionary.Value.TryGetValue(name, out object foundValue))
             {
                 return false;
             }
@@ -418,12 +432,12 @@ namespace Pipelines
         {
             value = default;
 
-            if (!Properties.IsValueCreated)
+            if (!PropertiesDictionary.IsValueCreated)
             {
                 return false;
             }
 
-            var types = Properties.Value.Values.OfType<TProperty>().Take(2);
+            var types = PropertiesDictionary.Value.Values.OfType<TProperty>().Take(2);
             if (types.Count() == 1)
             {
                 value = types.First();
@@ -461,9 +475,9 @@ namespace Pipelines
         /// </param>
         public virtual void DeleteProperty(string name)
         {
-            if (Properties.IsValueCreated)
+            if (PropertiesDictionary.IsValueCreated)
             {
-                var dictionary = Properties.Value;
+                var dictionary = PropertiesDictionary.Value;
                 dictionary.Remove(name);
             }
         }
@@ -496,15 +510,15 @@ namespace Pipelines
         /// An array of messages that belong to the context of pipeline,
         /// filtered specifically to parameter <paramref name="filter"/>.
         /// </returns>
-        public virtual PipelineMessage[] GetMessages(MessageFilter filter)
+        public virtual PipelineMessage[] MessageObjects(MessageFilter filter)
         {
-            if (Messages.IsValueCreated && Messages.Value.Count > 0)
+            if (MessagesCollection.IsValueCreated && MessagesCollection.Value.Count > 0)
             {
                 if (filter == MessageFilter.All)
                 {
-                    return Messages.Value.ToArray();
+                    return MessagesCollection.Value.ToArray();
                 }
-                return Messages.Value.Where(message => ((int)message.MessageType & (int)filter) > 0).ToArray();
+                return MessagesCollection.Value.Where(message => ((int)message.MessageType & (int)filter) > 0).ToArray();
             }
             return new PipelineMessage[0];
         }
@@ -518,9 +532,9 @@ namespace Pipelines
         /// All messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual PipelineMessage[] GetAllMessages()
+        public virtual PipelineMessage[] MessageObjects()
         {
-            return this.GetMessages(MessageFilter.All);
+            return this.MessageObjects(MessageFilter.All);
         }
 
         /// <summary>
@@ -532,9 +546,9 @@ namespace Pipelines
         /// All text messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual string[] GetAllMessageTexts()
+        public virtual string[] Messages()
         {
-            return this.GetAllMessages()
+            return this.MessageObjects()
                 .Select(messageContainer => messageContainer.Message)
                 .ToArray();
         }
@@ -551,9 +565,9 @@ namespace Pipelines
         /// Filtered text messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual string[] GetMessageTexts(MessageFilter filter)
+        public virtual string[] Messages(MessageFilter filter)
         {
-            return this.GetMessages(filter)
+            return this.MessageObjects(filter)
                 .Select(messageContainer => messageContainer.Message)
                 .ToArray();
         }
@@ -575,14 +589,14 @@ namespace Pipelines
         /// Filtered text messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual string[] GetMessageTexts(MessageFilter filter, Func<string, MessageType, string> format)
+        public virtual string[] Messages(MessageFilter filter, Func<string, MessageType, string> format)
         {
             if (format.HasNoValue())
             {
-                return this.GetMessageTexts(filter);
+                return this.Messages(filter);
             }
 
-            return this.GetMessages(filter)
+            return this.MessageObjects(filter)
                 .Select(messageContainer =>
                     format(messageContainer.Message, messageContainer.MessageType))
                 .ToArray();
@@ -605,14 +619,14 @@ namespace Pipelines
         /// Filtered text messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual string[] GetMessageTexts(MessageFilter filter, Func<PipelineMessage, string> format)
+        public virtual string[] Messages(MessageFilter filter, Func<PipelineMessage, string> format)
         {
             if (format.HasNoValue())
             {
-                return this.GetMessageTexts(filter);
+                return this.Messages(filter);
             }
 
-            return this.GetMessages(filter)
+            return this.MessageObjects(filter)
                 .Select(messageContainer => format(messageContainer))
                 .ToArray();
         }
@@ -631,14 +645,14 @@ namespace Pipelines
         /// All text messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual string[] GetAllMessageTexts(Func<string, MessageType, string> format)
+        public virtual string[] Messages(Func<string, MessageType, string> format)
         {
             if (format.HasNoValue())
             {
-                return this.GetAllMessageTexts();
+                return this.Messages();
             }
 
-            return this.GetAllMessages()
+            return this.MessageObjects()
                 .Select(messageContainer =>
                     format(messageContainer.Message, messageContainer.MessageType))
                 .ToArray();
@@ -658,14 +672,14 @@ namespace Pipelines
         /// All text messages of the context, that have been added
         /// during pipeline execution.
         /// </returns>
-        public virtual string[] GetAllMessageTexts(Func<PipelineMessage, string> format)
+        public virtual string[] Messages(Func<PipelineMessage, string> format)
         {
             if (format.HasNoValue())
             {
-                return this.GetAllMessageTexts();
+                return this.Messages();
             }
 
-            return this.GetAllMessages()
+            return this.MessageObjects()
                 .Select(messageContainer => format(messageContainer))
                 .ToArray();
         }
@@ -683,7 +697,7 @@ namespace Pipelines
             string separator = null, MessageFilter filter = MessageFilter.All,
             Func<PipelineMessage, string> format = null)
         {
-            string[] texts = this.GetMessageTexts(filter, format);
+            string[] texts = this.Messages(filter, format);
 
             separator = separator ?? Environment.NewLine;
 
@@ -699,9 +713,9 @@ namespace Pipelines
         /// Information and warning messages of the context,
         /// that have been added during pipeline execution.
         /// </returns>
-        public virtual PipelineMessage[] InfosAndWarnings()
+        public virtual string[] InfosAndWarnings()
         {
-            return this.GetMessages(MessageFilter.InfoWarning);
+            return this.Messages(MessageFilter.InfoWarning);
         }
 
         /// <summary>
@@ -713,9 +727,9 @@ namespace Pipelines
         /// Warning and error messages of the context,
         /// that have been added during pipeline execution.
         /// </returns>
-        public virtual PipelineMessage[] WarningsAndErrors()
+        public virtual string[] WarningsAndErrors()
         {
-            return this.GetMessages(MessageFilter.WarningError);
+            return this.Messages(MessageFilter.WarningError);
         }
 
         /// <summary>
@@ -727,9 +741,9 @@ namespace Pipelines
         /// <returns>
         /// Information messages of the pipeline execution context.
         /// </returns>
-        public virtual PipelineMessage[] GetInformationMessages()
+        public virtual string[] Infos()
         {
-            return this.GetMessages(MessageFilter.Info);
+            return this.Messages(MessageFilter.Info);
         }
 
         /// <summary>
@@ -741,9 +755,9 @@ namespace Pipelines
         /// <returns>
         /// Warning messages of the pipeline execution context.
         /// </returns>
-        public virtual PipelineMessage[] GetWarningMessages()
+        public virtual string[] Warnings()
         {
-            return this.GetMessages(MessageFilter.Warning);
+            return this.Messages(MessageFilter.Warning);
         }
 
         /// <summary>
@@ -755,9 +769,9 @@ namespace Pipelines
         /// <returns>
         /// Error messages of the pipeline execution context.
         /// </returns>
-        public virtual PipelineMessage[] GetErrorMessages()
+        public virtual string[] Errors()
         {
-            return this.GetMessages(MessageFilter.Error);
+            return this.Messages(MessageFilter.Error);
         }
 
         /// <summary>
@@ -781,7 +795,7 @@ namespace Pipelines
         /// </param>
         public virtual void AddMessage(PipelineMessage message)
         {
-            Messages.Value.Add(message);
+            MessagesCollection.Value.Add(message);
         }
 
         /// <summary>
@@ -815,7 +829,7 @@ namespace Pipelines
             {
                 foreach (var prop in propertyContainer.GetType().GetProperties())
                 {
-                    this.Properties.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
+                    this.PropertiesDictionary.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
                 }
             }
         }
@@ -832,9 +846,15 @@ namespace Pipelines
         {
         }
 
-        public Bag MakeCopy()
+        public Bag MakeCopy(bool includeMessages = false)
         {
-            return CreateFromDictionary(this);
+            var result = CreateFromDictionary(this);
+            if (includeMessages && MessagesCollection.IsValueCreated)
+            {
+                result.AddMessages(MessagesCollection.Value);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -850,9 +870,11 @@ namespace Pipelines
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue($"{nameof(Bag)}.{nameof(Ended)}", Ended);
-            info.AddValue($"{nameof(Bag)}.{nameof(Messages)}", Messages, typeof(ICollection<PipelineMessage>));
+            info.AddValue($"{nameof(Bag)}.{nameof(MessagesCollection)}", MessagesCollection, typeof(ICollection<PipelineMessage>));
         }
 
+        public static string EndedProperty = "ended";
+        public static string DebugProperty = "debug";
         public static string ResultProperty = "result";
 
         /// <summary>
@@ -953,9 +975,9 @@ namespace Pipelines
 
         public bool ContainsKey(string key)
         {
-            if (Properties.IsValueCreated)
+            if (PropertiesDictionary.IsValueCreated)
             {
-                return Properties.Value.ContainsKey(key);
+                return PropertiesDictionary.Value.ContainsKey(key);
             }
 
             return false;
@@ -979,9 +1001,9 @@ namespace Pipelines
 
         public void Clear()
         {
-            if (Properties.IsValueCreated)
+            if (PropertiesDictionary.IsValueCreated)
             {
-                Properties.Value.Clear();
+                PropertiesDictionary.Value.Clear();
             }
         }
 
@@ -994,9 +1016,9 @@ namespace Pipelines
         {
             if (array == null) return;
 
-            if (Properties.IsValueCreated)
+            if (PropertiesDictionary.IsValueCreated)
             {
-                var props = Properties.Value.Skip(arrayIndex);
+                var props = PropertiesDictionary.Value.Skip(arrayIndex);
                 for (int i = 0; i < props.Count(); i++)
                 {
                     if (i >= array.Length) break;
@@ -1013,9 +1035,9 @@ namespace Pipelines
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            if (Properties.IsValueCreated)
+            if (PropertiesDictionary.IsValueCreated)
             {
-                foreach (var item in Properties.Value)
+                foreach (var item in PropertiesDictionary.Value)
                 {
                     yield return item;
                 }

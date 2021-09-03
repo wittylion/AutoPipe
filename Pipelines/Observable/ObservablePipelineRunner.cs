@@ -29,11 +29,11 @@ namespace Pipelines.Observable
         /// </param>
         public ObservablePipelineRunner(IPipelineRunner originalRunner)
         {
-            OriginalRunner = originalRunner;
+            OriginalRunner = originalRunner ?? throw new ArgumentNullException(nameof(originalRunner), "Wrapped pipeline runner cannot be null.");
         }
 
         /// <inheritdoc cref="IPipelineRunner.Run{TArgs}"/>
-        public virtual async Task Run<TArgs>(IPipeline pipeline, TArgs args)
+        public virtual async Task Run(IPipeline pipeline, object args)
         {
             var info = new PipelineInfo()
             {

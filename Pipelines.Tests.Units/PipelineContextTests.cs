@@ -15,7 +15,7 @@ namespace Pipelines.Tests.Units
                 .Message(information)
                 .Error(nameof(Bag));
 
-            pipelineContext.GetMessages(MessageFilter.Info).Should()
+            pipelineContext.MessageObjects(MessageFilter.Info).Should()
                 .HaveCount(1, "only one information message was added")
                 .And
                 .AllBeEquivalentTo(information, "this message was added to collection");
@@ -40,7 +40,7 @@ namespace Pipelines.Tests.Units
             pipelineContext.InfosAndWarnings().Should()
                 .HaveCount(2, "because three messages were added, where only one of them is error")
                 .And
-                .Match(collection => collection.All(x => x.MessageType != MessageType.Error), "because collection should contain no Error type");
+                .NotContain("Error", "because collection should contain no Error type");
         }
 
         [Fact]

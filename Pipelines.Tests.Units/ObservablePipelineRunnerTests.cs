@@ -29,7 +29,7 @@ namespace Pipelines.Tests.Units
 
             using (runner.Subscribe(mockObserver.Object))
             {
-                await runner.Run<object>(mockPipeline.Object, null).ConfigureAwait(false);
+                await runner.Run(mockPipeline.Object, null).ConfigureAwait(false);
             }
 
 
@@ -56,7 +56,7 @@ namespace Pipelines.Tests.Units
             
 
             runner.Subscribe(mockObserver.Object).Dispose();
-            await runner.Run<object>(mockPipeline.Object, null).ConfigureAwait(false);
+            await runner.Run(mockPipeline.Object, null).ConfigureAwait(false);
 
 
             completed.Should().BeFalse("because the subscriber was disposed before the RunPipeline was called");
@@ -87,7 +87,7 @@ namespace Pipelines.Tests.Units
 
             using (runner.Subscribe(mockObserver.Object))
             {
-                await runner.Run<object>(mockPipeline, null).ConfigureAwait(false);
+                await runner.Run(mockPipeline, null).ConfigureAwait(false);
             }
 
 

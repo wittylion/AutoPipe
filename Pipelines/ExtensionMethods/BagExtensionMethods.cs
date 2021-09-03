@@ -61,13 +61,13 @@ namespace Pipelines
             context.ApplyProperty(propertyName, newValue, modificator);
         }
 
-        public static async Task<TContext> Run<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null)
+        public static async Task<TContext> Run<TContext>(this TContext context, IPipeline pipeline, IPipelineRunner runner = null) where TContext : Bag
         {
             await pipeline.Run(context, runner).ConfigureAwait(false);
             return context;
         }
 
-        public static async Task<TContext> Run<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null)
+        public static async Task<TContext> Run<TContext>(this TContext context, IProcessor processor, IProcessorRunner runner = null) where TContext : Bag
         {
             await processor.Run(context, runner).ConfigureAwait(false);
             return context;
@@ -254,6 +254,37 @@ namespace Pipelines
         {
             bag.Message(message, MessageType.Information);
             if (end) { bag.End(); }
+            return bag;
+        }
+
+        public static TBag Debug<TBag>(this TBag bag, string message, bool end = false, bool ignoreDebugOption = false) where TBag : Bag
+        {
+            if (ignoreDebugOption || bag.Debug)
+            {
+                bag.Message(message, MessageType.Debug);
+            }
+
+            if (end)
+            {
+                bag.End();
+            }
+
+            return bag;
+        }
+
+        public static TBag Debug<TBag>(this TBag bag, Func<string> messageGetter, bool end = false, bool ignoreDebugOption = false) where TBag : Bag
+        {
+            if (ignoreDebugOption || bag.Debug)
+            {
+                var message = messageGetter();
+                bag.Message(message, MessageType.Debug);
+            }
+
+            if (end)
+            {
+                bag.End();
+            }
+
             return bag;
         }
 

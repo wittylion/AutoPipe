@@ -13,7 +13,7 @@ namespace Pipelines.Tests.Integrations
         {
             var context = new Bag();
             await new AddMessagePipeline().Run(context).ConfigureAwait(false);
-            context.GetAllMessages().Length
+            context.Infos().Length
                 .Should().Be(1, "because pipeline intended to add a message");
         }
 
@@ -22,7 +22,7 @@ namespace Pipelines.Tests.Integrations
         {
             var context = new Bag(new { Messages = ContextValues.Messages });
             await new AddMessagesFromPropertyPipeline().Run(context).ConfigureAwait(false);
-            context.GetAllMessages().Select(x => x.Message)
+            context.Infos()
                 .Should()
                 .BeEquivalentTo(ContextValues.Messages, "because pipeline should add passed messages to the property");
         }
@@ -32,7 +32,7 @@ namespace Pipelines.Tests.Integrations
         {
             var context = new Bag();
             await new SetMessagesAndAddFromPropertyPipeline().Run(context).ConfigureAwait(false);
-            context.GetAllMessages().Select(x => x.Message)
+            context.Infos()
                 .Should()
                 .BeEquivalentTo(ContextValues.Messages, "because pipeline should add passed messages to the property");
         }

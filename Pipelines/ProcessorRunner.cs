@@ -28,12 +28,22 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task Run<TArgs>(IProcessor processor, TArgs args)
+        public virtual async Task Run(IProcessor processor, object args)
         {
             if (processor == null)
                 return;
 
+            if (!CanRun(processor, args))
+            {
+                return;
+            }
+
             await processor.Run(args).ConfigureAwait(false);
+        }
+
+        public virtual bool CanRun(IProcessor processor, object args)
+        {
+            return true;
         }
     }
 }
