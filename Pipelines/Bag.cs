@@ -160,7 +160,7 @@ namespace Pipelines
 
         public bool Debug
         {
-            get => Get(DebugProperty, true);
+            get => Get(DebugProperty, false);
             set => SetProperty(DebugProperty, value);
         }
 

@@ -541,10 +541,20 @@ namespace Pipelines
                             var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
                             var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                            context.Debug(message, metadata.End);
+                            context.Debug(message);
                         }
 
+                        context.End();
+
                         return false;
+                    }
+                    else
+                    {
+                        if (context.Debug)
+                        {
+                            var methodName = method.GetName();
+                            context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                        }
                     }
                 }
 
@@ -556,8 +566,10 @@ namespace Pipelines
                         var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
                         var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                        context.Debug(message, metadata.End);
+                        context.Debug(message);
                     }
+
+                    context.End();
 
                     return false;
                 }
@@ -595,7 +607,7 @@ namespace Pipelines
                         var methodDescription = method.GetDescription();
                         if (methodDescription.HasValue())
                         {
-                            args.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription));
+                            args.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription.ToLower()));
                         }
                         else
                         {
