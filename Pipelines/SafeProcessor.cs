@@ -35,6 +35,12 @@ namespace Pipelines
             {
                 if (!args.ContainsKey(property))
                 {
+                    if (args.Debug)
+                    {
+                        var processorName = this.Name();
+                        args.Debug("The bag misses property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
+                    }
+
                     return false;
                 }
             }
@@ -44,11 +50,23 @@ namespace Pipelines
             {
                 if (args.ContainsKey(property))
                 {
+                    if (args.Debug)
+                    {
+                        var processorName = this.Name();
+                        args.Debug("The bag should not contain property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
+                    }
+
                     return false;
                 }
             }
 
-            return base.SafeCondition(args) && !args.Ended;
+            if (args.Ended)
+            {
+                args.Debug("The bag contained end property set to True. Skipping processor.");
+                return false;
+            }
+
+            return base.SafeCondition(args);
         }
 
         public virtual IEnumerable<string> MustHaveProperties()

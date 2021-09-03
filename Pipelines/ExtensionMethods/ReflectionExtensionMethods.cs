@@ -36,6 +36,12 @@ namespace Pipelines
             return skipAttribute != null;
         }
 
+        public static bool ShouldRun(this MemberInfo member)
+        {
+            var runAttribute = member?.GetCustomAttribute<RunAttribute>();
+            return runAttribute != null;
+        }
+
         public static string GetDescription(this MemberInfo member)
         {
             return member?.GetCustomAttribute<IsAttribute>()?.Description;

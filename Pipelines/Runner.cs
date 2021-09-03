@@ -72,26 +72,34 @@ namespace Pipelines
         {
             if (pipeline.HasNoValue())
             {
-                bag.Debug(() => "Cannot run the pipeline because its value is null.");
+                bag.Debug("Cannot run the pipeline because its value is null.");
                 return;
             }
 
             var processors = pipeline.GetProcessors();
 
-            var pipelineName = pipeline.Name();
-            var description = pipeline.Description();
-
-            if (description.HasValue())
+            if (bag.Debug)
             {
-                bag.Debug(() => "Running pipeline [{0}]. Pipeline is {1}".FormatWith(pipelineName, description.ToLower()));
+                var pipelineName = pipeline.Name();
+                var description = pipeline.Description();
+
+                if (description.HasValue())
+                {
+                    bag.Debug("Running pipeline [{0}]. Pipeline is {1}".FormatWith(pipelineName, description.ToLower()));
+                }
+                else
+                {
+                    bag.Debug("Running pipeline [{0}].".FormatWith(pipelineName));
+                }
+
+                await Run(processors, bag).ConfigureAwait(false);
+
+                bag.Debug("Completed pipeline [{0}].".FormatWith(pipelineName));
             }
             else
             {
-                bag.Debug(() => "Running pipeline [{0}].".FormatWith(pipelineName));
+                await Run(processors, bag).ConfigureAwait(false);
             }
-
-            await Run(processors, bag).ConfigureAwait(false);
-            bag.Debug(() => "Completed pipeline [{0}].".FormatWith(pipelineName));
         }
 
         /// <summary>
@@ -127,28 +135,35 @@ namespace Pipelines
             processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)
             {
-                var processorName = processor.Name();
-                var description = processor.Description();
-
-                if (description.HasValue())
+                if (bag.Debug)
                 {
-                    bag.Debug(() => "Running processor at index [{1}]: [{0}]. Processor is {2}".FormatWith(processorName, index, description.ToLower()));
+                    var processorName = processor.Name();
+                    var description = processor.Description();
+
+                    if (description.HasValue())
+                    {
+                        bag.Debug("Running processor at index [{1}]: [{0}]. Processor is {2}".FormatWith(processorName, index, description.ToLower()));
+                    }
+                    else
+                    {
+                        bag.Debug("Running processor at index [{1}]: [{0}].".FormatWith(processorName, index));
+                    }
+
+                    await Run(processor, bag).ConfigureAwait(false);
+
+                    if (bag.Ended)
+                    {
+                        bag.Debug("Completed processor [{0}]. Ending signal has been sent.".FormatWith(processorName));
+                        break;
+                    }
+                    else
+                    {
+                        bag.Debug("Completed processor [{0}]. Continue to the next one.".FormatWith(processorName));
+                    }
                 }
                 else
                 {
-                    bag.Debug(() => "Running processor at index [{1}]: [{0}].".FormatWith(processorName, index));
-                }
-
-                await Run(processor, bag).ConfigureAwait(false);
-
-                if (bag.Ended)
-                {
-                    bag.Debug(() => "Completed processor [{0}]. Ending signal has been sent.".FormatWith(processorName));
-                    break;
-                }
-                else
-                {
-                    bag.Debug(() => "Completed processor [{0}]. Continue to the next one.".FormatWith(processorName));
+                    await Run(processor, bag).ConfigureAwait(false);
                 }
 
                 ++index;

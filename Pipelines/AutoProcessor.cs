@@ -75,7 +75,7 @@ namespace Pipelines
         /// </returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return method?.GetCustomAttribute<RunAttribute>(false) != null;
+            return method.ShouldRun() && !method.ShouldSkip();
         }
 
         /// <summary>
@@ -536,10 +536,13 @@ namespace Pipelines
                 {
                     if (!bagTypes.TryGetValue(parameter.ParameterType, out property))
                     {
-                        var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
-                        var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+                        if (context.Debug)
+                        {
+                            var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
+                            var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                        context.Error(message, metadata.End);
+                            context.Debug(message, metadata.End);
+                        }
 
                         return false;
                     }
@@ -548,10 +551,13 @@ namespace Pipelines
                 var val = property;
                 if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
                 {
-                    var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
-                    var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+                    if (context.Debug)
+                    {
+                        var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
+                        var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
 
-                    context.Error(message, metadata.End);
+                        context.Debug(message, metadata.End);
+                    }
 
                     return false;
                 }
@@ -583,9 +589,36 @@ namespace Pipelines
                         break;
                     }
 
-                    if (AllParametersAreValid(method, args))
+                    if (args.Debug)
                     {
-                        await Run(method, args).ConfigureAwait(false);
+                        var methodName = method.GetName();
+                        var methodDescription = method.GetDescription();
+                        if (methodDescription.HasValue())
+                        {
+                            args.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription));
+                        }
+                        else
+                        {
+                            args.Debug("Verifying parameters of method [{0}].".FormatWith(methodName));
+                        }
+
+                        if (AllParametersAreValid(method, args))
+                        {
+                            args.Debug("All parameters are valid. Running method [{0}].".FormatWith(methodName));
+                            await Run(method, args).ConfigureAwait(false);
+                            args.Debug("Completed method [{0}].".FormatWith(methodName));
+                        }
+                        else
+                        {
+                            args.Debug("Method [{0}] cannot be run. Going to the next one.".FormatWith(methodName));
+                        }
+                    }
+                    else
+                    {
+                        if (AllParametersAreValid(method, args))
+                        {
+                            await Run(method, args).ConfigureAwait(false);
+                        }
                     }
                 }
             }
