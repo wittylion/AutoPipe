@@ -14,7 +14,7 @@ namespace Pipelines
     /// <see cref="Ended"/> identifying whether pipeline was ended.
     /// </summary>
     [Serializable]
-    public class Bag : ISerializable, IDictionary<string, object>
+    public class Bag : ISerializable, IDisposable, IDictionary<string, object>
     {
         /// <summary>
         /// Creates a new Bag that has a parameter-less constructor.
@@ -29,7 +29,7 @@ namespace Pipelines
 
         public static Bag Copy(Bag bag, bool includeMessages = false)
         {
-            return bag.MakeCopy(includeMessages);
+            return bag.Copy(includeMessages);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Pipelines
         /// <returns>
         /// New pipeline context with properties from an object passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
-        public static Bag Create<TProperties>(TProperties propertyContainer)
+        public static Bag Create(object propertyContainer)
         {
             return Bag.CreateFromProperties(propertyContainer);
         }
@@ -112,14 +112,13 @@ namespace Pipelines
         /// Creates a new <see cref="PipelineContext"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
-        /// <typeparam name="TProperties">The type of property container.</typeparam>
         /// <param name="propertyContainer">
         /// Object which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
         /// New pipeline context with properties from an object passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
-        public static Bag CreateFromProperties<TProperties>(TProperties propertyContainer)
+        public static Bag CreateFromProperties(object propertyContainer)
         {
             return new Bag(propertyContainer);
         }
@@ -148,6 +147,8 @@ namespace Pipelines
             return context;
         }
 
+        public event EventHandler<PipelineMessage> OnMessage;
+
         /// <summary>
         /// Flag identifying whether pipeline must be ended/stopped,
         /// it can be used as a cancelation identifier for the execution flow.
@@ -162,6 +163,27 @@ namespace Pipelines
         {
             get => Get(DebugProperty, false);
             set => SetProperty(DebugProperty, value);
+        }
+
+        public void Dispose()
+        {
+            if (PropertiesDictionary.IsValueCreated)
+            {
+                var disposables = PropertiesDictionary.Value.Values.OfType<IDisposable>();
+                foreach (var disposable in disposables)
+                {
+                    disposable.Dispose();
+                }
+
+                PropertiesDictionary.Value.Clear();
+            }
+
+            if (MessagesCollection.IsValueCreated)
+            {
+                MessagesCollection.Value.Clear();
+            }
+
+            OnMessage = null;
         }
 
         /// <summary>
@@ -307,7 +329,7 @@ namespace Pipelines
             throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context. Try to go through messages:\r\n{summaryMessage}");
         }
 
-        public virtual string StringOrEmpty(string name)
+        public virtual string String(string name)
         {
             if (Has(name, out string value))
             {
@@ -317,17 +339,7 @@ namespace Pipelines
             return string.Empty;
         }
 
-        public virtual string StringOrThrow(string name)
-        {
-            return GetOrThrow<string>(name);
-        }
-
-        public virtual List<TElement> ListOrThrow<TElement>(string name)
-        {
-            return GetOrThrow<IEnumerable<TElement>>(name).ToList();
-        }
-
-        public virtual List<TElement> ListOrEmpty<TElement>(string name)
+        public virtual List<TElement> List<TElement>(string name)
         {
             return Get(name, or: Enumerable.Empty<TElement>()).ToList();
         }
@@ -473,13 +485,32 @@ namespace Pipelines
         /// <param name="name">
         /// The name of the property to be deleted.
         /// </param>
-        public virtual void DeleteProperty(string name)
+        public virtual bool DeleteProperty(string name)
         {
             if (PropertiesDictionary.IsValueCreated)
             {
                 var dictionary = PropertiesDictionary.Value;
-                dictionary.Remove(name);
+                return dictionary.Remove(name);
             }
+
+            return false;
+        }
+
+        public virtual bool DeleteProperty<TElement>(string name, out TElement element)
+        {
+            element = default;
+
+            if (PropertiesDictionary.IsValueCreated)
+            {
+                var dictionary = PropertiesDictionary.Value;
+                if (dictionary.TryGetValue(name, out object prop) && prop is TElement result)
+                {
+                    element = result;
+                    return dictionary.Remove(name);
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -796,6 +827,7 @@ namespace Pipelines
         public virtual void AddMessage(PipelineMessage message)
         {
             MessagesCollection.Value.Add(message);
+            OnMessage?.Invoke(this, message);
         }
 
         /// <summary>
@@ -846,7 +878,7 @@ namespace Pipelines
         {
         }
 
-        public Bag MakeCopy(bool includeMessages = false)
+        public Bag Copy(bool includeMessages = false)
         {
             var result = CreateFromDictionary(this);
             if (includeMessages && MessagesCollection.IsValueCreated)
@@ -890,24 +922,14 @@ namespace Pipelines
             return this.GetOrThrow<TResult>(ResultProperty);
         }
 
-        public string StringResultOrThrow()
+        public string StringResult()
         {
-            return this.StringOrThrow(ResultProperty);
+            return this.String(ResultProperty);
         }
 
-        public string StringResultOrEmpty()
+        public List<TElement> ListResult<TElement>()
         {
-            return this.StringOrEmpty(ResultProperty);
-        }
-
-        public List<TElement> ListResultOrThrow<TElement>()
-        {
-            return this.ListOrThrow<TElement>(ResultProperty);
-        }
-
-        public List<TElement> ListResultOrEmpty<TElement>()
-        {
-            return this.ListOrEmpty<TElement>(ResultProperty);
+            return this.List<TElement>(ResultProperty);
         }
 
         /// <summary>
@@ -985,8 +1007,7 @@ namespace Pipelines
 
         public bool Remove(string key)
         {
-            this.DeleteProperty(key);
-            return true;
+            return this.DeleteProperty(key);
         }
 
         public bool TryGetValue(string key, out object value)

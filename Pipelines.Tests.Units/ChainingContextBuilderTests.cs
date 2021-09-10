@@ -88,7 +88,7 @@ namespace Pipelines.Tests.Units
                     ),
                     Runner.Instance);
 
-            context.StringResultOrEmpty()
+            context.StringResult()
                 .Should()
                 .Be("Hello, Bob!");
         }
