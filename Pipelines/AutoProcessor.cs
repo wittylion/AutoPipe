@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -199,6 +200,12 @@ namespace Pipelines
                 return;
             }
 
+            if (methodResult is LambdaExpression expression)
+            {
+                await ProcessExpression(method, context, expression);
+                return;
+            }
+
             if (!skipNameBasedActions)
             {
                 bool handled = false;
@@ -219,6 +226,59 @@ namespace Pipelines
             }
 
             ProcessObjectProperties(context, methodResult);
+        }
+
+        protected virtual async Task ProcessExpression(MethodInfo method, Bag bag, LambdaExpression expression)
+        {
+            if (expression == null)
+            {
+                if (bag.Debug)
+                {
+                    bag.Debug("The returned expression was null.");
+                }
+                return;
+            }
+
+            var bagTypes = GetSingleTypeValues(bag);
+
+            var list = new LinkedList<object>();
+            foreach (var parameter in expression.Parameters)
+            {
+                var parameterName = parameter.Name;
+                if (bag.Contains(parameterName, out object val))
+                {
+                    if (!parameter.Type.IsAssignableFrom(val.GetType()))
+                    {
+                        if (bag.Debug)
+                        {
+                            bag.Debug("The parameter type [{1}] is not assignable from [{2}] for property [{0}] in lambda expression.".FormatWith(parameterName, parameter.Type, val.GetType()));
+                        }
+                        return;
+                    }
+
+                    list.AddLast(val);
+                    continue;
+                }
+
+                if (bagTypes.TryGetValue(parameter.Type, out var valueOfType))
+                {
+                    list.AddLast(valueOfType);
+                    continue;
+                }
+                else
+                {
+                    if (bag.Debug)
+                    {
+                        bag.Debug("Bag does not contain a property [{0}].".FormatWith(parameterName));
+                    }
+                    return;
+                }
+
+            }
+
+            var result = expression.Compile().DynamicInvoke(list.ToArray());
+
+            await this.ProcessResult(method, bag, result, false);
         }
 
         /// <summary>
@@ -436,7 +496,7 @@ namespace Pipelines
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
-            var bagTypes = context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
+            var bagTypes = GetSingleTypeValues(context);
 
             foreach (var parameter in parameters)
             {
@@ -487,7 +547,11 @@ namespace Pipelines
                     yield return alias;
                 }
             }
+        }
 
+        protected virtual IDictionary<Type, object> GetSingleTypeValues(Bag context)
+        {
+            return context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
         }
 
         /// <summary>
@@ -508,7 +572,7 @@ namespace Pipelines
         protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
-            var bagTypes = context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
+            var bagTypes = GetSingleTypeValues(context);
 
             foreach (var parameter in parameters)
             {
@@ -532,7 +596,25 @@ namespace Pipelines
                 }
 
                 var names = GetParameterNames(parameter);
-                if (!context.ContainsAny(names, out object property))
+                if (context.ContainsAny(names, out object property))
+                {
+                    var val = property;
+                    if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
+                    {
+                        if (context.Debug)
+                        {
+                            var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
+                            var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+
+                            context.Debug(message);
+                        }
+
+                        context.End();
+
+                        return false;
+                    }
+                }
+                else
                 {
                     if (!bagTypes.TryGetValue(parameter.ParameterType, out property))
                     {
@@ -556,22 +638,6 @@ namespace Pipelines
                             context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
                     }
-                }
-
-                var val = property;
-                if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
-                {
-                    if (context.Debug)
-                    {
-                        var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
-                        var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
-
-                        context.Debug(message);
-                    }
-
-                    context.End();
-
-                    return false;
                 }
             }
 
