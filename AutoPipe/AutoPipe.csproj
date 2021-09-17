@@ -30,13 +30,15 @@
       [Skip] - do not run the method;
       [Aka("Pretty Name")] - call methods and processors the way you want;
       [Is("Doing good things")] - describe the methods and processors for better debugging;
-      [Order(15)] - provide an order of the processors and methods.
+      [Order(15)] - provide an order of the processors and methods;
+      [Or("Default value")] - specify the value to be returned when requested property is not found;
+      [Required(Message = "Cannot go without you", End = true)] - make parameters required for method execution and control further execution.
 
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
     <PackageTags>Easy Refactoring Pipelines SOLID Processors Chain</PackageTags>
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <PackageIcon>pipelines-icon.png</PackageIcon>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
