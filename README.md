@@ -1,4 +1,4 @@
-# Pipelines 2.0
+# AutoPipe 
 
 [![NuGet](https://img.shields.io/nuget/v/Pipelines.Net.svg?style=plastic)](https://www.nuget.org/packages/Pipelines.Net/)
 

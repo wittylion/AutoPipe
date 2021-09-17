@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines", "Pipelines\Pipelines.csproj", "{EAFC0584-3D48-45A8-8083-D6AE3C7BAA53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPipe", "AutoPipe\AutoPipe.csproj", "{EAFC0584-3D48-45A8-8083-D6AE3C7BAA53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines.Tests.Units", "Pipelines.Tests.Units\Pipelines.Tests.Units.csproj", "{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPipe.Tests.Units", "AutoPipe.Tests.Units\AutoPipe.Tests.Units.csproj", "{EDFBB3FF-4FCF-44B2-9F1C-8FE40FCEBDFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pipelines.Tests.Integrations", "Pipelines.Tests.Integrations\Pipelines.Tests.Integrations.csproj", "{FAA81EF4-69DC-45A8-A990-2D78C08C951D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPipe.Tests.Integrations", "AutoPipe.Tests.Integrations\AutoPipe.Tests.Integrations.csproj", "{FAA81EF4-69DC-45A8-A990-2D78C08C951D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

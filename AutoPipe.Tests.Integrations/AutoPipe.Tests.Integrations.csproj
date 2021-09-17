@@ -15,7 +15,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Pipelines\Pipelines.csproj" />
+    <ProjectReference Include="..\AutoPipe\AutoPipe.csproj" />
   </ItemGroup>
   
 </Project>
