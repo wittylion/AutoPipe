@@ -51,23 +51,6 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the pipeline execution.
         /// </returns>
-        public virtual Task Run(IPipeline pipeline, object args)
-        {
-            if (args is Bag bag)
-            {
-                return Run(pipeline, bag);
-            }
-
-            if (pipeline.HasNoValue())
-            {
-                return PipelineTask.CompletedTask;
-            }
-
-            var processors = pipeline.GetProcessors();
-
-            return Run(processors, args);
-        }
-
         public virtual async Task Run(IPipeline pipeline, Bag bag)
         {
             if (pipeline.HasNoValue())
@@ -120,15 +103,6 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processors execution.
         /// </returns>
-        public virtual async Task Run(IEnumerable<IProcessor> processors, object args)
-        {
-            processors = processors ?? Enumerable.Empty<IProcessor>();
-            foreach (var processor in processors)
-            {
-                await Run(processor, args).ConfigureAwait(false);
-            }
-        }
-
         public virtual async Task Run(IEnumerable<IProcessor> processors, Bag bag)
         {
             int index = 0;
@@ -186,7 +160,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task Run(IProcessor processor, object args)
+        public virtual async Task Run(IProcessor processor, Bag args)
         {
             if (processor.HasValue())
             {

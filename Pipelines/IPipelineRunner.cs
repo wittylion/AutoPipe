@@ -23,6 +23,6 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the pipeline execution.
         /// </returns>
-        Task Run(IPipeline pipeline, object args);
+        Task Run(IPipeline pipeline, Bag args);
     }
 }

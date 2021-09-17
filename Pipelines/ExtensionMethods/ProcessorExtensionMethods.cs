@@ -62,24 +62,6 @@ namespace Pipelines
         /// <returns>
         /// Enumerable object of two bound processors.
         /// </returns>
-        public static IEnumerable<IProcessor> ThenProcessor(this IProcessor processor, Action<object> nextAction)
-        {
-            return processor.ThenProcessor(nextAction.ToProcessor());
-        }
-
-        /// <summary>
-        /// Composes processor and action processor created from <paramref name="nextAction"/> together into one enumerable chain.
-        /// </summary>
-        /// <param name="processor">
-        /// First processor. In case it is not specified, it will not be included in collection.
-        /// </param>
-        /// <param name="nextAction">
-        /// Action that will be transformed into processor and executed after the first one.
-        /// In case it is not specified, it will not be included in collection.
-        /// </param>
-        /// <returns>
-        /// Enumerable object of two bound processors.
-        /// </returns>
         public static IEnumerable<IProcessor> ThenProcessor(this IProcessor processor, Action nextAction)
         {
             return processor.ThenProcessor(nextAction.ToProcessor());
@@ -104,64 +86,6 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Composes processor and action processor created from <paramref name="nextAction"/> together into one enumerable chain.
-        /// </summary>
-        /// <param name="processor">
-        /// First processor. In case it is not specified, it will not be included in collection.
-        /// </param>
-        /// <param name="nextAction">
-        /// Action that will be transformed into processor and executed after the first one.
-        /// In case it is not specified, it will not be included in collection.
-        /// </param>
-        /// <typeparam name="TArgs">Type of arguments which is to be processed by this processor.</typeparam>
-        /// <returns>
-        /// Enumerable object of two bound processors.
-        /// </returns>
-        public static IEnumerable<SafeTypeProcessor<TArgs>> ThenProcessor<TArgs>(this SafeTypeProcessor<TArgs> processor, Action<TArgs> nextAction)
-        {
-            return processor.ThenProcessor(nextAction.ToProcessor());
-        }
-
-        /// <summary>
-        /// Composes two processors together into one enumerable chain.
-        /// </summary>
-        /// <param name="processor">
-        /// First processor. In case it is not specified, it will not be included in collection.
-        /// </param>
-        /// <param name="nextProcessor">
-        /// Second processor that will be executed after the first one.
-        /// In case it is not specified, it will not be included in collection.
-        /// </param>
-        /// <typeparam name="TArgs">Type of arguments which is to be processed by this processor.</typeparam>
-        /// <returns>
-        /// Enumerable object of two bound processors.
-        /// </returns>
-        public static IEnumerable<SafeTypeProcessor<TArgs>> ThenProcessor<TArgs>(this SafeTypeProcessor<TArgs> processor,
-            SafeTypeProcessor<TArgs> nextProcessor)
-        {
-            if (nextProcessor.HasNoValue() && processor.HasNoValue())
-            {
-                return Enumerable.Empty<SafeTypeProcessor<TArgs>>();
-            }
-
-            if (nextProcessor.HasNoValue() && processor.HasValue())
-            {
-                return processor.ToAnArray();
-            }
-
-            if (nextProcessor.HasValue() && processor.HasNoValue())
-            {
-                return nextProcessor.ToAnArray();
-            }
-
-            return new[]
-            {
-                processor,
-                nextProcessor
-            };
-        }
-
-        /// <summary>
         /// Runs a processor with <paramref name="args"/> context
         /// and <paramref name="runner"/>.
         /// </summary>
@@ -179,20 +103,20 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IProcessor processor, object args = null, IProcessorRunner runner = null)
+        public static Task Run(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
             args = args ?? new Bag();
             return runner.Run(processor, args);
         }
 
-        public static Task RunBag(this IProcessor processor, object args, IProcessorRunner runner = null)
+        public static Task Run(this IProcessor processor, object args, IProcessorRunner runner = null)
         {
-            if (!(args is Bag))
+            if (!(args is Bag bag))
             {
-                args = new Bag(args);
+                bag = new Bag(args);
             }
-            return processor.Run(args, runner);
+            return processor.Run(bag, runner);
         }
 
         public static async Task<TResult> Run<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
@@ -202,7 +126,7 @@ namespace Pipelines
             return args.ResultOrThrow<TResult>();
         }
 
-        public static async Task<TResult> RunBag<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
+        public static async Task<TResult> Run<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
         {
             if (!(args is Bag bag))
             {
@@ -228,14 +152,14 @@ namespace Pipelines
         /// <param name="runner">
         /// The runner which will be used to run the processor.
         /// </param>
-        public static void RunSync(this IProcessor processor, object args = null, IProcessorRunner runner = null)
+        public static void RunSync(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
         {
             processor.Run(args, runner).Wait();
         }
 
-        public static void RunBagSync(this IProcessor processor, object args, IProcessorRunner runner = null)
+        public static void RunSync(this IProcessor processor, object args, IProcessorRunner runner = null)
         {
-            processor.RunBag(args, runner).Wait();
+            processor.Run(args, runner).Wait();
         }
 
         public static TResult RunSync<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
@@ -243,9 +167,9 @@ namespace Pipelines
             return processor.Run<TResult>(args, runner).Result;
         }
 
-        public static TResult RunBagSync<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
+        public static TResult RunSync<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
         {
-            return processor.RunBag<TResult>(args, runner).Result;
+            return processor.Run<TResult>(args, runner).Result;
         }
 
         /// <summary>

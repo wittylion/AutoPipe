@@ -17,6 +17,6 @@ namespace Pipelines
         /// </summary>
         /// <param name="arguments">Data that may be processed by this processor.</param>
         /// <returns>A promise class indicating whether operation has completed execution.</returns>
-        Task Run(object arguments);
+        Task Run(Bag arguments);
     }
 }

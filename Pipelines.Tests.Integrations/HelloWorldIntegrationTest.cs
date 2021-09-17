@@ -13,9 +13,9 @@ namespace Pipelines.Tests.Integrations
             Runner runner = new Runner();
 
             var arguments = new HelloWorldArguments() { Name = "Sergey" };
-            await runner.Run(new HelloWorldPipeline(), arguments).ConfigureAwait(false);
+            await new HelloWorldPipeline().Run(arguments, runner).ConfigureAwait(false);
 
-            arguments.Result.Should().Be("Hello, Sergey!",
+            arguments.StringResult().Should().Be("Hello, Sergey!",
                 $"we've passed name '{arguments.Name}' to the pipeline, and expect it to be displayed in phrase 'Hello, {arguments.Name}!'");
         }
 
@@ -25,7 +25,7 @@ namespace Pipelines.Tests.Integrations
             Runner runner = new Runner();
 
             var arguments = new HelloWorldArguments { Name = "   " };
-            await runner.Run(new HelloWorldPipelineWithValidation(), arguments).ConfigureAwait(false);
+            await new HelloWorldPipelineWithValidation().Run(arguments, runner).ConfigureAwait(false);
 
             arguments.MessageObjects(MessageFilter.Error).Should().ContainSingle(pipelineMessage =>
                 pipelineMessage.Message.Equals(HelloWorldPipelineMessages.NameMustBeProvided));
@@ -61,34 +61,33 @@ namespace Pipelines.Tests.Integrations
             "To get a proper result of this pipeline, please provide a valuable name.";
     }
 
-    public abstract class HelloWorldProcessors : SafeProcessor<HelloWorldArguments> { }
+    public abstract class HelloWorldProcessors : SafeProcessor { }
 
     public class WhenTheNameIsNotProvidedEndWithErrorMessage : HelloWorldProcessors
     {
-        public override Task SafeRun(HelloWorldArguments args)
+        public override Task SafeRun(Bag args)
         {
             args.ErrorEnd(HelloWorldPipelineMessages.NameMustBeProvided);
             return PipelineTask.CompletedTask;
         }
 
-        public override bool SafeCondition(HelloWorldArguments args)
+        public override bool SafeCondition(Bag args)
         {
-            return base.SafeCondition(args) && string.IsNullOrWhiteSpace(args.Name);
+            return base.SafeCondition(args) && string.IsNullOrWhiteSpace(args.String("Name"));
         }
     }
 
     public class PutNameIntoThePhrase : HelloWorldProcessors
     {
-        public override Task SafeRun(HelloWorldArguments args)
+        public override Task SafeRun(Bag args)
         {
-            args.Result = "Hello, " + args.Name + "!";
+            args["Result"] = "Hello, " + args.String("Name") + "!";
             return PipelineTask.CompletedTask;
         }
     }
 
     public class HelloWorldArguments : Bag
     {
-        public string Name { get; set; }
-        public string Result { get; set; }
+        public string Name { get => this.String("Name"); set => this["Name"] = value; }
     }
 }

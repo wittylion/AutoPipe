@@ -5,7 +5,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.Initial
     [Order(0)]
     public class TestZeroProcessor : IProcessor
     {
-        public Task Run(object arguments)
+        public Task Run(Bag arguments)
         {
             return PipelineTask.CompletedTask;
         }

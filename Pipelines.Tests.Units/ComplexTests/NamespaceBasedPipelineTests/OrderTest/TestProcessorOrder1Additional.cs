@@ -5,7 +5,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTe
     [Order(1)]
     public class TestProcessorOrder1Additional : IProcessor
     {
-        public Task Run(object arguments)
+        public Task Run(Bag arguments)
         {
             return PipelineTask.CompletedTask;
         }

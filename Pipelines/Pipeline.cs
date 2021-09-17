@@ -10,7 +10,6 @@ namespace Pipelines
     public class Pipeline : IPipeline
     {
         public static readonly IPipeline Empty = Pipeline.From(Enumerable.Empty<IProcessor>());
-        public static SafeTypePipeline<T> GetEmpty<T>() => Pipeline<T>.Empty;
         public static IPipeline From(params IProcessor[] processors)
         {
             return new Pipeline(processors);
@@ -19,16 +18,6 @@ namespace Pipelines
         public static IPipeline From(IEnumerable<IProcessor> processors)
         {
             return new Pipeline(processors);
-        }
-
-        public static SafeTypePipeline<TArgs> From<TArgs>(params SafeTypeProcessor<TArgs>[] processors)
-        {
-            return new Pipeline<TArgs>(processors);
-        }
-
-        public static SafeTypePipeline<TArgs> From<TArgs>(IEnumerable<SafeTypeProcessor<TArgs>> processors)
-        {
-            return new Pipeline<TArgs>(processors);
         }
 
         public static IPipeline From<TProcessor>()
@@ -82,28 +71,6 @@ namespace Pipelines
         }
 
         public virtual IEnumerable<IProcessor> GetProcessors()
-        {
-            return this.Processors;
-        }
-    }
-
-    /// <summary>
-    /// Pipeline with processors specified once in a constructor.
-    /// </summary>
-    /// <typeparam name="TArgs">
-    /// Type of arguments which has to be handled by each processor of this pipeline.
-    /// </typeparam>
-    public class Pipeline<TArgs> : SafeTypePipeline<TArgs>
-    {
-        public static readonly SafeTypePipeline<TArgs> Empty = Pipeline.From(Enumerable.Empty<SafeTypeProcessor<TArgs>>());
-        public IEnumerable<SafeTypeProcessor<TArgs>> Processors { get; }
-
-        public Pipeline(IEnumerable<SafeTypeProcessor<TArgs>> processors)
-        {
-            Processors = processors ?? throw new ArgumentNullException(nameof(processors), Pipeline.ProcessorsMustNotBeNullForGeneric);
-        }
-
-        public override IEnumerable<SafeTypeProcessor<TArgs>> GetProcessorsOfType()
         {
             return this.Processors;
         }

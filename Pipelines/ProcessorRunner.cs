@@ -22,26 +22,26 @@ namespace Pipelines
         /// <param name="processor">
         /// The processor to be executed.
         /// </param>
-        /// <param name="args">
+        /// <param name="bag">
         /// The arguments that has to be passed to the processor.
         /// </param>
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task Run(IProcessor processor, object args)
+        public virtual async Task Run(IProcessor processor, Bag bag)
         {
             if (processor == null)
                 return;
 
-            if (!CanRun(processor, args))
+            if (!CanRun(processor, bag))
             {
                 return;
             }
 
-            await processor.Run(args).ConfigureAwait(false);
+            await processor.Run(bag).ConfigureAwait(false);
         }
 
-        public virtual bool CanRun(IProcessor processor, object args)
+        public virtual bool CanRun(IProcessor processor, Bag bag)
         {
             return true;
         }

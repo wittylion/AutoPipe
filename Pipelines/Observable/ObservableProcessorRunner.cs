@@ -38,7 +38,7 @@ namespace Pipelines.Observable
         }
 
         /// <inheritdoc cref="IProcessorRunner.Run{TArgs}"/>
-        public virtual async Task Run(IProcessor processor, object args)
+        public virtual async Task Run(IProcessor processor, Bag args)
         {
             var info = new ProcessorInfo()
             {

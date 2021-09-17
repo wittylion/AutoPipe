@@ -71,7 +71,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
             new NamespacePipeline(OrderTestFolder).Run(runner: mockRunner.Object);
             var expectedCount = new NamespacePipeline(OrderTestFolder).GetProcessors().Count();
 
-            mockRunner.Verify(x => x.Run(It.IsAny<IProcessor>(), It.IsAny<object>()),
+            mockRunner.Verify(x => x.Run(It.IsAny<IProcessor>(), It.IsAny<Bag>()),
                 Times.Exactly(expectedCount), "Method run processor should be executed, since pipeline has processors");
         }
 

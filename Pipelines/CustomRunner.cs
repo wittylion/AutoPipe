@@ -47,7 +47,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the pipeline execution.
         /// </returns>
-        public virtual Task Run(IPipeline pipeline, object args)
+        public virtual Task Run(IPipeline pipeline, Bag args)
         {
             if (pipeline.HasNoValue())
             {
@@ -75,7 +75,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the processors execution.
         /// </returns>
-        public virtual async Task RunProcessors(IEnumerable<IProcessor> processors, object args)
+        public virtual async Task RunProcessors(IEnumerable<IProcessor> processors, Bag args)
         {
             processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)

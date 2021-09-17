@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Pipelines.Tests.Units
 {
-    public class TestProcessor : SafeProcessor<Bag>
+    public class TestProcessor : SafeProcessor
     {
         public Action Action { get; }
 

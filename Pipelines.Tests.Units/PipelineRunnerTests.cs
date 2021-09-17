@@ -15,7 +15,7 @@ namespace Pipelines.Tests.Units
             
             pipeline.Setup(x => x.GetProcessors()).Returns(Enumerable.Empty<IProcessor>());
 
-            await pipelineRunner.Run(pipeline.Object, string.Empty).ConfigureAwait(false);
+            await pipeline.Object.Run(runner: pipelineRunner).ConfigureAwait(false);
 
             pipeline.Verify(x => x.GetProcessors(), Times.AtLeastOnce);
         }
@@ -28,7 +28,7 @@ namespace Pipelines.Tests.Units
 
             pipeline.Setup(x => x.GetProcessors()).Returns((IEnumerable<IProcessor>) null);
 
-            await pipelineRunner.Run(pipeline.Object, string.Empty).ConfigureAwait(false);
+            await pipeline.Object.Run(runner: pipelineRunner).ConfigureAwait(false);
         }
 
         [Fact]
@@ -42,14 +42,14 @@ namespace Pipelines.Tests.Units
             var b = mockRepository.Create<IProcessor>();
             var c = mockRepository.Create<IProcessor>();
 
-            a.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
-            b.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
-            c.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<object>())).Returns(PipelineTask.CompletedTask);
+            a.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<Bag>())).Returns(PipelineTask.CompletedTask);
+            b.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<Bag>())).Returns(PipelineTask.CompletedTask);
+            c.InSequence(executionSequence).Setup(x => x.Run(It.IsAny<Bag>())).Returns(PipelineTask.CompletedTask);
 
             var pipeline = new Mock<IPipeline>();
             pipeline.Setup(x => x.GetProcessors()).Returns(new [] { a.Object, b.Object, c.Object });
 
-            await pipelineRunner.Run(pipeline.Object, string.Empty).ConfigureAwait(false);
+            await pipeline.Object.Run(runner: pipelineRunner).ConfigureAwait(false);
         }
     }
 }

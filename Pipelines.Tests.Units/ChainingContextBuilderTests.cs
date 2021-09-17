@@ -15,7 +15,7 @@ namespace Pipelines.Tests.Units
                 .Use("string", "aqwe")
                 .Run(
                     Pipeline.From(
-                        Processor.From<Bag>(
+                        Processor.From(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
                     Runner.Instance).ContinueWith(a => a.Result.Get("string", 0));
 
@@ -93,7 +93,7 @@ namespace Pipelines.Tests.Units
                 .Be("Hello, Bob!");
         }
 
-        public class EnsureName : SafeProcessor<Bag>
+        public class EnsureName : SafeProcessor
         {
             public override Task SafeRun(Bag args)
             {
@@ -102,7 +102,7 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class HelloMessageNameReplacer : SafeProcessor<Bag>
+        public class HelloMessageNameReplacer : SafeProcessor
         {
             public override Task SafeRun(Bag args)
             {
@@ -116,7 +116,7 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class HelloMessageNameToResultReplacer : SafeProcessor<Bag>
+        public class HelloMessageNameToResultReplacer : SafeProcessor
         {
             public override Task SafeRun(Bag args)
             {
@@ -137,7 +137,7 @@ namespace Pipelines.Tests.Units
             }
         }
 
-        public class EnsureMessage : SafeProcessor<Bag>
+        public class EnsureMessage : SafeProcessor
         {
             public override Task SafeRun(Bag args)
             {

@@ -79,51 +79,6 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Converts an asynchronous function to a processor.
-        /// Helps to write code quickly, without introducing
-        /// instance of interface <see cref="IProcessor"/>.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// Parameter of the asynchronous function.
-        /// </typeparam>
-        /// <param name="action">
-        /// Represents an asynchronous function to be converted to a processor.
-        /// </param>
-        /// <returns>
-        /// Returns a processor which is produced from <paramref name="action"/>
-        /// or <c>null</c> if action is null.
-        /// </returns>
-        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this Func<TArgs, Task> action)
-        {
-            if (action.HasNoValue())
-                return null;
-
-            return Processor.From<TArgs>(action);
-        }
-
-        /// <summary>
-        /// Converts an action to a processor. Helps to write code quickly,
-        /// without introducing instance of interface <see cref="IProcessor"/>.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// Parameter of the action.
-        /// </typeparam>
-        /// <param name="action">
-        /// Represents an action to be converted to a processor.
-        /// </param>
-        /// <returns>
-        /// Returns a processor which is produced from <paramref name="action"/>
-        /// or <c>null</c> if action is null.
-        /// </returns>
-        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this Action<TArgs> action)
-        {
-            if (action.HasNoValue())
-                return null;
-
-            return Processor.From<TArgs>(action);
-        }
-
-        /// <summary>
         /// Converts an action to a processor. Helps to write code quickly,
         /// without introducing instance of interface <see cref="IProcessor"/>.
         /// </summary>

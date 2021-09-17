@@ -51,7 +51,7 @@ namespace Pipelines.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From<Bag>(x =>
+                yield return Processor.From(x =>
                     x.Message(nameof(ConstructablePipelineIntegrationTest)));
             }
         }
@@ -60,7 +60,7 @@ namespace Pipelines.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From<Bag>(b =>
+                yield return Processor.From(b =>
                 {
                     var messages = b.Get(ContextProperties.Messages, Array.Empty<string>()).ToList();
                     messages.ForEach((x) => b.Message(x));
@@ -72,7 +72,7 @@ namespace Pipelines.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From<Bag>(b => b.Set(ContextProperties.Messages,
+                yield return Processor.From(b => b.Set(ContextProperties.Messages,
                     ContextValues.Messages));
 
                 yield return new AddMessagesFromPropertyPipeline().ToProcessor();

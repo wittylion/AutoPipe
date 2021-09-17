@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Pipelines.Modifications;
 
@@ -49,48 +48,6 @@ namespace Pipelines
         }
 
         /// <summary>
-        /// Converts a pipeline to a simple processor.
-        /// This way pipelines may be nested and reused in other pipelines.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// The type of the arguments that are used during pipeline execution.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline to be converted to a processor.
-        /// </param>
-        /// <returns>
-        /// The processor that simply wraps a call to pipeline with a static
-        /// instance of <see cref="Runner"/> - <see cref="Runner.Instance"/>.
-        /// </returns>
-        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline)
-        {
-            return pipeline.ToProcessor(Runner.Instance);
-        }
-
-        /// <summary>
-        /// Converts a pipeline to a simple processor.
-        /// This way pipelines may be nested and reused in other pipelines.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// The type of the arguments that are used during pipeline execution.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline to be converted to a processor.
-        /// </param>
-        /// <param name="runner">
-        /// The runner which will be used to run the wrapped pipeline.
-        /// </param>
-        /// <returns>
-        /// The processor that simply wraps a call to pipeline with a <paramref name="runner"/>
-        /// or if it is not specified, with a static
-        /// instance of <see cref="Runner"/> - <see cref="Runner.Instance"/>.
-        /// </returns>
-        public static SafeTypeProcessor<TArgs> ToProcessor<TArgs>(this SafeTypePipeline<TArgs> pipeline, IPipelineRunner runner)
-        {
-            return Processor.From<TArgs>(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
-        }
-
-        /// <summary>
         /// Runs a pipeline with <paramref name="args"/> context
         /// and <paramref name="runner"/>.
         /// </summary>
@@ -112,21 +69,21 @@ namespace Pipelines
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
+        public static Task Run(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
             args = args ?? new Bag();
             return runner.Run(pipeline, args);
         }
 
-        public static Task RunBag(this IPipeline pipeline, object args, IPipelineRunner runner = null)
+        public static Task Run(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
-            if (!(args is Bag))
+            if (!(args is Bag bag))
             {
-                args = new Bag(args);
+                bag = new Bag(args);
             }
-            return runner.Run(pipeline, args);
+            return runner.Run(pipeline, bag);
         }
 
         /// <summary>
@@ -158,7 +115,7 @@ namespace Pipelines
             return args.ResultOrThrow<TResult>();
         }
 
-        public static async Task<TResult> RunBag<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
+        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
         {
             if (!(args is Bag bag))
             {
@@ -185,14 +142,14 @@ namespace Pipelines
         /// <param name="runner">
         /// The runner which will be used to run the wrapped pipeline.
         /// </param>
-        public static void RunSync(this IPipeline pipeline, object args = null, IPipelineRunner runner = null)
+        public static void RunSync(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
         {
             pipeline.Run(args, runner).Wait();
         }
 
-        public static void RunBagSync(this IPipeline pipeline, object args, IPipelineRunner runner = null)
+        public static void RunSync(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
-            pipeline.RunBag(args, runner).Wait();
+            pipeline.Run(args, runner).Wait();
         }
 
         /// <summary>
@@ -224,70 +181,9 @@ namespace Pipelines
             return pipeline.Run<TResult>(args, runner).Result;
         }
 
-        public static TResult RunBagSync<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
+        public static TResult RunSync<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
         {
-            return pipeline.RunBag<TResult>(args, runner).Result;
-        }
-
-        /// <summary>
-        /// Runs pipeline while a certain condition returns <c>true</c>.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// The type of the arguments that are used during pipeline execution.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
-        /// method with <paramref name="args"/> passed.
-        /// </param>
-        /// <param name="args">
-        /// The context which will be passed to each processor of
-        /// the pipeline during execution.
-        /// </param>
-        /// <param name="condition">
-        /// The condition, that specifies till which point pipeline must be executed.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
-            Predicate<TArgs> condition)
-        {
-            return pipeline.RunPipelineWhile(args, condition, Runner.Instance);
-        }
-
-        /// <summary>
-        /// Runs pipeline while a certain condition returns <c>true</c>.
-        /// </summary>
-        /// <typeparam name="TArgs">
-        /// The type of the arguments that are used during pipeline execution.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
-        /// method with <paramref name="args"/> passed.
-        /// </param>
-        /// <param name="args">
-        /// The context which will be passed to each processor of
-        /// the pipeline during execution.
-        /// </param>
-        /// <param name="condition">
-        /// The condition, that specifies till which point pipeline must be executed.
-        /// </param>
-        /// <param name="runner">
-        /// The runner which will be used to run the wrapped pipeline.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static async Task RunPipelineWhile<TArgs>(this IPipeline pipeline, TArgs args,
-            Predicate<TArgs> condition, IPipelineRunner runner)
-        {
-            runner = runner ?? Runner.Instance;
-            while (condition(args))
-            {
-                await pipeline.Run(args, runner).ConfigureAwait(false);
-            }
+            return pipeline.Run<TResult>(args, runner).Result;
         }
 
         /// <summary>

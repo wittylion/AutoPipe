@@ -22,7 +22,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InFolde
 
     class TestProcessor1 : IProcessor
     {
-        public Task Run(object arguments)
+        public Task Run(Bag arguments)
         {
             return Task.CompletedTask;
         }
@@ -30,7 +30,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InFolde
 
     class TestProcessor2 : IProcessor
     {
-        public Task Run(object arguments)
+        public Task Run(Bag arguments)
         {
             return Task.CompletedTask;
         }

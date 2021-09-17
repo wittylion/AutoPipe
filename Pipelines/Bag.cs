@@ -339,6 +339,26 @@ namespace Pipelines
             return string.Empty;
         }
 
+        public virtual int Int(string name)
+        {
+            if (Has(name, out int value))
+            {
+                return value;
+            }
+
+            return 0;
+        }
+
+        public virtual bool Bool(string name)
+        {
+            if (Has(name, out bool value))
+            {
+                return value;
+            }
+
+            return false;
+        }
+
         public virtual List<TElement> List<TElement>(string name)
         {
             return Get(name, or: Enumerable.Empty<TElement>()).ToList();

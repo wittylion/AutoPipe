@@ -33,7 +33,7 @@ namespace Pipelines.Observable
         }
 
         /// <inheritdoc cref="IPipelineRunner.Run{TArgs}"/>
-        public virtual async Task Run(IPipeline pipeline, object args)
+        public virtual async Task Run(IPipeline pipeline, Bag args)
         {
             var info = new PipelineInfo()
             {

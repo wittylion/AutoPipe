@@ -76,7 +76,7 @@ namespace Pipelines
         /// <returns>
         /// Returns a promise of the executed pipeline.
         /// </returns>
-        public async Task Run(object arguments)
+        public async Task Run(Bag arguments)
         {
             await this.Runner.Run(this.Pipeline, arguments).ConfigureAwait(false);
         }
