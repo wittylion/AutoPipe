@@ -10,9 +10,9 @@ namespace AutoPipe
         public static readonly string NamespaceCannotBeEmptyMessage = "You cannot set empty namespace. Please check the namespace parameter.";
         public string Namespace { get; }
         public bool Recursive { get; }
-        public bool LeaveSkipped { get; }
+        public bool IncludeSkipped { get; }
 
-        public NamespacePipeline(string @namespace = null, bool recursive = true, bool leaveSkipped = false)
+        public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false)
         {
             if (@namespace == null)
             {
@@ -32,7 +32,7 @@ namespace AutoPipe
             }
 
             Recursive = recursive;
-            LeaveSkipped = leaveSkipped;
+            IncludeSkipped = includeSkipped;
         }
 
         public IEnumerable<IProcessor> GetProcessors()
@@ -65,7 +65,7 @@ namespace AutoPipe
                 }
             }
 
-            if (!LeaveSkipped && type.ShouldSkip()) return false;
+            if (!IncludeSkipped && type.ShouldSkip()) return false;
 
             return true;
         }
