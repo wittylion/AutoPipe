@@ -3,37 +3,40 @@
     <TargetFrameworks>netstandard2.0;net45;net461</TargetFrameworks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageId>Pipelines.Net</PackageId>
+    <PackageId>AutoPipe</PackageId>
     <Authors>Sergey Solomentsev</Authors>
     <Company>Witty Lion</Company>
-    <Description>Library that exposes SOLID principles by introducing pipelines.</Description>
-    <Copyright>Witty Lion © 2020</Copyright>
+    <Description>Focus on writing meaningful parts and AutoPipe will handle the rest.</Description>
+    <Copyright>Witty Lion © 2021</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://wittylion.github.io/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
 
-      New in this version:
+      This is a new release of a previously known package: https://www.nuget.org/packages/Pipelines.Net/
 
-      - Fixed AutoProcessor issue: properties of the task (like Result, IsCompleted) were assigned to the context.
-
-      - Fixed AutoProcessor issue: aborting method via ContextParameter continued execution on other methods.
-
-      - Fixed deadlocks of the main thread by adding .ConfigureAwait(false) to all places where await keyword is used.
-
-      Quick links:
-      https://wittylion.github.io/2020/10/04/auto-processor.html - Auto processor
-      https://wittylion.github.io/2020/08/05/modify-pipeline.html - Modify pipeline
-      https://wittylion.github.io/2019/01/25/ways-to-create-context.html - Work with context
-      https://www.nuget.org/packages/Pipelines.Net.Xml/ - Pipelines.Net.Xml library
-      https://forms.gle/Y8aogzwPQ3sLKXMCA - Share your opinion
+      Write your code easily with AutoPipe:
+      - Create classes based on AutoProcessor;
+      - Describe methods as you want and rename them without refactoring: 
+          [Run] LoveYou() => [Run] LoveYouSoMuch();
+      - Need a new parameter? Return it with a method by prefixing it with Get and then use it in any method: 
+          GetMap(), UseMap(object map);
+      - Need several new parameters? Return them in a anonymous object (don't prefix with Get): 
+          BuildMap() { return new { Map, Scale, Locations } }
+      
+      Attributes to use:
+      [Run] - run your method;
+      [Skip] - do not run the method;
+      [Aka("Pretty Name")] - call methods and processors the way you want;
+      [Is("Doing good things")] - describe the methods and processors for better debugging;
+      [Order(15)] - provide an order of the processors and methods.
 
     </PackageReleaseNotes>
     <NeutralLanguage>English</NeutralLanguage>
-    <PackageTags>Pipelines SOLID Processors Chain</PackageTags>
-    <Version>1.2.1</Version>
-    <AssemblyVersion>1.2.1.0</AssemblyVersion>
+    <PackageTags>Easy Refactoring Pipelines SOLID Processors Chain</PackageTags>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <PackageIcon>pipelines-icon.png</PackageIcon>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
