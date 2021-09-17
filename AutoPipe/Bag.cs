@@ -165,6 +165,12 @@ namespace AutoPipe
             set => SetProperty(DebugProperty, value);
         }
 
+        public bool ThrowOnMissing
+        {
+            get => Get(ThrowOnMissingProperty, true);
+            set => SetProperty(ThrowOnMissingProperty, value);
+        }
+
         public void Dispose()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -211,7 +217,7 @@ namespace AutoPipe
 
         public object this[string key]
         {
-            get => this.GetOrThrow<object>(key);
+            get => this.Get<object>(key);
             set => this.SetProperty(key, value);
         }
 
@@ -287,6 +293,17 @@ namespace AutoPipe
                     dictionary[name] = value;
                 }
             }
+        }
+
+
+        public virtual TValue Get<TValue>(string name)
+        {
+            if (ThrowOnMissing)
+            {
+                return this.GetOrThrow<TValue>(name);
+            }
+
+            return Get(name, or: () => default(TValue));
         }
 
         /// <summary>
@@ -927,6 +944,7 @@ namespace AutoPipe
 
         public static string EndedProperty = "ended";
         public static string DebugProperty = "debug";
+        public static string ThrowOnMissingProperty = "throwonmissing";
         public static string ResultProperty = "result";
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace AutoPipe
 
         public static Processor From(Action action)
         {
-            return new Processor(action.ToAsync<object>());
+            return new Processor(action.ToAsync<Bag>());
         }
 
         public static Processor From(Action<Bag> action)

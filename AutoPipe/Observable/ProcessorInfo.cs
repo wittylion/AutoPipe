@@ -17,21 +17,6 @@
         /// <summary>
         /// Arguments that are used to run the pipeline.
         /// </summary>
-        public object Context { get; set; }
-
-        public Bag Bag()
-        {
-            return Args<Bag>();
-        }
-
-        public TArgs Args<TArgs>() where TArgs : class
-        {
-            if (Context is TArgs args)
-            {
-                return args;
-            }
-
-            return default;
-        }
+        public Bag Context { get; set; }
     }
 }
