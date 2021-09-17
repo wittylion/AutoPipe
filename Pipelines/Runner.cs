@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Runs instances of <see cref="IProcessor"/> and <see cref="IPipeline"/>.

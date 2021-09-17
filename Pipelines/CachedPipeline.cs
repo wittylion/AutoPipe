@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipelines
+namespace AutoPipe
 {
     public class CachedPipeline : IPipeline
     {

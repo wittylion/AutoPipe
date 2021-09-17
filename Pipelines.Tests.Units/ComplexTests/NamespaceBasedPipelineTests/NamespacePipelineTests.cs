@@ -1,17 +1,17 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using Moq;
-using Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest;
-using Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest;
+using AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest;
+using AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest;
 using Xunit;
 
-namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
+namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
 {
     public class NamespacePipelineTests
     {
-        protected internal static readonly string InitialTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest";
-        protected internal static readonly string OrderTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest";
-        protected internal static readonly string SkipTestFolder = "Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest";
+        protected internal static readonly string InitialTestFolder = "AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest";
+        protected internal static readonly string OrderTestFolder = "AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest";
+        protected internal static readonly string SkipTestFolder = "AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest";
 
         [Fact]
         public void NamespaceBasedPipeline_Should_Have_Processors_When_Creating_From_Related_Test_Folder()
@@ -58,7 +58,7 @@ namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         [Fact]
         public void NamespaceBasedPipeline_Should_Return_Empty_Enumerable_When_Namespace_Does_Not_Exist()
         {
-            new NamespacePipeline("Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.NamespaceDoesNotExist")
+            new NamespacePipeline("AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.NamespaceDoesNotExist")
                 .GetProcessors()
                 .Should().BeEmpty("the namespace does not exist");
         }

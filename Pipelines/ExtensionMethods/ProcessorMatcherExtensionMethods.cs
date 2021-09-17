@@ -1,6 +1,6 @@
-﻿using Pipelines.Modifications;
+﻿using AutoPipe.Modifications;
 
-namespace Pipelines
+namespace AutoPipe
 {
     public static class ProcessorMatcherExtensionMethods
     {

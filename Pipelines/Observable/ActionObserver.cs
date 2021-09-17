@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Observable
+namespace AutoPipe.Observable
 {
     public class ActionObserver<T> : IRunnerObserver<T>
     {

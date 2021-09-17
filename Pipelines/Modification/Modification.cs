@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     /// <summary>
     /// A simple name for a class helping to get started quickly with modifications.

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Class that is used in library to extend <see cref="Task"/> mechanism.

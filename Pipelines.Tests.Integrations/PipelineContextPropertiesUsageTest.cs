@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace Pipelines.Tests.Integrations
+namespace AutoPipe.Tests.Integrations
 {
     public class PipelineContextPropertiesUsageTest
     {

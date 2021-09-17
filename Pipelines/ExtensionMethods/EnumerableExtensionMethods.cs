@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Extension methods for classes <see cref="IEnumerable{T}"/>.

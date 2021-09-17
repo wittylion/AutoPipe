@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Pipelines
+namespace AutoPipe
 {
     public class NamespacePipeline : IPipeline
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// This attribute is supposed to be used for parameters of

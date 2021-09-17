@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines
+namespace AutoPipe
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class SkipAttribute : Attribute

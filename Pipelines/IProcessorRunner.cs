@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Interface that runs a processor.

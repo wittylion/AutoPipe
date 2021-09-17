@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     public class AddLastProcessorModification : IModificationConfiguration
     {

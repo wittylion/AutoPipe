@@ -3,7 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace Pipelines.Tests.Units
+namespace AutoPipe.Tests.Units
 {
     public class ContextConstructorTests
     {

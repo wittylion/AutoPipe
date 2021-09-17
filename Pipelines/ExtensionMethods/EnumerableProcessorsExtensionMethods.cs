@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Extension methods for classes <see cref="IEnumerable{T}"/>

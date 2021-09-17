@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-namespace Pipelines
+namespace AutoPipe
 {
     internal static class ReflectionExtensionMethods
     {

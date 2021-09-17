@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines
+namespace AutoPipe
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class OrderAttribute : Attribute

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     public class DelegateProcessorMatcher : IProcessorMatcher
     {

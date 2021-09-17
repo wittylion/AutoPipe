@@ -1,6 +1,6 @@
-﻿using Pipelines.Observable;
+﻿using AutoPipe.Observable;
 
-namespace Pipelines
+namespace AutoPipe
 {
     public static class RunnerExtensionMethods
     {

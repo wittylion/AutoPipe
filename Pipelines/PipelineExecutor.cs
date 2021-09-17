@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Contains pipeline and executes it when needed.
@@ -34,7 +34,7 @@ namespace Pipelines
         /// <param name="pipeline">
         /// The pipeline that is hold to be executed later.
         /// </param>
-        public PipelineExecutor(IPipeline pipeline) : this(pipeline, Pipelines.Runner.Instance)
+        public PipelineExecutor(IPipeline pipeline) : this(pipeline, AutoPipe.Runner.Instance)
         {
         }
 

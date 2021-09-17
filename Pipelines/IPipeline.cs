@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Binds together logical processors and itself

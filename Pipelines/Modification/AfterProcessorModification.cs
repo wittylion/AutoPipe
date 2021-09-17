@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     public class AfterProcessorModification : IModificationConfiguration
     {

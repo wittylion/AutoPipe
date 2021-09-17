@@ -1,4 +1,4 @@
-﻿namespace Pipelines.Observable
+﻿namespace AutoPipe.Observable
 {
     /// <summary>
     /// Class to be used by observer of processor runner.

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipelines.Tests.Units
+namespace AutoPipe.Tests.Units
 {
     public class AutoProcessorTests
     {

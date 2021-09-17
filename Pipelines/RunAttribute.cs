@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Marks a method to be executed within an <see cref="AutoProcessor"/>.

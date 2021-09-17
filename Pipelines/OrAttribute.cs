@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines
+namespace AutoPipe
 {
     [System.AttributeUsage(AttributeTargets.Parameter, Inherited = false, AllowMultiple = false)]
     public class OrAttribute : Attribute

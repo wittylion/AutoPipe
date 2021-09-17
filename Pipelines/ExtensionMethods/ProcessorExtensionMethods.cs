@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Pipelines.Modifications;
+using AutoPipe.Modifications;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Processor extension methods intended to simplify

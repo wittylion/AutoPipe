@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Xunit;
-using Pipelines.Modifications;
+using AutoPipe.Modifications;
 
-namespace Pipelines.Tests.Units
+namespace AutoPipe.Tests.Units
 {
     public class PipelineExtensionsTests
     {

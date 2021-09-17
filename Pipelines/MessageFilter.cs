@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Represents an information, to be used to filter

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Interface that is responsible for running pipeline.

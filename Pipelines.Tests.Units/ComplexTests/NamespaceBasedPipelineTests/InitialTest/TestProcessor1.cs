@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest
+namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest
 {
     [Order(1)]
     public class TestProcessor1 : IProcessor

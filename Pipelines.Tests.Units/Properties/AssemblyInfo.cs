@@ -1,11 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Pipelines.Tests.Units")]
+[assembly: AssemblyTitle("AutoPipe.Tests.Units")]
 [assembly: AssemblyDescription("Tests for library exposing SOLID principles by introducing pipelines.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Pipelines.Tests.Units")]
+[assembly: AssemblyProduct("AutoPipe.Tests.Units")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

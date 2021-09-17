@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Pipeline message collection that contains useful methods for messages filters.

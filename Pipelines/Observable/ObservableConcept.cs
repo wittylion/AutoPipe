@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Pipelines.Observable
+namespace AutoPipe.Observable
 {
     /// <summary>
     /// Implementation of <see cref="IObservableRunner{T}"/>

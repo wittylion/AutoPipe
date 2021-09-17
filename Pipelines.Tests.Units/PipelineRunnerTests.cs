@@ -3,7 +3,7 @@ using System.Linq;
 using Moq;
 using Xunit;
 
-namespace Pipelines.Tests.Units
+namespace AutoPipe.Tests.Units
 {
     public class PipelineRunnerTests
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pipelines.Tests.Integrations
+namespace AutoPipe.Tests.Integrations
 {
     public class DataSets
     {

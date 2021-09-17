@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     /// <summary>
     /// A static helper that helps creating instances of <see cref="IProcessorMatcher"/>.

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Pipeline with processors specified once in a constructor.

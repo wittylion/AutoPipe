@@ -1,4 +1,4 @@
-﻿namespace Pipelines.Modifications
+﻿namespace AutoPipe.Modifications
 {
     /// <summary>
     /// The derived class should implement a logic

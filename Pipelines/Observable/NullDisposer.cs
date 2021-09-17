@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Observable
+namespace AutoPipe.Observable
 {
     /// <summary>
     /// An implementation of <see cref="IDisposable"/> interface

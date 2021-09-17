@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest
+namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest
 {
     public class IncludedProcessor : SafeProcessor
     {

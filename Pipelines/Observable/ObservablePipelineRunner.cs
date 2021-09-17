@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Pipelines.Observable
+namespace AutoPipe.Observable
 {
     /// <summary>
     /// Pipeline runner that uses observers to notify about actions.

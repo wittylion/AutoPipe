@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Pipelines
+namespace AutoPipe
 {
     /// <summary>
     /// Represents a unit which can process some information.

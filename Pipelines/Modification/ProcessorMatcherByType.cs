@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     /// <summary>
     /// Matcher that contains a method <see cref="Matches(IProcessor)"/>

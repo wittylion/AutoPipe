@@ -1,4 +1,4 @@
-﻿namespace Pipelines
+﻿namespace AutoPipe
 {
     internal static class StringExtensionMethods
     {

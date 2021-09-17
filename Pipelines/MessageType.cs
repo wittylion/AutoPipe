@@ -1,4 +1,4 @@
-﻿namespace Pipelines
+﻿namespace AutoPipe
 {
     /// <summary>
     /// Represents an information, to be used in message object

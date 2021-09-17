@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Pipelines.Modifications
+namespace AutoPipe.Modifications
 {
     /// <summary>
     /// An interface declares a way of retrieving modifications.

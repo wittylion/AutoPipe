@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Pipelines.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InFolderTest
+namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InFolderTest
 {
     public class InFolderTests
     {
