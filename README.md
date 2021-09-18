@@ -1,8 +1,8 @@
 # AutoPipe 
 
-[![NuGet](https://img.shields.io/nuget/v/Pipelines.Net.svg?style=plastic)](https://www.nuget.org/packages/Pipelines.Net/)
+[![NuGet](https://img.shields.io/nuget/v/AutoPipe.svg?style=plastic)](https://www.nuget.org/packages/AutoPipe/)
 
-Pipelines NET is a library developed for purpose of composing logical blocks and actions into algorythm.
+AutoPipe is a library developed for purpose of composing logical blocks and actions into algorythm.
 
 
 ## Installation is quick
@@ -14,7 +14,7 @@ Using NuGet package manager source https://api.nuget.org/v3/index.json :
 or powershell console:
 
 ```ps
-PM> Install-Package Pipelines.Net
+PM> Install-Package AutoPipe
 ```
 
 ## Jump Start
