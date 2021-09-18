@@ -36,6 +36,4 @@ The library knows what you want, it reads the names of the methods and parameter
 
 ## Documentation
 
-Project example: [https://github.com/SergAtGitHub/Solo.BinaryTree](https://github.com/SergAtGitHub/Solo.BinaryTree)
-
 If you want to learn more about any topic of this library, send a message to [wittylioncompany@gmail.com](mailto:wittylioncompany@gmail.com) or [fill in the form](https://forms.gle/Y8aogzwPQ3sLKXMCA).
