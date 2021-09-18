@@ -21,11 +21,11 @@ PM> Install-Package AutoPipe
 
 Create an AutoProcessor and start writing your code:
 
-![Creating an Autoprocessor](https://raw.githubusercontent.com/wittylion/Pipelines.Net/release/2.0/docs/images/first-step.gif)
+![Creating an Autoprocessor](https://raw.githubusercontent.com/wittylion/Pipelines.Net/2.0/docs/images/first-step.gif)
 
 The library knows what you want, it reads the names of the methods and parameters:
 
-![Get message](https://raw.githubusercontent.com/wittylion/Pipelines.Net/release/2.0/docs/images/get-message.gif)
+![Get message](https://raw.githubusercontent.com/wittylion/Pipelines.Net/2.0/docs/images/get-message.gif)
 
 ## What is this library good for?
 
