@@ -1,4 +1,4 @@
-﻿namespace AutoPipe.Observable
+﻿namespace AutoPipe
 {
     /// <summary>
     /// Class to be used by observer of pipeline runner.

@@ -16,9 +16,21 @@ namespace AutoPipe
         public static Runner Instance => instance ?? (instance = new Runner());
         private static Runner instance;
 
-        public Runner()
+        public Runner(EventHandler<ProcessorInfo> onProcessorStart = null, EventHandler<PipelineInfo> onPipelineStart = null)
         {
+            if (onProcessorStart != null)
+            {
+                OnProcessorStart += onProcessorStart;
+            }
+
+            if (onPipelineStart != null)
+            {
+                OnPipelineStart += onPipelineStart;
+            }
         }
+
+        public event EventHandler<ProcessorInfo> OnProcessorStart;
+        public event EventHandler<PipelineInfo> OnPipelineStart;
 
         /// <summary>
         /// Runs pipeline's processors one by one in an order
@@ -43,6 +55,12 @@ namespace AutoPipe
             {
                 bag.Debug("Cannot run the pipeline because its value is null.");
                 return;
+            }
+
+            if (OnPipelineStart != null)
+            {
+                var pipelineInfo = new PipelineInfo() { Context = bag, Pipeline = pipeline };
+                OnPipelineStart(this, pipelineInfo);
             }
 
             var processors = pipeline.GetProcessors();
@@ -146,12 +164,20 @@ namespace AutoPipe
         /// <returns>
         /// Returns a promise of the processor execution.
         /// </returns>
-        public virtual async Task Run(IProcessor processor, Bag args)
+        public virtual async Task Run(IProcessor processor, Bag bag)
         {
-            if (processor.HasValue())
+            if (!processor.HasValue())
             {
-                await processor.Run(args).ConfigureAwait(false);
+                return;
             }
+
+            if (OnProcessorStart != null)
+            {
+                var processorInfo = new ProcessorInfo() { Context = bag, Processor = processor };
+                OnProcessorStart(this, processorInfo);
+            }
+
+            await processor.Run(bag).ConfigureAwait(false);
         }
     }
 }
