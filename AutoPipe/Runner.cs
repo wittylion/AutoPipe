@@ -16,7 +16,7 @@ namespace AutoPipe
         public static Runner Instance => instance ?? (instance = new Runner());
         private static Runner instance;
 
-        public Runner(EventHandler<ProcessorInfo> onProcessorStart = null, EventHandler<PipelineInfo> onPipelineStart = null)
+        public Runner(EventHandler<PipelineInfo> onPipelineStart = null, EventHandler<ProcessorInfo> onProcessorStart = null, EventHandler<ProcessorInfo> onProcessorEnd = null, EventHandler <PipelineInfo> onPipelineEnd = null)
         {
             if (onProcessorStart != null)
             {
@@ -27,10 +27,22 @@ namespace AutoPipe
             {
                 OnPipelineStart += onPipelineStart;
             }
+
+            if (onPipelineEnd != null)
+            {
+                OnPipelineEnd += onPipelineEnd;
+            }
+
+            if (onProcessorEnd != null)
+            {
+                OnProcessorEnd += onProcessorEnd;
+            }
         }
 
         public event EventHandler<ProcessorInfo> OnProcessorStart;
+        public event EventHandler<ProcessorInfo> OnProcessorEnd;
         public event EventHandler<PipelineInfo> OnPipelineStart;
+        public event EventHandler<PipelineInfo> OnPipelineEnd;
 
         /// <summary>
         /// Runs pipeline's processors one by one in an order
@@ -57,9 +69,14 @@ namespace AutoPipe
                 return;
             }
 
+            PipelineInfo pipelineInfo = null;
+            if (OnPipelineStart != null || OnPipelineEnd != null)
+            {
+                pipelineInfo = new PipelineInfo() { Context = bag, Pipeline = pipeline };
+            }
+
             if (OnPipelineStart != null)
             {
-                var pipelineInfo = new PipelineInfo() { Context = bag, Pipeline = pipeline };
                 OnPipelineStart(this, pipelineInfo);
             }
 
@@ -86,6 +103,11 @@ namespace AutoPipe
             else
             {
                 await Run(processors, bag).ConfigureAwait(false);
+            }
+
+            if (OnPipelineEnd != null)
+            {
+                OnPipelineEnd(this, pipelineInfo);
             }
         }
 
@@ -171,13 +193,23 @@ namespace AutoPipe
                 return;
             }
 
+            ProcessorInfo processorInfo = null;
+            if (OnPipelineStart != null || OnPipelineEnd != null)
+            {
+                processorInfo = new ProcessorInfo() { Context = bag, Processor = processor };
+            }
+
             if (OnProcessorStart != null)
             {
-                var processorInfo = new ProcessorInfo() { Context = bag, Processor = processor };
                 OnProcessorStart(this, processorInfo);
             }
 
             await processor.Run(bag).ConfigureAwait(false);
+
+            if (OnProcessorEnd != null)
+            {
+                OnProcessorEnd(this, processorInfo);
+            }
         }
     }
 }
