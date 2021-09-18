@@ -13,25 +13,11 @@ namespace AutoPipe
         /// <summary>
         /// Default instance of the <see cref="Runner"/>.
         /// </summary>
-        public static readonly Runner Instance = new Runner();
+        public static Runner Instance => instance ?? (instance = new Runner());
+        private static Runner instance;
 
-        /// <summary>
-        /// The object that is responsible for running single processor in <see cref="Run{TArgs}(IProcessor, TArgs)"/>.
-        /// </summary>
-        public IProcessorRunner ProcessorsRunner { get; }
-
-        public Runner() : this(processorRunner: ProcessorRunner.Instance)
+        public Runner()
         {
-        }
-
-        public Runner(IProcessorRunner processorRunner)
-        {
-            if (processorRunner == null)
-            {
-                throw new ArgumentNullException(nameof(processorRunner), "The value of the processor runner should be specified.");
-            }
-
-            ProcessorsRunner = processorRunner;
         }
 
         /// <summary>
@@ -164,7 +150,7 @@ namespace AutoPipe
         {
             if (processor.HasValue())
             {
-                await ProcessorsRunner.Run(processor, args).ConfigureAwait(false);
+                await processor.Run(args).ConfigureAwait(false);
             }
         }
     }

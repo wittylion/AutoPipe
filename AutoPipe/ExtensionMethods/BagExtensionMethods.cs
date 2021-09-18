@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace AutoPipe
@@ -134,6 +137,75 @@ namespace AutoPipe
             return bag;
         }
 
+        internal static IDictionary<Type, object> GetSingleTypeValues(this Bag context)
+        {
+            return context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
+        }
+
+        public static TResult Map<TProperty, TResult>(this Bag bag, Expression<Func<TProperty, object>> expression) where TResult : class
+        {
+            return bag.Map((LambdaExpression)expression) as TResult;
+        }
+
+        public static object Map<TProperty>(this Bag bag, Expression<Func<TProperty, object>> expression)
+        {
+            return bag.Map((LambdaExpression) expression);
+        }
+
+        public static TValue Map<TValue>(this Bag bag, LambdaExpression expression) where TValue : class
+        {
+            return bag.Map(expression) as TValue;
+        }
+
+        public static object Map(this Bag bag, LambdaExpression expression)
+        {
+            if (expression == null)
+            {
+                if (bag.Debug)
+                {
+                    bag.Debug("The returned expression was null.");
+                }
+                return null;
+            }
+
+            var list = new LinkedList<object>();
+            foreach (var parameter in expression.Parameters)
+            {
+                var parameterName = parameter.Name;
+                if (bag.Contains(parameterName, out object val))
+                {
+                    if (!parameter.Type.IsAssignableFrom(val.GetType()))
+                    {
+                        if (bag.Debug)
+                        {
+                            bag.Debug("The parameter type [{1}] is not assignable from [{2}] for property [{0}] in lambda expression.".FormatWith(parameterName, parameter.Type, val.GetType()));
+                        }
+                        return null;
+                    }
+
+                    list.AddLast(val);
+                    continue;
+                }
+
+                if (bag.ContainsSingle(parameter.Type, out var valueOfType))
+                {
+                    list.AddLast(valueOfType);
+                    continue;
+                }
+                else
+                {
+                    if (bag.Debug)
+                    {
+                        bag.Debug("Bag does not contain a property [{0}].".FormatWith(parameterName));
+                    }
+                    return null;
+                }
+
+            }
+
+            var result = expression.Compile().DynamicInvoke(list.ToArray());
+            return result;
+        }
 
         /// <summary>
         /// Adds message object to the context, which allows all the users

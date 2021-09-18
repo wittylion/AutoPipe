@@ -2,7 +2,7 @@
 
 namespace AutoPipe
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class SkipAttribute : Attribute
     {
     }

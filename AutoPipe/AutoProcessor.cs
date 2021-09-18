@@ -230,53 +230,7 @@ namespace AutoPipe
 
         protected virtual async Task ProcessExpression(MethodInfo method, Bag bag, LambdaExpression expression)
         {
-            if (expression == null)
-            {
-                if (bag.Debug)
-                {
-                    bag.Debug("The returned expression was null.");
-                }
-                return;
-            }
-
-            var bagTypes = GetSingleTypeValues(bag);
-
-            var list = new LinkedList<object>();
-            foreach (var parameter in expression.Parameters)
-            {
-                var parameterName = parameter.Name;
-                if (bag.Contains(parameterName, out object val))
-                {
-                    if (!parameter.Type.IsAssignableFrom(val.GetType()))
-                    {
-                        if (bag.Debug)
-                        {
-                            bag.Debug("The parameter type [{1}] is not assignable from [{2}] for property [{0}] in lambda expression.".FormatWith(parameterName, parameter.Type, val.GetType()));
-                        }
-                        return;
-                    }
-
-                    list.AddLast(val);
-                    continue;
-                }
-
-                if (bagTypes.TryGetValue(parameter.Type, out var valueOfType))
-                {
-                    list.AddLast(valueOfType);
-                    continue;
-                }
-                else
-                {
-                    if (bag.Debug)
-                    {
-                        bag.Debug("Bag does not contain a property [{0}].".FormatWith(parameterName));
-                    }
-                    return;
-                }
-
-            }
-
-            var result = expression.Compile().DynamicInvoke(list.ToArray());
+            var result = bag.Map(expression);
 
             await this.ProcessResult(method, bag, result, false);
         }
@@ -496,7 +450,7 @@ namespace AutoPipe
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
-            var bagTypes = GetSingleTypeValues(context);
+            var bagTypes = context.GetSingleTypeValues();
 
             foreach (var parameter in parameters)
             {
@@ -549,11 +503,6 @@ namespace AutoPipe
             }
         }
 
-        protected virtual IDictionary<Type, object> GetSingleTypeValues(Bag context)
-        {
-            return context.GroupBy(x => x.Value.GetType()).Where(x => x.Count() == 1).ToDictionary(x => x.Key, x => x.First().Value);
-        }
-
         /// <summary>
         /// Does a predefined check to validate execution
         /// possibility of the of the <paramref name="method"/>.
@@ -572,7 +521,7 @@ namespace AutoPipe
         protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
-            var bagTypes = GetSingleTypeValues(context);
+            var bagTypes = context.GetSingleTypeValues();
 
             foreach (var parameter in parameters)
             {

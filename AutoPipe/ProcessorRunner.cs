@@ -10,7 +10,8 @@ namespace AutoPipe
         /// <summary>
         /// Default instance of the <see cref="ProcessorRunner"/>.
         /// </summary>
-        public static readonly IProcessorRunner Instance = new ProcessorRunner();
+        public static IProcessorRunner Instance => instance ?? (instance = new ProcessorRunner());
+        private static ProcessorRunner instance;
 
         /// <summary>
         /// Runs a processor by executing its <see cref="IProcessor.Run"/> method.

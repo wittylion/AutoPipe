@@ -161,13 +161,13 @@ namespace AutoPipe
 
         public bool Debug
         {
-            get => Get(DebugProperty, false);
+            get => Get(DebugProperty, DebugDefault);
             set => SetProperty(DebugProperty, value);
         }
 
         public bool ThrowOnMissing
         {
-            get => Get(ThrowOnMissingProperty, true);
+            get => Get(ThrowOnMissingProperty, ThrowOnMissingDefault);
             set => SetProperty(ThrowOnMissingProperty, value);
         }
 
@@ -437,6 +437,19 @@ namespace AutoPipe
             return PropertiesDictionary.IsValueCreated &&
                 PropertiesDictionary.Value.TryGetValue(name, out object foundValue) &&
                 foundValue is TProperty;
+        }
+
+
+        public virtual bool ContainsSingle(Type type, out object valueOfType)
+        {
+            var bagTypes = this.GetSingleTypeValues();
+
+            if (bagTypes.TryGetValue(type, out valueOfType))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public virtual bool Contains<TProperty>(string name, out TProperty value)
@@ -888,11 +901,25 @@ namespace AutoPipe
         /// <summary>
         /// Default parameterless constructor allowing you to create and use pipeline context.
         /// </summary>
-        public Bag()
+        public Bag(bool? debug = null, bool? throwOnMissing = null, EventHandler<PipelineMessage> onMessage = null)
         {
+            if (debug != null)
+            {
+                this.Debug = debug.Value;
+            }
+
+            if (throwOnMissing != null)
+            {
+                this.ThrowOnMissing = throwOnMissing.Value;
+            }
+
+            if (onMessage != null)
+            {
+                this.OnMessage += onMessage;
+            }
         }
 
-        public Bag(object propertyContainer)
+        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, EventHandler<PipelineMessage> onMessage = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage)
         {
             if (propertyContainer.HasValue())
             {
@@ -942,10 +969,13 @@ namespace AutoPipe
             info.AddValue($"{nameof(Bag)}.{nameof(MessagesCollection)}", MessagesCollection, typeof(ICollection<PipelineMessage>));
         }
 
-        public static string EndedProperty = "ended";
-        public static string DebugProperty = "debug";
-        public static string ThrowOnMissingProperty = "throwonmissing";
-        public static string ResultProperty = "result";
+        public static readonly bool DebugDefault = false;
+        public static readonly bool ThrowOnMissingDefault = true;
+
+        public static readonly string EndedProperty = "ended";
+        public static readonly string DebugProperty = "debug";
+        public static readonly string ThrowOnMissingProperty = "throwonmissing";
+        public static readonly string ResultProperty = "result";
 
         /// <summary>
         /// Returns a value of the result property.
