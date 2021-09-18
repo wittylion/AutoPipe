@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net45;net461</TargetFrameworks>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>AutoPipe</PackageId>
+    <Authors>Sergey Solomentsev</Authors>
+    <Company>Witty Lion</Company>
+    <Description>Focus on writing meaningful parts and AutoPipe will handle the rest.</Description>
+    <Copyright>Witty Lion © 2021</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://wittylion.github.io/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>
+
+      This is a new release of a previously known package: https://www.nuget.org/packages/Pipelines.Net/
+
+      Write your code easily with AutoPipe:
+      - Create classes based on AutoProcessor;
+      - Describe methods as you want and rename them without refactoring: 
+          [Run] LoveYou() => [Run] LoveYouSoMuch();
+      - Need a new parameter? Return it with a method by prefixing it with Get and then use it in any method: 
+          GetMap(), UseMap(object map);
+      - Need several new parameters? Return them in a anonymous object (don't prefix with Get): 
+          BuildMap() { return new { Map, Scale, Locations } }
+      
+      Attributes to use:
+      [Run] - run your method;
+      [Skip] - do not run the method;
+      [Aka("Pretty Name")] - call methods and processors the way you want;
+      [Is("Doing good things")] - describe the methods and processors for better debugging;
+      [Order(15)] - provide an order of the processors and methods;
+      [Or("Default value")] - specify the value to be returned when requested property is not found;
+      [Required(Message = "Cannot go without you", End = true)] - make parameters required for method execution and control further execution.
+
+    </PackageReleaseNotes>
+    <NeutralLanguage>English</NeutralLanguage>
+    <PackageTags>Easy Refactoring Pipelines SOLID Processors Chain</PackageTags>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PackageIcon>pipelines-icon.png</PackageIcon>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <None Include="pipelines-icon.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+</Project>
