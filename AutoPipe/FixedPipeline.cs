@@ -4,23 +4,23 @@ using System.Linq;
 
 namespace AutoPipe
 {
-    public class CachedPipeline : IPipeline
+    public class FixedPipeline : IPipeline
     {
-        public static readonly string PipelineToCacheIsNull = "You have to specify a pipeline of the cache wrapper.";
+        public static readonly string PipelineIsNull = "You have to specify a pipeline of the cache wrapper.";
         public static readonly string RenewConditionIsNull = "The function that calculates whether cache should be updated must not be null.";
 
-        public IPipeline PipelineToCache { get; }
+        public IPipeline Pipeline { get; }
         public Func<IPipeline, IEnumerable<IProcessor>, bool> RenewCondition { get; }
         protected IEnumerable<IProcessor> CachedProcessors { get; set; }
 
-        public CachedPipeline(IPipeline pipelineToCache, Func<bool> renewCondition, bool useLazyLoading) 
-            : this(pipelineToCache, (pipe, _) => renewCondition(), useLazyLoading)
+        public FixedPipeline(IPipeline pipeline, Func<bool> renewCondition, bool useLazyLoading) 
+            : this(pipeline, (pipe, _) => renewCondition(), useLazyLoading)
         {
         }
 
-        public CachedPipeline(IPipeline pipelineToCache, Func<IPipeline, IEnumerable<IProcessor>, bool> renewCondition, bool useLazyLoading)
+        public FixedPipeline(IPipeline pipeline, Func<IPipeline, IEnumerable<IProcessor>, bool> renewCondition, bool useLazyLoading)
         {
-            PipelineToCache = pipelineToCache ?? throw new ArgumentException(PipelineToCacheIsNull, nameof(pipelineToCache));
+            Pipeline = pipeline ?? throw new ArgumentException(PipelineIsNull, nameof(pipeline));
             RenewCondition = renewCondition ?? throw new ArgumentException(RenewConditionIsNull, nameof(renewCondition));
 
             if (!useLazyLoading)
@@ -37,9 +37,9 @@ namespace AutoPipe
 
         protected void TryUpdatingProcessors()
         {
-            if (RenewCondition(PipelineToCache, CachedProcessors))
+            if (RenewCondition(Pipeline, CachedProcessors))
             {
-                CachedProcessors = PipelineToCache.GetProcessors().ToList().AsReadOnly();
+                CachedProcessors = Pipeline.GetProcessors().ToList().AsReadOnly();
             }
         }
     }

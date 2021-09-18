@@ -202,7 +202,7 @@ namespace AutoPipe
         /// <returns>
         /// Returns pipeline wrapper that caches processors.
         /// </returns>
-        public static IPipeline CacheInMemory(this IPipeline pipeline, bool useLazyLoading = true)
+        public static IPipeline Fix(this IPipeline pipeline, bool useLazyLoading = true)
         {
             if (!useLazyLoading)
             {
@@ -210,7 +210,7 @@ namespace AutoPipe
             }
 
             var loaded = false;
-            return new CachedPipeline(pipeline, () => {
+            return new FixedPipeline(pipeline, () => {
                 var result = !loaded;
                 loaded = true;
                 return result;
@@ -236,10 +236,10 @@ namespace AutoPipe
         /// <returns>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="period"/>.
         /// </returns>
-        public static IPipeline CacheInMemoryForPeriod(this IPipeline pipeline, TimeSpan period, bool useLazyLoading = true)
+        public static IPipeline FixFor(this IPipeline pipeline, TimeSpan period, bool useLazyLoading = true)
         {
             DateTime? startedTime = null;
-            return new CachedPipeline(pipeline, () =>
+            return new FixedPipeline(pipeline, () =>
             {
                 if (!startedTime.HasValue || DateTime.Now - startedTime > period)
                 {
@@ -270,9 +270,9 @@ namespace AutoPipe
         /// <returns>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="minutes"/>.
         /// </returns>
-        public static IPipeline CacheInMemoryForMinutes(this IPipeline pipeline, int minutes, bool useLazyLoading = true)
+        public static IPipeline FixForMinutes(this IPipeline pipeline, int minutes, bool useLazyLoading = true)
         {
-            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromMinutes(minutes), useLazyLoading);
+            return pipeline.FixFor(TimeSpan.FromMinutes(minutes), useLazyLoading);
         }
 
         /// <summary>
@@ -294,9 +294,9 @@ namespace AutoPipe
         /// <returns>
         /// Returns pipeline wrapper that caches processors for the specified <paramref name="hours"/>.
         /// </returns>
-        public static IPipeline CacheInMemoryForHours(this IPipeline pipeline, int hours, bool useLazyLoading = true)
+        public static IPipeline FixForHours(this IPipeline pipeline, int hours, bool useLazyLoading = true)
         {
-            return pipeline.CacheInMemoryForPeriod(TimeSpan.FromHours(hours), useLazyLoading);
+            return pipeline.FixFor(TimeSpan.FromHours(hours), useLazyLoading);
         }
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace AutoPipe
         /// </returns>
         public static IPipeline Modify(this IPipeline pipeline, IModificationConfiguration configuration)
         {
-            return new ModifiedPipeline(pipeline, configuration).CacheInMemory(false);
+            return new ModifiedPipeline(pipeline, configuration).Fix(false);
         }
 
         /// <summary>

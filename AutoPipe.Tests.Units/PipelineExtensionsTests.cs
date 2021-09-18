@@ -14,7 +14,7 @@ namespace AutoPipe.Tests.Units
         public void CacheInMemoryForHours_When_Lazy_Loading_Used_Should_Not_Return_Processors_Twice_Within_Test_Running()
         {
             var pipeline = new Mock<IPipeline>();
-            var cached = pipeline.Object.CacheInMemoryForHours(1);
+            var cached = pipeline.Object.FixForHours(1);
 
             cached.GetProcessors(); // Caching call
             cached.GetProcessors(); // Extra call to check cache
@@ -28,7 +28,7 @@ namespace AutoPipe.Tests.Units
         {
             var waitPeriod = TimeSpan.FromMilliseconds(100);
             var pipeline = new Mock<IPipeline>();
-            var cached = pipeline.Object.CacheInMemoryForPeriod(waitPeriod);
+            var cached = pipeline.Object.FixFor(waitPeriod);
 
             cached.GetProcessors(); // Caching call
             await Task.Delay(waitPeriod.Add(TimeSpan.FromMilliseconds(100))).ConfigureAwait(false);
@@ -46,7 +46,7 @@ namespace AutoPipe.Tests.Units
                 new TestProcessor(() => { })
             };
 
-            var pipeline = processors.ToPipeline().CacheInMemory();
+            var pipeline = processors.ToPipeline().Fix();
             pipeline.GetProcessors();
 
             processors.Add(new TestProcessor(() => { }));
@@ -62,7 +62,7 @@ namespace AutoPipe.Tests.Units
                 new TestProcessor(() => { })
             };
 
-            var pipeline = processors.ToPipeline().CacheInMemory(false);
+            var pipeline = processors.ToPipeline().Fix(false);
             
             processors.Add(new TestProcessor(() => { }));
 
