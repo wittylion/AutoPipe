@@ -9,7 +9,7 @@ AutoPipe is a library developed for purpose of composing logical blocks and acti
 
 Using NuGet package manager source https://api.nuget.org/v3/index.json :
 
-![NuGet Installation](https://raw.githubusercontent.com/wittylion/Pipelines.Net/release/2.0/docs/README/nuget.png)
+![NuGet Installation](https://raw.githubusercontent.com/wittylion/Pipelines.Net/2.0/docs/README/nuget.png)
 
 or powershell console:
 
