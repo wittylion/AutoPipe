@@ -15,7 +15,7 @@ namespace AutoPipe
     /// in the derived type will be executed based on 
     /// <see cref="OrderAttribute"/>.
     /// </summary>
-    public abstract class AutoProcessor : SafeProcessor
+    public class AutoProcessor : SafeProcessor
     {
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
         public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
@@ -24,12 +24,20 @@ namespace AutoPipe
         /// Collection of methods that will be executed one by one.
         /// </summary>
         public IEnumerable<MethodInfo> Methods { get; set; }
+        public object Processor { get; }
 
         /// <summary>
         /// A simple parameterless constructor.
         /// </summary>
-        public AutoProcessor()
+        protected AutoProcessor()
         {
+            Processor = this;
+            Methods = GetMethodsToExecute();
+        }
+
+        public AutoProcessor(object processor)
+        {
+            Processor = processor;
             Methods = GetMethodsToExecute();
         }
 
@@ -41,7 +49,7 @@ namespace AutoPipe
         /// </returns>
         public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
-            var type = this.GetType();
+            var type = Processor.GetType();
             var allAttributes = GetMethodBindingAttributes();
 
             if (allAttributes.HasNoValue())
@@ -117,7 +125,7 @@ namespace AutoPipe
         public virtual async Task Run(MethodInfo method, Bag context)
         {
             var values = GetExecutionParameters(method, context);
-            var result = method.Invoke(this, values.ToArray());
+            var result = method.Invoke(Processor, values.ToArray());
             await ProcessResult(method, context, result, skipNameBasedActions: false).ConfigureAwait(false);
         }
 
