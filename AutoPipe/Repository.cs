@@ -68,7 +68,7 @@ namespace AutoPipe
 
         protected virtual bool FilterProcessors(Type type)
         {
-            return typeof(IProcessor).IsAssignableFrom(type);
+            return type.IsProcessor() || type.ShouldRun();
         }
 
         protected virtual IEnumerable<Type> GetProcessorTypes(Assembly assembly)

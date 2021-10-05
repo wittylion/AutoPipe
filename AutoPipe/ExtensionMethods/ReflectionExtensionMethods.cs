@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace AutoPipe
@@ -42,9 +43,25 @@ namespace AutoPipe
             return runAttribute != null;
         }
 
+        public static bool ShouldRunAll(this MemberInfo member)
+        {
+            var runAllAttribute = member?.GetCustomAttribute<RunAllAttribute>();
+            return runAllAttribute != null;
+        }
+
         public static string GetDescription(this MemberInfo member)
         {
             return member?.GetCustomAttribute<IsAttribute>()?.Description;
+        }
+
+        public static bool IsProcessor(this Type type)
+        {
+            return typeof(IProcessor).IsAssignableFrom(type);
+        }
+
+        public static bool IsPipeline(this Type type)
+        {
+            return typeof(IPipeline).IsAssignableFrom(type);
         }
     }
 }

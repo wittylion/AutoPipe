@@ -58,7 +58,18 @@ namespace AutoPipe
             }
 
             var bindingAttr = allAttributes.Aggregate((l, r) => l | r);
-            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
+            IEnumerable<MethodInfo> methods = type.GetMethods(bindingAttr);
+
+            return methods.Where(AcceptableByFilter).OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
+        }
+
+        private bool? runAll;
+        protected virtual bool RunAll
+        {
+            get
+            {
+                return (runAll ?? (runAll = this.Processor.GetType().ShouldRunAll())).Value;
+            }
         }
 
         /// <summary>
@@ -70,7 +81,7 @@ namespace AutoPipe
         /// </returns>
         protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
-            return new[] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static };
+            return new[] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static, BindingFlags.DeclaredOnly };
         }
 
         /// <summary>
@@ -84,7 +95,7 @@ namespace AutoPipe
         /// </returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return method.ShouldRun() && !method.ShouldSkip();
+            return (this.RunAll || method.ShouldRun()) && !method.ShouldSkip();
         }
 
         /// <summary>
@@ -437,6 +448,33 @@ namespace AutoPipe
         protected virtual Action<Bag> ErrorResult(object result, string message)
         {
             return context => context.ErrorResult(result, message);
+        }
+
+        public virtual string Name
+        {
+            get
+            {
+                if (Processor == this)
+                {
+                    return this.Name();
+                }
+
+                return Processor.GetType().GetName();
+            }
+        }
+
+
+        public virtual string Description
+        {
+            get
+            {
+                if (Processor == this)
+                {
+                    return this.Description();
+                }
+
+                return Processor.GetType().GetDescription();
+            }
         }
 
         /// <summary>

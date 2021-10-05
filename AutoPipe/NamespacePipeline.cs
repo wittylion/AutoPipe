@@ -35,7 +35,7 @@ namespace AutoPipe
             IncludeSkipped = includeSkipped;
         }
 
-        public IEnumerable<IProcessor> GetProcessors()
+        public virtual IEnumerable<IProcessor> GetProcessors()
         {
             return Repository.Instance.Types
                 .Where(FilterProcessors)
@@ -77,7 +77,19 @@ namespace AutoPipe
 
         protected virtual IProcessor ConstructProcessor(Type type)
         {
-            return type?.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as IProcessor;
+            var emptyConstructor = type?.GetConstructor(Type.EmptyTypes);
+            if (emptyConstructor != null)
+            {
+                var obj = emptyConstructor.Invoke(new object[0]);
+                if (obj is IProcessor processor)
+                {
+                    return processor;
+                }
+
+                return new AutoProcessor(obj);
+            }
+
+            return null;
         }
     }
 }
