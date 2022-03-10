@@ -81,7 +81,7 @@ namespace AutoPipe
         /// </returns>
         protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
-            return new[] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static, BindingFlags.DeclaredOnly };
+            yield return Repository.RunningMethodsFlags;
         }
 
         /// <summary>
