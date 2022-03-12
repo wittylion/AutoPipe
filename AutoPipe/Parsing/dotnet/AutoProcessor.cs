@@ -25,19 +25,19 @@ namespace AutoPipe
         /// </summary>
         public IEnumerable<MethodInfo> Methods { get; set; }
         public object Processor { get; }
+        public IMethodFilter MethodFilter { get; }
 
         /// <summary>
         /// A simple parameterless constructor.
         /// </summary>
-        protected AutoProcessor()
-        {
-            Processor = this;
-            Methods = GetMethodsToExecute();
-        }
+        protected AutoProcessor() : this(null) { }
 
-        public AutoProcessor(object processor)
+        public AutoProcessor(object processor) : this(processor, MethodFilterByAttributes.Instance) { }
+
+        public AutoProcessor(object processor, IMethodFilter methodFilter)
         {
-            Processor = processor;
+            Processor = processor ?? this;
+            MethodFilter = methodFilter ?? MethodFilterByAttributes.Instance;
             Methods = GetMethodsToExecute();
         }
 
@@ -49,7 +49,10 @@ namespace AutoPipe
         /// </returns>
         public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
+            IEnumerable<MethodInfo> methods;
+
             var type = Processor.GetType();
+            
             var allAttributes = GetMethodBindingAttributes();
 
             if (allAttributes.HasNoValue())
@@ -58,9 +61,9 @@ namespace AutoPipe
             }
 
             var bindingAttr = allAttributes.Aggregate((l, r) => l | r);
-            IEnumerable<MethodInfo> methods = type.GetMethods(bindingAttr);
+            methods = type.GetMethods(bindingAttr).Where(AcceptableByFilter);
 
-            return methods.Where(AcceptableByFilter).OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
+            return methods.OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
         }
 
         private bool? runAll;
@@ -81,7 +84,7 @@ namespace AutoPipe
         /// </returns>
         protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
-            yield return Repository.RunningMethodsFlags;
+            yield return BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
         }
 
         /// <summary>
@@ -95,7 +98,7 @@ namespace AutoPipe
         /// </returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return (this.RunAll || method.ShouldRun()) && !method.ShouldSkip();
+            return MethodFilter.Matches(method);
         }
 
         /// <summary>

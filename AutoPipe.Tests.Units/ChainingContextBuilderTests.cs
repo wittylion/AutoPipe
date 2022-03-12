@@ -81,11 +81,11 @@ namespace AutoPipe.Tests.Units
             var context = await Bag.Create()
                 .Use("name", "Bob")
                 .Run(
-                    Pipeline.From(
-                        new EnsureName(),
-                        new EnsureMessage(),
-                        new HelloMessageNameToResultReplacer()
-                    ),
+                    Pipeline.From<
+                        EnsureName,
+                        EnsureMessage,
+                        HelloMessageNameToResultReplacer
+                        >(),
                     Runner.Instance);
 
             context.StringResult()

@@ -57,7 +57,7 @@ namespace AutoPipe
         {
             if (enumerable.IsNull())
             {
-                return false;
+                return true;
             }
 
             return !enumerable.Any();
