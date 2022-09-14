@@ -381,6 +381,11 @@ namespace AutoPipe
             return Get(name, or: Enumerable.Empty<TElement>()).ToList();
         }
 
+        public virtual TElement[] Array<TElement>(string name)
+        {
+            return Get(name, or: new TElement[0]);
+        }
+
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
