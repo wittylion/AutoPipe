@@ -14,15 +14,15 @@ namespace AutoPipe
         public ITypeFilter TypeFilter { get; }
         public IMethodFilter MethodFilter { get; }
 
-        public AssemblyPipeline(Assembly assembly, ITypeFilter typeFilter, IMethodFilter methodFilter) : this(new[] { assembly }, typeFilter, methodFilter)
+        public AssemblyPipeline(Assembly assembly, ITypeFilter typeFilter = null, IMethodFilter methodFilter = null) : this(new[] { assembly }, typeFilter, methodFilter)
         {
         }
 
-        public AssemblyPipeline(IEnumerable<Assembly> assemblies, ITypeFilter typeFilter, IMethodFilter methodFilter)
+        public AssemblyPipeline(IEnumerable<Assembly> assemblies, ITypeFilter typeFilter = null, IMethodFilter methodFilter = null)
         {
             Assemblies = assemblies.OnlyValuable() ?? throw new ArgumentNullException(nameof(assemblies), "Assemblies parameter was null. Please review the collection of passed assemblies.");
-            TypeFilter = typeFilter;
-            MethodFilter = methodFilter;
+            TypeFilter = typeFilter ?? AutoPipe.TypeFilter.Default;
+            MethodFilter = methodFilter ?? AutoPipe.MethodFilter.Default;
         }
 
         public IEnumerable<IProcessor> GetProcessors()

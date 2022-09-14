@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace AutoPipe
@@ -10,6 +11,27 @@ namespace AutoPipe
     public class Pipeline : IPipeline
     {
         public static readonly IPipeline Empty = Pipeline.From(Enumerable.Empty<IProcessor>());
+
+        public static IPipeline Namespace()
+        {
+            return new NamespacePipeline();
+        }
+
+        public static IPipeline Assembly(string fullPath, ITypeFilter typeFilter = null, IMethodFilter methodFilter = null)
+        {
+            return new AssemblyPipeline(System.Reflection.Assembly.LoadFrom(fullPath), typeFilter, methodFilter);
+        }
+
+        public static IPipeline Folder(string folder, IFileParser fileParser = null, bool recursive = true)
+        {
+            if (!Directory.Exists(folder))
+            {
+                return null;
+            }
+
+            return new FilesPipeline(new DirectoryInfo(folder).GetFileSystemInfos(), fileParser, recursive: recursive);
+        }
+
         public static IPipeline From(params IProcessor[] processors)
         {
             return new Pipeline(processors);

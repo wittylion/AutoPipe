@@ -4,6 +4,7 @@ using Moq;
 using AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.InitialTest;
 using AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.OrderTest;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
 {
@@ -64,11 +65,11 @@ namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests
         }
 
         [Fact]
-        public void NamespaceBasedPipeline_Should_Run_With_Extension_Methods_Without_Errors()
+        public async Task NamespaceBasedPipeline_Should_Run_With_Extension_Methods_Without_Errors()
         {
             var mockRunner = new Mock<Runner>(null, null, null, null) {CallBase = true};
 
-            new NamespacePipeline(OrderTestFolder).Run(runner: mockRunner.Object);
+            await new NamespacePipeline(OrderTestFolder).Run(runner: mockRunner.Object);
             var expectedCount = new NamespacePipeline(OrderTestFolder).GetProcessors().Count();
 
             mockRunner.Verify(x => x.Run(It.IsAny<IProcessor>(), It.IsAny<Bag>()),

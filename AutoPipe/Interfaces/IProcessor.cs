@@ -15,8 +15,8 @@ namespace AutoPipe
         /// Main method of the processor, which can execute any single action,
         /// that is represented by the name of the processor.
         /// </summary>
-        /// <param name="arguments">Data that may be processed by this processor.</param>
+        /// <param name="bag">Data that may be processed by this processor.</param>
         /// <returns>A promise class indicating whether operation has completed execution.</returns>
-        Task Run(Bag arguments);
+        Task Run(Bag bag);
     }
 }

@@ -5,18 +5,33 @@ using System.Linq;
 
 namespace AutoPipe
 {
+    public class NamespaceOptions
+    {
+        internal static string FromStackTrace()
+        {
+            int frame = 2;
+
+            var stackFrame = new StackTrace().GetFrame(frame);
+            while (stackFrame != null)
+            {
+                var assemblyName = stackFrame.GetMethod().DeclaringType.Assembly.GetName().Name;
+                if (assemblyName != "AutoPipe")
+                {
+                    return stackFrame.GetMethod().DeclaringType.Namespace;
+                }
+
+                stackFrame = new StackTrace().GetFrame(++frame);
+            }
+
+            return null;
+        }
+    }
+
     public class NamespacePipeline : IPipeline
     {
         public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false)
         {
-            if (@namespace == null)
-            {
-                var stackFrame = new StackTrace().GetFrame(1);
-                if (stackFrame != null)
-                {
-                    @namespace = stackFrame.GetMethod().DeclaringType.Namespace;
-                }
-            }
+            @namespace = @namespace ?? NamespaceOptions.FromStackTrace();
 
             Filter = TypeFilter.Default.And(TypeFilter.Namespace(@namespace, recursive, includeSkipped));
         }

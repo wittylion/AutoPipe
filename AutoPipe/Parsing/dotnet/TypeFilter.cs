@@ -28,5 +28,10 @@ namespace AutoPipe
 
             return new DelegateTypeFilter((type) => theType.IsAssignableFrom(type) && (includeSkipped || !type.ShouldSkip()));
         }
+
+        public static ITypeFilter Custom(Predicate<Type> predicate)
+        {
+            return new DelegateTypeFilter(predicate);
+        }
     }
 }
