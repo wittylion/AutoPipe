@@ -418,6 +418,11 @@ namespace AutoPipe
             return Contains<TProperty>(name);
         }
 
+        public virtual bool Has(string name)
+        {
+            return Contains(name);
+        }
+
         public virtual bool Has<TProperty>(string name, out TProperty property)
         {
             return Contains(name, out property);
@@ -444,6 +449,10 @@ namespace AutoPipe
                 foundValue is TProperty;
         }
 
+        public virtual bool Contains(string name)
+        {
+            return ContainsKey(name);
+        }
 
         public virtual bool ContainsSingle(Type type, out object valueOfType)
         {
@@ -531,6 +540,11 @@ namespace AutoPipe
         public virtual bool DoesNotContain<TProperty>(string name)
         {
             return !Contains<TProperty>(name);
+        }
+
+        public virtual bool DoesNotContain(string name)
+        {
+            return !Contains(name);
         }
 
         /// <summary>
