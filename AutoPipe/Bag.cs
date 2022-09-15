@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
 namespace AutoPipe
@@ -295,7 +296,6 @@ namespace AutoPipe
             }
         }
 
-
         public virtual TValue Get<TValue>(string name)
         {
             if (ThrowOnMissing)
@@ -334,16 +334,11 @@ namespace AutoPipe
 
         public virtual TValue GetOrThrow<TValue>(string name)
         {
-            if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
+            return Get<TValue>(name, or: () =>
             {
-                if (maybeValue is TValue value)
-                {
-                    return value;
-                }
-            }
-
-            var summaryMessage = Summary();
-            throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context. Try to go through messages:\r\n{summaryMessage}");
+                var summaryMessage = Summary();
+                throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context. Try to go through messages:\r\n{summaryMessage}");
+            });
         }
 
         public virtual string String(string name)
@@ -393,6 +388,11 @@ namespace AutoPipe
                 if (maybeValue is TValue value)
                 {
                     return value;
+                }
+
+                if (maybeValue is ComputedProperty computed && typeof(TValue).IsAssignableFrom(computed.Lambda.ReturnType))
+                {
+                    return computed.Invoke<TValue>(this);
                 }
             }
 
@@ -446,7 +446,7 @@ namespace AutoPipe
         {
             return PropertiesDictionary.IsValueCreated &&
                 PropertiesDictionary.Value.TryGetValue(name, out object foundValue) &&
-                foundValue is TProperty;
+                (foundValue is TProperty || foundValue is ComputedProperty computed && typeof(TProperty).IsAssignableFrom(computed.Lambda.ReturnType));
         }
 
         public virtual bool Contains(string name)
@@ -482,6 +482,12 @@ namespace AutoPipe
             if (foundValue is TProperty result)
             {
                 value = result;
+                return true;
+            }
+
+            if (foundValue is ComputedProperty computed && typeof(TProperty).IsAssignableFrom(computed.Lambda.ReturnType))
+            {
+                value = computed.Invoke<TProperty>(this);
                 return true;
             }
 
@@ -572,9 +578,17 @@ namespace AutoPipe
             if (PropertiesDictionary.IsValueCreated)
             {
                 var dictionary = PropertiesDictionary.Value;
-                if (dictionary.TryGetValue(name, out object prop) && prop is TElement result)
+                if (dictionary.TryGetValue(name, out object prop))
                 {
-                    element = result;
+                    if (prop is TElement result)
+                    {
+                        element = result;
+                    }
+                    else if (prop is ComputedProperty computed && typeof(TElement).IsAssignableFrom(computed.Lambda.ReturnType))
+                    {
+                        element = computed.Invoke<TElement>(this);
+                    }
+
                     return dictionary.Remove(name);
                 }
             }
