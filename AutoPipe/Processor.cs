@@ -10,6 +10,8 @@ namespace AutoPipe
     {
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
 
+        public static readonly Processor Empty = Processor.From(() => { });
+
         public static Processor From(Action action)
         {
             return new Processor(action.ToAsync<Bag>());
@@ -30,7 +32,7 @@ namespace AutoPipe
             Action = action ?? throw new ArgumentNullException(Processor.ActionMustBeSpecified);
         }
 
-        private Func<Bag, Task> Action { get; }
+        protected internal Func<Bag, Task> Action { get; }
 
         public Task Run(Bag arguments)
         {

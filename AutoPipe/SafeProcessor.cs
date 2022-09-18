@@ -86,6 +86,12 @@ namespace AutoPipe
         /// </returns>
         public virtual bool SafeCondition(Bag args)
         {
+            if (args.Ended)
+            {
+                args.Debug("The bag contained end property set to True. Skipping processor.");
+                return false;
+            }
+
             var containProperties = MustHaveProperties();
             foreach (var property in containProperties)
             {
@@ -114,12 +120,6 @@ namespace AutoPipe
 
                     return false;
                 }
-            }
-
-            if (args.Ended)
-            {
-                args.Debug("The bag contained end property set to True. Skipping processor.");
-                return false;
             }
 
             return true;

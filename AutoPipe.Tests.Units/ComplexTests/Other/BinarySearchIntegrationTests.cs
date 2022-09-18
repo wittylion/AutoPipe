@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -28,7 +29,7 @@ namespace AutoPipe.Tests.Integrations
                 .Be(-1, "because we element doesn't exist in collection.");
         }
 
-        [Theory(Skip = "Not optimized for bag usage")]
+        [Theory()]
         [MemberData(nameof(DataSets.GetIntegerArrayCollectionAndNumberFromIt), MemberType = typeof(DataSets))]
         public async Task Should_Find_The_Number_In_Data_Array_By_Means_Of_Processors(int[] data, int number)
         {
@@ -48,28 +49,22 @@ namespace AutoPipe.Tests.Integrations
                 .Be(-1, "because we element doesn't exist in collection.");
         }
 
-        public class DataContainer : Bag
+        public class DataContainer
         {
             public DataContainer(int[] array, int elementToBeFound)
             {
-                this["ElementToBeFound"] = elementToBeFound;
-                this["Array"] = array;
+                ElementToBeFound = elementToBeFound;
+                Array = array;
             }
 
-            public int[] Array { get => this.GetOrThrow<int[]>("Array"); }
+            public int[] Array { get; }
             public int FoundIndex { get; set; } = -1;
             public int CurrentIndex { get; set; }
-            public int CurrentElement => Array[CurrentIndex];
 
             public int StartSearchIndex { get; set; }
             public int EndSearchIndex { get; set; }
 
             public int ElementToBeFound { get; }
-
-            public bool ElementFound()
-            {
-                return FoundIndex != -1;
-            }
         }
 
         public static class DependencyResolver
@@ -100,10 +95,17 @@ namespace AutoPipe.Tests.Integrations
                     StartSearchIndex = min ?? 0,
                     EndSearchIndex = max ?? data.Length - 1
                 };
+                Expression<Func<int, bool>> e = (int foundIndex) => foundIndex != -1;
+                Expression<Func<int, int[], int>> b = (int currentIndex, int[] array) => array[currentIndex];
+                Expression<Func<int, int, bool>> c = (int startSearchIndex, int endSearchIndex) => startSearchIndex <= endSearchIndex;
+                var bag = new Bag(container)
+                    .Computed("ElementFound", e)
+                    .Computed("CurrentElement", b)
+                    .Computed("NotEnded", c);
 
-                await Runner.Run(container).ConfigureAwait(false);
+                await Runner.Run(bag).ConfigureAwait(false);
 
-                return container.FoundIndex;
+                return bag.Int("FoundIndex");
             }
         }
 
@@ -119,6 +121,7 @@ namespace AutoPipe.Tests.Integrations
             public IEnumerable<IProcessor> GetProcessors()
             {
                 yield return SortArray;
+                yield return EnsureStartAndEnd;
                 yield return RunSearch;
             }
 
@@ -133,14 +136,25 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
+            private Processor EnsureStartAndEnd =>
+                Processor.From(EnsureStartAndEndImplementation);
+
+            private Task EnsureStartAndEndImplementation(Bag container)
+            {
+                if (container.DoesNotContain<object>("EndSearchIndex"))
+                {
+                    container["EndSearchIndex"] = container.Get<int[]>("Array").Length - 1;
+                }
+
+                return PipelineTask.CompletedTask;
+            }
+
             private Processor RunSearch =>
                 Processor.From(RunSearchImplementation);
 
             private Task RunSearchImplementation(Bag bag)
             {
-                var endSearchIndex = bag.Int("EndSearchIndex");
-
-                while (bag.Int("StartSearchIndex") <= endSearchIndex && bag.Bool("ElementFound"))
+                while (bag.Bool("NotEnded") && !bag.Bool("ElementFound"))
                 {
                     Finder.Run(bag);
                 }
@@ -171,10 +185,10 @@ namespace AutoPipe.Tests.Integrations
             private Processor ResizeToRightPartProcessor =>
                 Processor.From(ResizeToRightPartImplementation);
 
-            private Task ResizeToRightPartImplementation(Bag container)
+            private Task ResizeToRightPartImplementation(Bag bag)
             {
-                if (container.Int("ElementToBeFound") > container.Int("CurrentElement"))
-                    container["StartSearchIndex"] = container.Int("CurrentIndex") + 1;
+                if (bag.Int("ElementToBeFound") > bag.Int("CurrentElement"))
+                    bag["StartSearchIndex"] = bag.Int("CurrentIndex") + 1;
 
                 return PipelineTask.CompletedTask;
             }
@@ -182,10 +196,10 @@ namespace AutoPipe.Tests.Integrations
             private Processor ResizeToLeftPartProcessor =>
                 Processor.From(ResizeToLeftPartImplementation);
 
-            private Task ResizeToLeftPartImplementation(Bag container)
+            private Task ResizeToLeftPartImplementation(Bag bag)
             {
-                if (container.Int("ElementToBeFound") < container.Int("CurrentElement"))
-                    container["EndSearchIndex"] = container.Int("CurrentIndex") - 1;
+                if (bag.Int("ElementToBeFound") < bag.Int("CurrentElement"))
+                    bag["EndSearchIndex"] = bag.Int("CurrentIndex") - 1;
 
                 return PipelineTask.CompletedTask;
             }
@@ -193,10 +207,10 @@ namespace AutoPipe.Tests.Integrations
             private Processor TrySetFoundIndexProcessor =>
                 Processor.From(TrySetFoundIndexImplementation);
 
-            private Task TrySetFoundIndexImplementation(Bag container)
+            private Task TrySetFoundIndexImplementation(Bag bag)
             {
-                if (container.Int("CurrentElement") == container.Int("ElementToBeFound"))
-                    container["FoundIndex"] = container.Int("CurrentIndex");
+                if (bag.Int("CurrentElement") == bag.Int("ElementToBeFound"))
+                    bag["FoundIndex"] = bag.Int("CurrentIndex");
 
                 return PipelineTask.CompletedTask;
             }

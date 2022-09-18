@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using AutoPipe;
 using FluentAssertions;
 using Xunit;
 
-namespace AutoPipe.Tests.Units
+namespace AutoPipe.Tests.Units.BagTests
 {
     public class ChainingContextBuilderTests
     {

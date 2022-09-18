@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AutoPipe
@@ -69,6 +70,12 @@ namespace AutoPipe
                 return;
             }
 
+            if (bag.Ended)
+            {
+                bag.Debug($"The bag contained end property set to True. Skipping pipeline: [{pipeline.Name()}].");
+                return;
+            }
+
             PipelineInfo pipelineInfo = null;
             if (OnPipelineStart != null || OnPipelineEnd != null)
             {
@@ -131,39 +138,27 @@ namespace AutoPipe
         /// </returns>
         public virtual async Task Run(IEnumerable<IProcessor> processors, Bag bag)
         {
+            if (bag.Ended)
+            {
+                bag.Debug("The bag contained end property set to True. Skipping all processors.");
+                return;
+            }
+
             int index = 0;
             processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)
             {
-                if (bag.Debug)
+                bag.Debug("Running processor #{0}.".FormatWith(index));
+                await Run(processor, bag).ConfigureAwait(false);
+
+                if (bag.Ended)
                 {
-                    var processorName = processor.Name();
-                    var description = processor.Description();
-
-                    if (description.HasValue())
-                    {
-                        bag.Debug("Running processor at index [{1}]: [{0}]. Processor is {2}".FormatWith(processorName, index, description.ToLower()));
-                    }
-                    else
-                    {
-                        bag.Debug("Running processor at index [{1}]: [{0}].".FormatWith(processorName, index));
-                    }
-
-                    await Run(processor, bag).ConfigureAwait(false);
-
-                    if (bag.Ended)
-                    {
-                        bag.Debug("Completed processor [{0}]. Ending signal has been sent.".FormatWith(processorName));
-                        break;
-                    }
-                    else
-                    {
-                        bag.Debug("Completed processor [{0}]. Continue to the next one.".FormatWith(processorName));
-                    }
+                    bag.Debug("Completed processor #{0}. Ending loop.".FormatWith(index));
+                    break;
                 }
                 else
                 {
-                    await Run(processor, bag).ConfigureAwait(false);
+                    bag.Debug("Completed processor #{0}. Continue loop.".FormatWith(index));
                 }
 
                 ++index;
@@ -190,6 +185,13 @@ namespace AutoPipe
         {
             if (!processor.HasValue())
             {
+                bag.Debug("Cannot run the processor because its value is null.");
+                return;
+            }
+
+            if (bag.Ended)
+            {
+                bag.Debug("The bag contained end property set to True. Skipping processor.");
                 return;
             }
 
@@ -201,13 +203,43 @@ namespace AutoPipe
 
             if (OnProcessorStart != null)
             {
+                bag.Debug("Running processor's start event.");
                 OnProcessorStart(this, processorInfo);
             }
 
-            await processor.Run(bag).ConfigureAwait(false);
+            if (bag.Debug)
+            {
+                var processorName = processor.Name();
+                var description = processor.Description();
+
+                if (description.HasValue())
+                {
+                    bag.Debug("Running processor [{0}] that is {2}".FormatWith(processorName, description.ToLower()));
+                }
+                else
+                {
+                    bag.Debug("Running processor [{0}].".FormatWith(processorName));
+                }
+
+                await processor.Run(bag).ConfigureAwait(false);
+
+                if (bag.Ended)
+                {
+                    bag.Debug("Processor [{0}] completed with end pipeline signal.".FormatWith(processorName));
+                }
+                else
+                {
+                    bag.Debug("Processor [{0}] completed.".FormatWith(processorName));
+                }
+            }
+            else
+            {
+                await processor.Run(bag).ConfigureAwait(false);
+            }
 
             if (OnProcessorEnd != null)
             {
+                bag.Debug("Running processor end event.");
                 OnProcessorEnd(this, processorInfo);
             }
         }
