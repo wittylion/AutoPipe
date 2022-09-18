@@ -9,8 +9,8 @@ namespace AutoPipe.Tests.Units
         [Fact]
         public void Instance_ReturnsTrue_WhenTheSameTypeIsPassed()
         {
-            var processor = new TestProcessor(() => { });
-            new ProcessorMatcherByType(typeof(TestProcessor)).Matches(processor).Should().BeTrue();
+            var processor = Processor.Empty;
+            new ProcessorMatcherByType(typeof(Processor)).Matches(processor).Should().BeTrue();
         }
 
         [Fact]

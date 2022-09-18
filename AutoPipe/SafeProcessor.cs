@@ -23,7 +23,7 @@ namespace AutoPipe
         /// <returns>
         /// Returns a task class which is responsible of asynchronous code execution.
         /// </returns>
-        public abstract Task SafeRun(Bag args);
+        public abstract Task SafeRun(Bag bag);
 
         /// <summary>
         /// Executes small action that does some logging in case
@@ -40,33 +40,33 @@ namespace AutoPipe
 
         /// <summary>
         /// Executes a logic defined in <see cref="SafeRun"/>
-        /// class only if <paramref name="arguments"/> parameter
+        /// class only if <paramref name="bag"/> parameter
         /// is of type <see cref="TArgs"/> and <see cref="SafeCondition"/>
         /// returns true.
         /// </summary>
         /// <remarks>
         /// You can think of this method as of 'if' statement.
         /// </remarks>
-        /// <param name="arguments">
+        /// <param name="bag">
         /// Arguments to be processed.
         /// </param>
         /// <returns>
         /// Returns a task class which is responsible of asynchronous code execution.
         /// </returns>
-        public Task Run(Bag arguments)
+        public Task Run(Bag bag)
         {
-            if (arguments == null)
+            if (bag == null)
             {
                 return Done;
             }
 
-            if (!SafeCondition(arguments))
+            if (!SafeCondition(bag))
             {
-                ProcessUnsafeArguments(arguments);
+                ProcessUnsafeArguments(bag);
                 return Done;
             }
 
-            return SafeRun(arguments);
+            return SafeRun(bag);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace AutoPipe
         /// checks <see cref="PipelineContext.Ended"/> status.
         /// In case it true, the processor should not be executed.
         /// </summary>
-        /// <param name="args">
+        /// <param name="bag">
         /// Arguments to be processed.
         /// </param>
         /// <returns>
@@ -84,23 +84,23 @@ namespace AutoPipe
         /// otherwise returns <c>false</c> which means that the processor
         /// should not be executed.
         /// </returns>
-        public virtual bool SafeCondition(Bag args)
+        public virtual bool SafeCondition(Bag bag)
         {
-            if (args.Ended)
+            if (bag.Ended)
             {
-                args.Debug("The bag contained end property set to True. Skipping processor.");
+                bag.Debug("The bag contained end property set to True. Skipping processor.");
                 return false;
             }
 
             var containProperties = MustHaveProperties();
             foreach (var property in containProperties)
             {
-                if (!args.ContainsKey(property))
+                if (!bag.ContainsKey(property))
                 {
-                    if (args.Debug)
+                    if (bag.Debug)
                     {
                         var processorName = this.Name();
-                        args.Debug("The bag misses property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
+                        bag.Debug("The bag misses property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
                     }
 
                     return false;
@@ -110,12 +110,12 @@ namespace AutoPipe
             var missProperties = MustMissProperties();
             foreach (var property in missProperties)
             {
-                if (args.ContainsKey(property))
+                if (bag.ContainsKey(property))
                 {
-                    if (args.Debug)
+                    if (bag.Debug)
                     {
                         var processorName = this.Name();
-                        args.Debug("The bag should not contain property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
+                        bag.Debug("The bag should not contain property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
                     }
 
                     return false;

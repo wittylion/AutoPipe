@@ -10,17 +10,17 @@ namespace AutoPipe.Tests.Units
         [Fact]
         public void AddLast_ShouldWorkProperly_WithGenericType()
         {
-            Pipeline.Empty.Modify(x => x.AddLast<TestProcessor>())
-                .GetProcessors().Should().AllBeOfType<TestProcessor>();
+            Pipeline.Empty.Modify(x => x.AddLast<Processor>())
+                .GetProcessors().Should().AllBeOfType<Processor>();
         }
 
         [Fact]
         public void After_ShouldWorkProperly_WithGenericType()
         {
-            var processor1 = new TestProcessor(() => { });
+            var processor1 = Processor.Empty;
 
             var configuration = new ChainingModification()
-                .After<TestProcessor, TestProcessor>()
+                .After<Processor, Processor>()
                 .GetConfiguration();
 
             processor1.ToAnArray().ToPipeline().Modify(configuration)
@@ -117,10 +117,10 @@ namespace AutoPipe.Tests.Units
         [Fact]
         public void Before_ShouldWorkProperly_WithGenericType()
         {
-            var processor1 = new TestProcessor(() => { });
+            var processor1 = Processor.Empty;
 
             var configuration = new ChainingModification()
-                .Before<TestProcessor, TestProcessor>()
+                .Before<Processor, TestProcessor>()
                 .GetConfiguration();
 
             processor1.ToAnArray().ToPipeline().Modify(configuration)

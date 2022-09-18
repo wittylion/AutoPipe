@@ -43,13 +43,13 @@ namespace AutoPipe.Tests.Units
         {
             List<IProcessor> processors = new List<IProcessor>
             {
-                new TestProcessor(() => { })
+                Processor.Empty
             };
 
             var pipeline = processors.ToPipeline().Fix();
             pipeline.GetProcessors();
 
-            processors.Add(new TestProcessor(() => { }));
+            processors.Add(Processor.Empty);
 
             pipeline.GetProcessors().Should().HaveCount(1, "updated list should not affect cached pipeline");
         }
@@ -59,12 +59,12 @@ namespace AutoPipe.Tests.Units
         {
             List<IProcessor> processors = new List<IProcessor>
             {
-                new TestProcessor(() => { })
+                Processor.Empty,
             };
 
             var pipeline = processors.ToPipeline().Fix(false);
             
-            processors.Add(new TestProcessor(() => { }));
+            processors.Add(Processor.Empty);
 
             pipeline.GetProcessors().Should().HaveCount(1, "updated list should not affect cached pipeline");
         }

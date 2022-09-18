@@ -23,7 +23,7 @@ namespace AutoPipe.Tests.Units
         public async Task Safe_Execution_Is_Reached_When_Pipeline_Context_Has_Ended_Parameter_Set_To_False()
         {
             var reachedExecution = false;
-            var processor = new TestProcessor(() => reachedExecution = true);
+            var processor = Processor.From(() => reachedExecution = true);
             await Bag.Create().Run(processor).ConfigureAwait(false);
             reachedExecution.Should().BeTrue("pipeline was not ended");
         }

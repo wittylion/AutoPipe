@@ -125,7 +125,7 @@ namespace AutoPipe.Tests.Integrations
                 yield return RunSearch;
             }
 
-            private Processor SortArray =>
+            private IProcessor SortArray =>
                 Processor.From(SortArrayImplementation);
 
             private Task SortArrayImplementation(Bag container)
@@ -136,7 +136,7 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
-            private Processor EnsureStartAndEnd =>
+            private IProcessor EnsureStartAndEnd =>
                 Processor.From(EnsureStartAndEndImplementation);
 
             private Task EnsureStartAndEndImplementation(Bag container)
@@ -149,17 +149,15 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
-            private Processor RunSearch =>
+            private IProcessor RunSearch =>
                 Processor.From(RunSearchImplementation);
 
-            private Task RunSearchImplementation(Bag bag)
+            private async Task RunSearchImplementation(Bag bag)
             {
                 while (bag.Bool("NotEnded") && !bag.Bool("ElementFound"))
                 {
-                    Finder.Run(bag);
+                    await Finder.Run(bag);
                 }
-
-                return PipelineTask.CompletedTask;
             }
         }
 
@@ -173,7 +171,7 @@ namespace AutoPipe.Tests.Integrations
                 yield return TrySetFoundIndexProcessor;
             }
 
-            private Processor SetCurrentIndexProcessor =>
+            private IProcessor SetCurrentIndexProcessor =>
                 Processor.From(SetCurrentIndexImplementation);
 
             private Task SetCurrentIndexImplementation(Bag container)
@@ -182,7 +180,7 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
-            private Processor ResizeToRightPartProcessor =>
+            private IProcessor ResizeToRightPartProcessor =>
                 Processor.From(ResizeToRightPartImplementation);
 
             private Task ResizeToRightPartImplementation(Bag bag)
@@ -193,7 +191,7 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
-            private Processor ResizeToLeftPartProcessor =>
+            private IProcessor ResizeToLeftPartProcessor =>
                 Processor.From(ResizeToLeftPartImplementation);
 
             private Task ResizeToLeftPartImplementation(Bag bag)
@@ -204,7 +202,7 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
-            private Processor TrySetFoundIndexProcessor =>
+            private IProcessor TrySetFoundIndexProcessor =>
                 Processor.From(TrySetFoundIndexImplementation);
 
             private Task TrySetFoundIndexImplementation(Bag bag)
