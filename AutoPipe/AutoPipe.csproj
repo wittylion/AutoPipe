@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>AutoPipe</PackageId>
@@ -19,7 +19,7 @@
       Write your code easily with AutoPipe:
       - Create classes based on AutoProcessor;
       - Describe methods as you want and rename them without refactoring: 
-          [Run] LoveYou() => [Run] LoveYouSoMuch();
+          [Run] LoveYou() =&gt; [Run] LoveYouSoMuch();
       - Need a new parameter? Return it with a method by prefixing it with Get and then use it in any method: 
           GetMap(), UseMap(object map);
       - Need several new parameters? Return them in a anonymous object (don't prefix with Get): 

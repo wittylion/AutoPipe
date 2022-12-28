@@ -81,7 +81,7 @@ namespace AutoPipe.Tests.Integrations
             public static readonly string IntermediateMessage = "This message is from intermediate processor";
         }
 
-        public class DefaultMessageSetter : SafeProcessor
+        public class DefaultMessageSetter : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -90,7 +90,7 @@ namespace AutoPipe.Tests.Integrations
             }
         }
 
-        public class SetMessage : SafeProcessor
+        public class SetMessage : Processor
         {
             public override Task SafeRun(Bag args)
             {

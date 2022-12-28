@@ -94,7 +94,7 @@ namespace AutoPipe.Tests.Units.BagTests
                 .Be("Hello, Bob!");
         }
 
-        public class EnsureName : SafeProcessor
+        public class EnsureName : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -103,7 +103,7 @@ namespace AutoPipe.Tests.Units.BagTests
             }
         }
 
-        public class HelloMessageNameReplacer : SafeProcessor
+        public class HelloMessageNameReplacer : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -117,7 +117,7 @@ namespace AutoPipe.Tests.Units.BagTests
             }
         }
 
-        public class HelloMessageNameToResultReplacer : SafeProcessor
+        public class HelloMessageNameToResultReplacer : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -138,7 +138,7 @@ namespace AutoPipe.Tests.Units.BagTests
             }
         }
 
-        public class EnsureMessage : SafeProcessor
+        public class EnsureMessage : Processor
         {
             public override Task SafeRun(Bag args)
             {

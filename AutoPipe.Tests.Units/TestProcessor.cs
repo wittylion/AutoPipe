@@ -2,7 +2,7 @@
 
 namespace AutoPipe.Tests.Units
 {
-    public class TestProcessor : SafeProcessor
+    public class TestProcessor : Processor
     {
         public override Task SafeRun(Bag bag)
         {

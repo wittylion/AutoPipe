@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace AutoPipe.Tests.Units.ComplexTests.NamespaceBasedPipelineTests.SkipTest
 {
-    public class IncludedProcessor : SafeProcessor
+    public class IncludedProcessor : Processor
     {
         public override Task SafeRun(Bag args)
         {

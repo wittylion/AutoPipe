@@ -15,7 +15,7 @@ namespace AutoPipe
     /// in the derived type will be executed based on 
     /// <see cref="OrderAttribute"/>.
     /// </summary>
-    public class AutoProcessor : SafeProcessor
+    public class AutoProcessor : IProcessor
     {
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
         public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
@@ -651,7 +651,7 @@ namespace AutoPipe
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public override async Task SafeRun(Bag args)
+        public async Task Run(Bag args)
         {
             if (Methods != null)
             {
