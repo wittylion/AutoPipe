@@ -2,11 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
 namespace AutoPipe
 {
+    public delegate void MessageAdded(Bag bag, PipelineMessage message);
+    public delegate void PropertyAdded(Bag bag, string name, object value);
+    public delegate void PropertyRemoved(Bag bag, string name, object value);
+    public delegate void PropertyChanged(Bag bag, string name, object oldValue, object newValue);
+
     /// <summary>
     /// Introduces possibility to keep context information
     /// about the flow of the pipeline. By default it has
@@ -148,7 +152,11 @@ namespace AutoPipe
             return context;
         }
 
-        public event EventHandler<PipelineMessage> OnMessage;
+        public event MessageAdded OnMessage;
+
+        public event PropertyAdded OnPropertyAdded;
+        public event PropertyRemoved OnPropertyRemoved;
+        public event PropertyChanged OnPropertyChanged;
 
         /// <summary>
         /// Flag identifying whether pipeline must be ended/stopped,
@@ -182,7 +190,7 @@ namespace AutoPipe
                     disposable.Dispose();
                 }
 
-                PropertiesDictionary.Value.Clear();
+                this.Clear();
             }
 
             if (MessagesCollection.IsValueCreated)
@@ -191,6 +199,9 @@ namespace AutoPipe
             }
 
             OnMessage = null;
+            OnPropertyAdded = null;
+            OnPropertyRemoved = null;
+            OnPropertyChanged= null;
         }
 
         /// <summary>
@@ -286,12 +297,15 @@ namespace AutoPipe
             if (!dictionary.ContainsKey(name))
             {
                 dictionary.Add(name, value);
+                OnPropertyAdded?.Invoke(this, name, value);
             }
             else
             {
                 if (!skipIfExists)
                 {
+                    var oldValue = dictionary[name];
                     dictionary[name] = value;
+                    OnPropertyChanged?.Invoke(this, name, oldValue, value);
                 }
             }
         }
@@ -565,7 +579,10 @@ namespace AutoPipe
             if (PropertiesDictionary.IsValueCreated)
             {
                 var dictionary = PropertiesDictionary.Value;
-                return dictionary.Remove(name);
+                var value = dictionary[name];
+                var result = dictionary.Remove(name);
+                OnPropertyRemoved?.Invoke(this, name, value);
+                return result;
             }
 
             return false;
@@ -589,7 +606,7 @@ namespace AutoPipe
                         element = computed.Invoke<TElement>(this);
                     }
 
-                    return dictionary.Remove(name);
+                    return DeleteProperty(name);
                 }
             }
 
@@ -934,7 +951,7 @@ namespace AutoPipe
         /// <summary>
         /// Default parameterless constructor allowing you to create and use pipeline context.
         /// </summary>
-        public Bag(bool? debug = null, bool? throwOnMissing = null, EventHandler<PipelineMessage> onMessage = null)
+        public Bag(bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null)
         {
             if (debug != null)
             {
@@ -950,15 +967,30 @@ namespace AutoPipe
             {
                 this.OnMessage += onMessage;
             }
+
+            if (onPropertyAdded != null)
+            {
+                this.OnPropertyAdded += onPropertyAdded;
+            }
+
+            if (onPropertyChanged != null)
+            {
+                this.OnPropertyChanged += onPropertyChanged;
+            }
+
+            if (onPropertyRemoved != null)
+            {
+                this.OnPropertyRemoved += onPropertyRemoved;
+            }
         }
 
-        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, EventHandler<PipelineMessage> onMessage = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage)
+        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
         {
             if (propertyContainer.HasValue())
             {
                 foreach (var prop in propertyContainer.GetType().GetProperties())
                 {
-                    this.PropertiesDictionary.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
+                    this.SetProperty(prop.Name, prop.GetValue(propertyContainer, null));
                 }
             }
         }
@@ -1125,7 +1157,10 @@ namespace AutoPipe
         {
             if (PropertiesDictionary.IsValueCreated)
             {
-                PropertiesDictionary.Value.Clear();
+                foreach (var item in PropertiesDictionary.Value)
+                {
+                    DeleteProperty(item.Key);
+                }
             }
         }
 
