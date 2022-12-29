@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AutoPipe
 {
+    public delegate void PipelineStarting(PipelineInfo pipelineInfo);
+    public delegate void PipelineEnded(PipelineInfo pipelineInfo);
+    public delegate void ProcessorStarting(ProcessorInfo pipelineInfo);
+    public delegate void ProcessorEnded(ProcessorInfo pipelineInfo);
+
     /// <summary>
     /// Runs instances of <see cref="IProcessor"/> and <see cref="IPipeline"/>.
     /// </summary>
@@ -17,33 +20,33 @@ namespace AutoPipe
         public static Runner Instance => instance ?? (instance = new Runner());
         private static Runner instance;
 
-        public Runner(EventHandler<PipelineInfo> onPipelineStart = null, EventHandler<ProcessorInfo> onProcessorStart = null, EventHandler<ProcessorInfo> onProcessorEnd = null, EventHandler <PipelineInfo> onPipelineEnd = null)
+        public Runner(PipelineStarting onPipelineStart = null, ProcessorStarting onProcessorStart = null, ProcessorEnded onProcessorEnd = null, PipelineEnded onPipelineEnd = null)
         {
-            if (onProcessorStart != null)
-            {
-                OnProcessorStart += onProcessorStart;
-            }
-
             if (onPipelineStart != null)
             {
                 OnPipelineStart += onPipelineStart;
             }
 
-            if (onPipelineEnd != null)
+            if (onProcessorStart != null)
             {
-                OnPipelineEnd += onPipelineEnd;
+                OnProcessorStart += onProcessorStart;
             }
 
             if (onProcessorEnd != null)
             {
                 OnProcessorEnd += onProcessorEnd;
             }
+
+            if (onPipelineEnd != null)
+            {
+                OnPipelineEnd += onPipelineEnd;
+            }
         }
 
-        public event EventHandler<ProcessorInfo> OnProcessorStart;
-        public event EventHandler<ProcessorInfo> OnProcessorEnd;
-        public event EventHandler<PipelineInfo> OnPipelineStart;
-        public event EventHandler<PipelineInfo> OnPipelineEnd;
+        public event PipelineStarting OnPipelineStart;
+        public event ProcessorStarting OnProcessorStart;
+        public event ProcessorEnded OnProcessorEnd;
+        public event PipelineEnded OnPipelineEnd;
 
         /// <summary>
         /// Runs pipeline's processors one by one in an order
@@ -84,7 +87,7 @@ namespace AutoPipe
 
             if (OnPipelineStart != null)
             {
-                OnPipelineStart(this, pipelineInfo);
+                OnPipelineStart(pipelineInfo);
             }
 
             var processors = pipeline.GetProcessors();
@@ -114,7 +117,7 @@ namespace AutoPipe
 
             if (OnPipelineEnd != null)
             {
-                OnPipelineEnd(this, pipelineInfo);
+                OnPipelineEnd(pipelineInfo);
             }
         }
 
@@ -204,7 +207,7 @@ namespace AutoPipe
             if (OnProcessorStart != null)
             {
                 bag.Debug("Running processor's start event.");
-                OnProcessorStart(this, processorInfo);
+                OnProcessorStart(processorInfo);
             }
 
             if (bag.Debug)
@@ -240,7 +243,7 @@ namespace AutoPipe
             if (OnProcessorEnd != null)
             {
                 bag.Debug("Running processor end event.");
-                OnProcessorEnd(this, processorInfo);
+                OnProcessorEnd(processorInfo);
             }
         }
     }
