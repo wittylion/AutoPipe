@@ -11,8 +11,9 @@ namespace AutoPipe
         public string Namespace { get; }
         public bool Recursive { get; }
         public bool IncludeSkipped { get; }
+        public IServiceProvider ServiceProvider { get; }
 
-        public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false)
+        public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false, IServiceProvider serviceProvider = null)
         {
             if (@namespace == null)
             {
@@ -33,6 +34,7 @@ namespace AutoPipe
 
             Recursive = recursive;
             IncludeSkipped = includeSkipped;
+            ServiceProvider = serviceProvider;
         }
 
         public virtual IEnumerable<IProcessor> GetProcessors()
@@ -87,6 +89,17 @@ namespace AutoPipe
                 }
 
                 return new AutoProcessor(obj);
+            }
+
+            if (ServiceProvider != null)
+            {
+                var s = ServiceProvider?.GetService(type);
+                if (s != null)
+                {
+                    if (s is IProcessor processor) return processor;
+
+                    return new AutoProcessor(s);
+                }
             }
 
             return null;
