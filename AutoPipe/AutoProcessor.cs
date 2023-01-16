@@ -19,6 +19,7 @@ namespace AutoPipe
     {
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
         public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
+        public static readonly string ProcessorMustNotBeNull = "Processor passed to the constructor is null. Please provide an object.";
 
         /// <summary>
         /// Collection of methods that will be executed one by one.
@@ -37,7 +38,7 @@ namespace AutoPipe
 
         public AutoProcessor(object processor)
         {
-            Processor = processor;
+            Processor = processor ?? throw new ArgumentNullException(nameof(processor), ProcessorMustNotBeNull);
             Methods = GetMethodsToExecute();
         }
 
