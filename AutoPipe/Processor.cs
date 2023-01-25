@@ -1,111 +1,164 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AutoPipe
 {
     /// <summary>
-    /// Processor constructed from action or function. Inherits <see cref="SafeProcessor"/>
-    /// so all the rules used in base class will be applied here.
+    /// Implementation of SafeTypeProcessor with default type of the context
+    /// which is intended to handle <see cref="PipelineContext"/>
+    /// type of arguments.
     /// </summary>
-    public class Processor : SafeProcessor
+    public abstract class Processor : IProcessor
     {
-        /// <summary>
-        /// A message to be thrown when the action is not provided.
-        /// </summary>
-        public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
+        protected readonly Task Done = PipelineTask.CompletedTask;
 
         /// <summary>
         /// An empty processor for testing purposes. Does nothing but applies <see cref="SafeProcessor"/> rules.
         /// </summary>
-        public static readonly IProcessor Empty = new Processor();
+        public static readonly IProcessor Empty = new ActionProcessor();
 
         public static IProcessor From(Action action)
         {
-            return new Processor(action.ToAsync<Bag>());
+            return new ActionProcessor(action.ToAsync<Bag>());
         }
 
         public static IProcessor From(Action<Bag> action)
         {
-            return new Processor(action.ToAsync());
+            return new ActionProcessor(action.ToAsync());
         }
 
         public static IProcessor From(Func<Bag, Task> action)
         {
-            return new Processor(action);
+            return new ActionProcessor(action);
         }
 
-        /// <summary>
-        /// Creates an empty processor that has no action.
-        /// </summary>
-        public Processor()
+        public static IProcessor From(object processorClass)
         {
+            return new AutoProcessor(processorClass);
         }
 
         /// <summary>
-        /// Creates a processor with an action. Action will be executed
-        /// as soon as <see cref="SafeRun(Bag)"/> is called.
+        /// Method which will be only executed in case
+        /// <paramref name="args"/> parameter passes
+        /// all conditional checks.
         /// </summary>
-        /// <param name="action">
-        /// An action to be executed during the <see cref="SafeRun(Bag)"/>.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// An exception thrown in case action parameter is null.
-        /// </exception>
-        private Processor(Func<Bag, Task> action, IEnumerable<string> requiredProperties = null, IEnumerable<string> unnecessaryProperties = null)
-        {
-            Action = action ?? throw new ArgumentNullException(Processor.ActionMustBeSpecified);
-            RequiredProperties = requiredProperties;
-            UnnecessaryProperties = unnecessaryProperties;
-        }
-
-        /// <summary>
-        /// An action to be executed during the <see cref="SafeRun(Bag)"/>.
-        /// </summary>
-        protected internal Func<Bag, Task> Action { get; }
-        protected internal IEnumerable<string> RequiredProperties { get; }
-        protected internal IEnumerable<string> UnnecessaryProperties { get; }
-
-        /// <summary>
-        /// Executing the action passed via constructor or doing nothing
-        /// in case processor was created without an <see cref="Action"/>.
-        /// </summary>
-        /// <param name="bag">
-        /// A bag of properties, messages and bunch of handy methods.
+        /// <param name="args">
+        /// Arguments to be processed.
         /// </param>
         /// <returns>
-        /// Returns the <see cref="Task"/> that identifies execution result.
+        /// Returns a task class which is responsible of asynchronous code execution.
         /// </returns>
-        public override Task SafeRun(Bag bag)
-        {
-            if (this.Action.HasValue())
-            {
-                return this.Action(bag);
-            }
+        public abstract Task SafeRun(Bag bag);
 
-            bag.Debug("Empty processor, no action executed.");
-            return PipelineTask.CompletedTask;
+        /// <summary>
+        /// Executes small action that does some logging in case
+        /// arguments object passed to the processor does not pass
+        /// safety check. This action is supposed to be brief and
+        /// should not take long time to execute.
+        /// </summary>
+        /// <param name="arguments">
+        /// Arguments of the type that this processor has received.
+        /// </param>
+        public virtual void ProcessUnsafeArguments(Bag arguments)
+        {
         }
 
-        public override IEnumerable<string> MustHaveProperties()
+        /// <summary>
+        /// Executes a logic defined in <see cref="SafeRun"/>
+        /// class only if <paramref name="bag"/> parameter
+        /// is of type <see cref="TArgs"/> and <see cref="SafeCondition"/>
+        /// returns true.
+        /// </summary>
+        /// <remarks>
+        /// You can think of this method as of 'if' statement.
+        /// </remarks>
+        /// <param name="bag">
+        /// Arguments to be processed.
+        /// </param>
+        /// <returns>
+        /// Returns a task class which is responsible of asynchronous code execution.
+        /// </returns>
+        public Task Run(Bag bag)
         {
-            if (RequiredProperties?.Any() ?? false)
+            if (bag == null)
             {
-                return RequiredProperties;
+                return Done;
             }
 
-            return base.MustHaveProperties();
+            if (!SafeCondition(bag))
+            {
+                ProcessUnsafeArguments(bag);
+                return Done;
+            }
+
+            return SafeRun(bag);
         }
 
-        public override IEnumerable<string> MustMissProperties()
+        /// <summary>
+        /// Additionally to the base class method
+        /// <see cref="SafeTypeProcessor{TArgs}.SafeCondition"/>,
+        /// checks <see cref="PipelineContext.Ended"/> status.
+        /// In case it true, the processor should not be executed.
+        /// </summary>
+        /// <param name="bag">
+        /// Arguments to be processed.
+        /// </param>
+        /// <returns>
+        /// Returns <c>true</c> in case base condition is true and
+        /// <see cref="PipelineContext.Ended"/> property is false,
+        /// otherwise returns <c>false</c> which means that the processor
+        /// should not be executed.
+        /// </returns>
+        public virtual bool SafeCondition(Bag bag)
         {
-            if (UnnecessaryProperties?.Any() ?? false)
+            if (bag.Ended)
             {
-                return UnnecessaryProperties;
+                bag.Debug("The bag contained end property set to True. Skipping processor.");
+                return false;
             }
 
-            return base.MustMissProperties();
+            var containProperties = MustHaveProperties();
+            foreach (var property in containProperties)
+            {
+                if (!bag.ContainsKey(property))
+                {
+                    if (bag.Debug)
+                    {
+                        var processorName = this.Name();
+                        bag.Debug("The bag misses property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
+                    }
+
+                    return false;
+                }
+            }
+
+            var missProperties = MustMissProperties();
+            foreach (var property in missProperties)
+            {
+                if (bag.ContainsKey(property))
+                {
+                    if (bag.Debug)
+                    {
+                        var processorName = this.Name();
+                        bag.Debug("The bag should not contain property [{0}]. Skipping processor [{1}].".FormatWith(property, processorName));
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public virtual IEnumerable<string> MustHaveProperties()
+        {
+            yield break;
+        }
+
+        public virtual IEnumerable<string> MustMissProperties()
+        {
+            yield break;
         }
     }
 }
