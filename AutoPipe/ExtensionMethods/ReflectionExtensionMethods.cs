@@ -49,6 +49,12 @@ namespace AutoPipe
             return runAllAttribute != null;
         }
 
+        public static bool? ClaimAllParameters(this MemberInfo member)
+        {
+            var runAllAttribute = member?.GetCustomAttribute<RunAttribute>();
+            return runAllAttribute?.ClaimAllParameters;
+        }
+
         public static string GetDescription(this MemberInfo member)
         {
             return member?.GetCustomAttribute<IsAttribute>()?.Description;

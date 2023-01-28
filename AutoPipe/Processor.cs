@@ -18,26 +18,6 @@ namespace AutoPipe
         /// </summary>
         public static readonly IProcessor Empty = new ActionProcessor();
 
-        public static IProcessor From(Action action)
-        {
-            return new ActionProcessor(action.ToAsync<Bag>());
-        }
-
-        public static IProcessor From(Action<Bag> action)
-        {
-            return new ActionProcessor(action.ToAsync());
-        }
-
-        public static IProcessor From(Func<Bag, Task> action)
-        {
-            return new ActionProcessor(action);
-        }
-
-        public static IProcessor From(object processorClass)
-        {
-            return new AutoProcessor(processorClass);
-        }
-
         /// <summary>
         /// Method which will be only executed in case
         /// <paramref name="args"/> parameter passes

@@ -8,5 +8,6 @@ namespace AutoPipe
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class RunAttribute : Attribute
     {
+        public bool ClaimAllParameters { get; set; }
     }
 }

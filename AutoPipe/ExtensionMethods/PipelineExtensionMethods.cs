@@ -44,7 +44,7 @@ namespace AutoPipe
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
-            return Processor.From(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
+            return ActionProcessor.From(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
         }
 
         /// <summary>

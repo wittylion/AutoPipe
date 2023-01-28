@@ -16,7 +16,7 @@ namespace AutoPipe.Tests.Units.BagTests
                 .Use("string", "aqwe")
                 .Run(
                     Pipeline.From(
-                        Processor.From(
+                        ActionProcessor.From(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
                     Runner.Instance).ContinueWith(a => a.Result.Get("string", 0));
 

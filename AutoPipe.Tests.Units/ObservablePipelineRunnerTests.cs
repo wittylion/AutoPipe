@@ -26,7 +26,7 @@ namespace AutoPipe.Tests.Units
             // The runner to be tested.
             Runner runner = new Runner(onProcessorStart: (e) => started = true);
 
-            await runner.Run(Processor.From(() => { }), new Bag()).ConfigureAwait(false);
+            await runner.Run(ActionProcessor.From(() => { }), new Bag()).ConfigureAwait(false);
 
             started.Should().BeTrue("because method must trigger the flag");
         }

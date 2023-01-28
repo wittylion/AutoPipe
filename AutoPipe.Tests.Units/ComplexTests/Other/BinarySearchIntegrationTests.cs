@@ -126,7 +126,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor SortArray =>
-                Processor.From(SortArrayImplementation);
+                ActionProcessor.From(SortArrayImplementation);
 
             private Task SortArrayImplementation(Bag container)
             {
@@ -137,7 +137,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor EnsureStartAndEnd =>
-                Processor.From(EnsureStartAndEndImplementation);
+                ActionProcessor.From(EnsureStartAndEndImplementation);
 
             private Task EnsureStartAndEndImplementation(Bag container)
             {
@@ -150,7 +150,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor RunSearch =>
-                Processor.From(RunSearchImplementation);
+                ActionProcessor.From(RunSearchImplementation);
 
             private async Task RunSearchImplementation(Bag bag)
             {
@@ -172,7 +172,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor SetCurrentIndexProcessor =>
-                Processor.From(SetCurrentIndexImplementation);
+                ActionProcessor.From(SetCurrentIndexImplementation);
 
             private Task SetCurrentIndexImplementation(Bag container)
             {
@@ -181,7 +181,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor ResizeToRightPartProcessor =>
-                Processor.From(ResizeToRightPartImplementation);
+                ActionProcessor.From(ResizeToRightPartImplementation);
 
             private Task ResizeToRightPartImplementation(Bag bag)
             {
@@ -192,7 +192,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor ResizeToLeftPartProcessor =>
-                Processor.From(ResizeToLeftPartImplementation);
+                ActionProcessor.From(ResizeToLeftPartImplementation);
 
             private Task ResizeToLeftPartImplementation(Bag bag)
             {
@@ -203,7 +203,7 @@ namespace AutoPipe.Tests.Integrations
             }
 
             private IProcessor TrySetFoundIndexProcessor =>
-                Processor.From(TrySetFoundIndexImplementation);
+                ActionProcessor.From(TrySetFoundIndexImplementation);
 
             private Task TrySetFoundIndexImplementation(Bag bag)
             {

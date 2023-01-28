@@ -51,7 +51,7 @@ namespace AutoPipe.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From(x =>
+                yield return ActionProcessor.From(x =>
                     x.Message(nameof(ConstructablePipelineIntegrationTest)));
             }
         }
@@ -60,7 +60,7 @@ namespace AutoPipe.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From(b =>
+                yield return ActionProcessor.From(b =>
                 {
                     var messages = b.Get(ContextProperties.Messages, Array.Empty<string>()).ToList();
                     messages.ForEach((x) => b.Message(x));
@@ -72,7 +72,7 @@ namespace AutoPipe.Tests.Integrations
         {
             public IEnumerable<IProcessor> GetProcessors()
             {
-                yield return Processor.From(b => b.Set(ContextProperties.Messages,
+                yield return ActionProcessor.From(b => b.Set(ContextProperties.Messages,
                     ContextValues.Messages));
 
                 yield return new AddMessagesFromPropertyPipeline().ToProcessor();

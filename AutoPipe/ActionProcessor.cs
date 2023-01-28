@@ -16,6 +16,21 @@ namespace AutoPipe
         /// </summary>
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
 
+        public static IProcessor From(Action action)
+        {
+            return new ActionProcessor(action.ToAsync<Bag>());
+        }
+
+        public static IProcessor From(Action<Bag> action)
+        {
+            return new ActionProcessor(action.ToAsync());
+        }
+
+        public static IProcessor From(Func<Bag, Task> action)
+        {
+            return new ActionProcessor(action);
+        }
+
         /// <summary>
         /// Creates an empty processor that has no action.
         /// </summary>

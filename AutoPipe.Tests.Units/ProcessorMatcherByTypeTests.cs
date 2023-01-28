@@ -16,7 +16,7 @@ namespace AutoPipe.Tests.Units
         [Fact]
         public void Instance_ReturnsFalse_WhenOtherTypeIsPassed()
         {
-            var processor = Processor.From(o => PipelineTask.CompletedTask);
+            var processor = ActionProcessor.From(o => PipelineTask.CompletedTask);
             new ProcessorMatcherByType(typeof(TestProcessor)).Matches(processor).Should().BeFalse();
         }
     }

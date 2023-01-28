@@ -20,12 +20,24 @@ namespace AutoPipe
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
         public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
         public static readonly string ProcessorMustNotBeNull = "Processor passed to the constructor is null. Please provide an object.";
+        public static readonly string MethodClaimsAllParameters = "Run attribute of the current execution method contains condition (ClaimAllParameters = true), which requires all parameters to be declared before execution.";
+        public static readonly string ClassClaimsAllParameters = "Run attribute of your processor class contains condition (ClaimAllParameters = true), which requires all parameters to be declared before execution.";
 
         /// <summary>
         /// Collection of methods that will be executed one by one.
         /// </summary>
         public IEnumerable<MethodInfo> Methods { get; set; }
         public object Processor { get; }
+
+        public static IProcessor From(object processorClass)
+        {
+            return new AutoProcessor(processorClass);
+        }
+
+        public static IProcessor From<T>() where T : class, new()
+        {
+            return new AutoProcessor(new T());
+        }
 
         /// <summary>
         /// A simple parameterless constructor.
@@ -34,12 +46,14 @@ namespace AutoPipe
         {
             Processor = this;
             Methods = GetMethodsToExecute();
+            claimAllParameters = new Lazy<bool?>(() => Processor.GetType().ClaimAllParameters());
         }
 
         public AutoProcessor(object processor)
         {
-            Processor = processor ?? throw new ArgumentNullException(nameof(processor), ProcessorMustNotBeNull);
+            Processor = processor;
             Methods = GetMethodsToExecute();
+            claimAllParameters = new Lazy<bool?>(() => Processor.GetType().ClaimAllParameters());
         }
 
         /// <summary>
@@ -50,6 +64,11 @@ namespace AutoPipe
         /// </returns>
         public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
+            if (Processor.HasNoValue() || Processor.GetType() == typeof(AutoProcessor))
+            {
+                return Enumerable.Empty<MethodInfo>();
+            }
+
             var type = Processor.GetType();
             var allAttributes = GetMethodBindingAttributes();
 
@@ -72,6 +91,9 @@ namespace AutoPipe
                 return (runAll ?? (runAll = this.Processor.GetType().ShouldRunAll())).Value;
             }
         }
+
+        private Lazy<bool?> claimAllParameters;
+        protected virtual bool? ClaimAllParameters => claimAllParameters.Value;
 
         /// <summary>
         /// Returns attributes of methods to be taken into account during methods
@@ -134,7 +156,7 @@ namespace AutoPipe
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public virtual async Task Run(MethodInfo method, Bag context)
+        protected virtual async Task RunMethod(MethodInfo method, Bag context)
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(Processor, values.ToArray());
@@ -569,6 +591,7 @@ namespace AutoPipe
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
             var bagTypes = context.GetSingleTypeValues();
+            var claimAllMethodParameters = method.ClaimAllParameters();
 
             foreach (var parameter in parameters)
             {
@@ -581,7 +604,18 @@ namespace AutoPipe
 
                 if (metadata == null)
                 {
-                    continue;
+                    if (claimAllMethodParameters.HasValue && !claimAllMethodParameters.Value) 
+                    {
+                        continue;
+                    }
+
+                    if (!claimAllMethodParameters.HasValue)
+                    {
+                        if (!ClaimAllParameters.HasValue || ClaimAllParameters.HasValue && !ClaimAllParameters.Value)
+                        {
+                            continue;
+                        }
+                    }
                 }
 
                 var orAttribute = parameter.GetCustomAttribute<OrAttribute>();
@@ -600,7 +634,20 @@ namespace AutoPipe
                         if (context.Debug)
                         {
                             var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
-                            var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+                            var message = formattedMessage;
+
+                            if (metadata != null)
+                            {
+                                if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
+                            }
+                            else if (claimAllMethodParameters.HasValue && claimAllMethodParameters.Value)
+                            {
+                                message = $"{formattedMessage} {MethodClaimsAllParameters}";
+                            }
+                            else if (ClaimAllParameters.HasValue && ClaimAllParameters.Value)
+                            {
+                                message = $"{formattedMessage} {ClassClaimsAllParameters}";
+                            }
 
                             context.Debug(message);
                         }
@@ -617,7 +664,20 @@ namespace AutoPipe
                         if (context.Debug)
                         {
                             var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
-                            var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
+                            var message = formattedMessage;
+
+                            if (metadata != null)
+                            {
+                                if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
+                            }
+                            else if (claimAllMethodParameters.HasValue && claimAllMethodParameters.Value)
+                            { 
+                                message = $"{formattedMessage} {MethodClaimsAllParameters}";
+                            }
+                            else if (ClaimAllParameters.HasValue && ClaimAllParameters.Value)
+                            {
+                                message = $"{formattedMessage} {ClassClaimsAllParameters}";
+                            }
 
                             context.Debug(message);
                         }
@@ -640,6 +700,40 @@ namespace AutoPipe
             return true;
         }
 
+        protected virtual async Task CheckAndRunMethod(MethodInfo method, Bag bag)
+        {
+            if (bag.Debug)
+            {
+                var methodName = method.GetName();
+                var methodDescription = method.GetDescription();
+                if (methodDescription.HasValue())
+                {
+                    bag.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription.ToLower()));
+                }
+                else
+                {
+                    bag.Debug("Verifying parameters of method [{0}].".FormatWith(methodName));
+                }
+
+                if (AllParametersAreValid(method, bag))
+                {
+                    bag.Debug("All parameters are valid. Running method [{0}].".FormatWith(methodName));
+                    await RunMethod(method, bag).ConfigureAwait(false);
+                    bag.Debug("Completed method [{0}].".FormatWith(methodName));
+                }
+                else
+                {
+                    bag.Debug("Method [{0}] cannot be run. Going to the next one.".FormatWith(methodName));
+                }
+            }
+            else
+            {
+                if (AllParametersAreValid(method, bag))
+                {
+                    await RunMethod(method, bag).ConfigureAwait(false);
+                }
+            }
+        }
 
         /// <summary>
         /// Executes all methods found with <see cref="GetMethodsToExecute"/> 
@@ -652,49 +746,36 @@ namespace AutoPipe
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public async Task Run(Bag args)
+        public async Task Run(Bag bag)
         {
-            if (Methods != null)
+            if (Methods == null)
             {
-                foreach (var method in Methods)
+                if (bag.Debug)
                 {
-                    if (args.Ended)
-                    {
-                        break;
-                    }
-
-                    if (args.Debug)
-                    {
-                        var methodName = method.GetName();
-                        var methodDescription = method.GetDescription();
-                        if (methodDescription.HasValue())
-                        {
-                            args.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription.ToLower()));
-                        }
-                        else
-                        {
-                            args.Debug("Verifying parameters of method [{0}].".FormatWith(methodName));
-                        }
-
-                        if (AllParametersAreValid(method, args))
-                        {
-                            args.Debug("All parameters are valid. Running method [{0}].".FormatWith(methodName));
-                            await Run(method, args).ConfigureAwait(false);
-                            args.Debug("Completed method [{0}].".FormatWith(methodName));
-                        }
-                        else
-                        {
-                            args.Debug("Method [{0}] cannot be run. Going to the next one.".FormatWith(methodName));
-                        }
-                    }
-                    else
-                    {
-                        if (AllParametersAreValid(method, args))
-                        {
-                            await Run(method, args).ConfigureAwait(false);
-                        }
-                    }
+                    bag.Debug("Methods collection in the processor [0] is null".FormatWith(this.Name));
                 }
+
+                return;
+            }
+
+            if (!Methods.Any())
+            {
+                if (bag.Debug)
+                {
+                    bag.Debug("Methods collection in the processor [0] is empty. Nothing will be executed.".FormatWith(this.Name));
+                }
+
+                return;
+            }
+
+            foreach (var method in Methods)
+            {
+                if (bag.Ended)
+                {
+                    break;
+                }
+
+                await CheckAndRunMethod(method, bag).ConfigureAwait(false);
             }
         }
     }
