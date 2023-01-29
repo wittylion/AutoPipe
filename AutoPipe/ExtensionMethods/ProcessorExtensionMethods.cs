@@ -167,6 +167,11 @@ namespace AutoPipe
             return processor.GetType().GetName();
         }
 
+        public static IEnumerable<string> Names(this IProcessor processor)
+        {
+            return processor.GetType().GetNames();
+        }
+
         public static string Description(this IProcessor processor)
         {
             return processor.GetType().GetDescription();

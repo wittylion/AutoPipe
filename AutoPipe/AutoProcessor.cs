@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoPipe.Attributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,9 +79,79 @@ namespace AutoPipe
             }
 
             var bindingAttr = allAttributes.Aggregate((l, r) => l | r);
-            IEnumerable<MethodInfo> methods = type.GetMethods(bindingAttr);
+            var methods = type.GetMethods(bindingAttr);
+            var filteredMethods = methods.Where(AcceptableByFilter);
+            var orderedMethods = OrderMethods(filteredMethods);
 
-            return methods.Where(AcceptableByFilter).OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
+            return orderedMethods;
+        }
+
+        protected virtual IEnumerable<MethodInfo> OrderMethods(IEnumerable<MethodInfo> methods)
+        {
+            var methodsDictionary = new Dictionary<MethodInfo, int?>();
+            var namesDictionary = new Dictionary<string, MethodInfo>();
+            foreach (var method in methods)
+            {
+                var order = GetOrderOfExecution(method);
+                methodsDictionary.Add(method, order);
+                foreach (var name in method.GetNames())
+                {
+                    if (!namesDictionary.TryGetValue(name, out MethodInfo existingMethod))
+                    {
+                        namesDictionary.Add(name, method);
+                    }
+                    else
+                    {
+                        throw new Exception($"The same alias [{name}] was applied for methods [{method.Name}] and [{existingMethod.Name}]. Please use unique names for each method.");
+                    }
+                }
+            }
+
+            var reviewMethods = methodsDictionary.Where(x => x.Value.HasNoValue()).Select(x => x.Key).ToList();
+            foreach (var method in reviewMethods)
+            {
+                var reorder = CalculateOrderBasedOnAttributes(method, methodsDictionary, namesDictionary, new HashSet<MethodInfo>());
+                methodsDictionary[method] = reorder;
+            }
+
+            return methodsDictionary.Keys.OrderBy(x => methodsDictionary[x] ?? default).ThenBy(method => method.Name);
+        }
+
+        protected virtual int? CalculateOrderBasedOnAttributes(MethodInfo method, Dictionary<MethodInfo, int?> methodsDictionary, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods)
+        {
+            if (methodsDictionary.TryGetValue(method, out int? maybeValue) && maybeValue.HasValue) return maybeValue;
+
+            var previous = method.GetCustomAttribute<AfterAttribute>()?.PreviousName;
+            if (previous == null) return null;
+
+            if (namesDictionary.TryGetValue(previous, out MethodInfo previousMethod))
+            {
+                if (previousMethod == method)
+                {
+                    var currentName = method.GetName();
+                    throw new Exception($"The [{previous}] and [{currentName}] are names of the same method. After attribute cannot be applied to the same method. Check [Aka] attribute for duplicates.");
+                }
+
+                if (visitedMethods.Contains(previousMethod))
+                {
+                    var currentName = method.GetName();
+                    throw new Exception($"Circular dependency detected. The name [{previous}] in [After] attribute of [{currentName}] method is already used by one of the methods in the chain. Check the order of the methods execution.");
+                }
+
+                if (methodsDictionary[previousMethod] == null)
+                {
+                    visitedMethods.Add(method);
+                    var previousIndexCalculated = CalculateOrderBasedOnAttributes(previousMethod, methodsDictionary, namesDictionary, visitedMethods);
+                    visitedMethods.Remove(method);
+
+                    int previousIndex = previousIndexCalculated ?? default;
+                    int newIndex = previousIndex + 1;
+                    methodsDictionary[method] = newIndex;
+                    return newIndex;
+                }
+            }
+
+            return null;
         }
 
         private bool? runAll;
@@ -130,7 +201,7 @@ namespace AutoPipe
         /// <returns>
         /// A number indicating the order of methods execution.
         /// </returns>
-        public virtual int GetOrderOfExecution(MethodInfo method)
+        public virtual int? GetOrderOfExecution(MethodInfo method)
         {
             var order = method?.GetCustomAttribute<OrderAttribute>()?.Order;
             if (order != null)
@@ -138,7 +209,7 @@ namespace AutoPipe
                 return order.Value;
             }
 
-            return default;
+            return null;
         }
 
         /// <summary>
@@ -473,16 +544,18 @@ namespace AutoPipe
             return context => context.ErrorResult(result, message);
         }
 
-        public virtual string Name
+        public virtual string Name => this.Names.First();
+
+        public virtual IEnumerable<string> Names
         {
             get
             {
                 if (Processor == this)
                 {
-                    return this.Name();
+                    return this.Names();
                 }
 
-                return Processor.GetType().GetName();
+                return Processor.GetType().GetNames();
             }
         }
 
@@ -551,8 +624,17 @@ namespace AutoPipe
                     }
                     else
                     {
-                        var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                        yield return defaultValueAttribute?.DefaultValue;
+                        var singleAssignableType = bagTypes.Where(bagType => parameter.ParameterType.IsAssignableFrom(bagType.Key));
+
+                        if (singleAssignableType.Count() == 1)
+                        {
+                            yield return singleAssignableType.First().Value;
+                        }
+                        else
+                        {
+                            var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                            yield return defaultValueAttribute?.DefaultValue;
+                        }
                     }
                 }
             }
@@ -604,7 +686,7 @@ namespace AutoPipe
 
                 if (metadata == null)
                 {
-                    if (claimAllMethodParameters.HasValue && !claimAllMethodParameters.Value) 
+                    if (claimAllMethodParameters.HasValue && !claimAllMethodParameters.Value)
                     {
                         continue;
                     }
@@ -659,32 +741,44 @@ namespace AutoPipe
                 }
                 else
                 {
-                    if (!bagTypes.TryGetValue(parameter.ParameterType, out property))
+                    if (!bagTypes.ContainsKey(parameter.ParameterType))
                     {
-                        if (context.Debug)
+                        var singleAssignableType = bagTypes.Keys.SingleOrDefault(bagType => parameter.ParameterType.IsAssignableFrom(bagType));
+                        if (singleAssignableType == null)
                         {
-                            var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
-                            var message = formattedMessage;
-
-                            if (metadata != null)
+                            if (context.Debug)
                             {
-                                if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
-                            }
-                            else if (claimAllMethodParameters.HasValue && claimAllMethodParameters.Value)
-                            { 
-                                message = $"{formattedMessage} {MethodClaimsAllParameters}";
-                            }
-                            else if (ClaimAllParameters.HasValue && ClaimAllParameters.Value)
-                            {
-                                message = $"{formattedMessage} {ClassClaimsAllParameters}";
+                                var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
+                                var message = formattedMessage;
+
+                                if (metadata != null)
+                                {
+                                    if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
+                                }
+                                else if (claimAllMethodParameters.HasValue && claimAllMethodParameters.Value)
+                                {
+                                    message = $"{formattedMessage} {MethodClaimsAllParameters}";
+                                }
+                                else if (ClaimAllParameters.HasValue && ClaimAllParameters.Value)
+                                {
+                                    message = $"{formattedMessage} {ClassClaimsAllParameters}";
+                                }
+
+                                context.Debug(message);
                             }
 
-                            context.Debug(message);
+                            context.End();
+
+                            return false;
                         }
-
-                        context.End();
-
-                        return false;
+                        else
+                        {
+                            if (context.Debug)
+                            {
+                                var methodName = method.GetName();
+                                context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                            }
+                        }
                     }
                     else
                     {
