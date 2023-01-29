@@ -607,34 +607,37 @@ namespace AutoPipe
                     if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
                         yield return val;
-                    }
-                    else
-                    {
-                        var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                        yield return defaultValueAttribute?.DefaultValue;
+                        continue;
                     }
                 }
-                else
-                {
-                    if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
-                    {
-                        yield return valueOfType;
-                    }
-                    else
-                    {
-                        var singleAssignableType = bagTypes.Where(bagType => parameter.ParameterType.IsAssignableFrom(bagType.Key));
 
-                        if (singleAssignableType.Count() == 1)
-                        {
-                            yield return singleAssignableType.First().Value;
-                        }
-                        else
-                        {
-                            var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                            yield return defaultValueAttribute?.DefaultValue;
-                        }
+                if (context.ServiceProvider != null)
+                {
+                    var valueFromProvider = context.ServiceProvider.GetService(parameter.ParameterType);
+                    if (valueFromProvider != null)
+                    {
+                        yield return valueFromProvider;
+                        continue;
                     }
                 }
+
+                if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
+                {
+                    yield return valueOfType;
+                    continue;
+                }
+
+                var singleAssignableType = bagTypes.Where(bagType => parameter.ParameterType.IsAssignableFrom(bagType.Key));
+
+                if (singleAssignableType.Count() == 1)
+                {
+                    yield return singleAssignableType.First().Value;
+                    continue;
+                }
+
+                var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                yield return defaultValueAttribute?.DefaultValue;
+                continue;
             }
         }
 
@@ -701,84 +704,71 @@ namespace AutoPipe
                 if (context.ContainsAny(names, out object property))
                 {
                     var val = property;
-                    if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
+                    if (val != null && parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
-                        if (context.Debug)
-                        {
-                            var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
-                            var message = formattedMessage;
-
-                            if (metadata != null)
-                            {
-                                if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
-                            }
-                            else if (methodIsStrict)
-                            {
-                                message = $"{formattedMessage} {MethodClaimsAllParameters}";
-                            }
-                            else if (IsStrict)
-                            {
-                                message = $"{formattedMessage} {ClassClaimsAllParameters}";
-                            }
-
-                            context.Debug(message);
-                        }
-
-                        context.End();
-
-                        return false;
+                        continue;
                     }
                 }
-                else
+
+                if (context.ServiceProvider != null)
                 {
-                    if (!bagTypes.ContainsKey(parameter.ParameterType))
-                    {
-                        var singleAssignableType = bagTypes.Keys.SingleOrDefault(bagType => parameter.ParameterType.IsAssignableFrom(bagType));
-                        if (singleAssignableType == null)
-                        {
-                            if (context.Debug)
-                            {
-                                var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
-                                var message = formattedMessage;
-
-                                if (metadata != null)
-                                {
-                                    if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
-                                }
-                                else if (methodIsStrict)
-                                {
-                                    message = $"{formattedMessage} {MethodClaimsAllParameters}";
-                                }
-                                else if (IsStrict)
-                                {
-                                    message = $"{formattedMessage} {ClassClaimsAllParameters}";
-                                }
-
-                                context.Debug(message);
-                            }
-
-                            context.End();
-
-                            return false;
-                        }
-                        else
-                        {
-                            if (context.Debug)
-                            {
-                                var methodName = method.GetName();
-                                context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
-                            }
-                        }
-                    }
-                    else
+                    var valueFromProvider = context.ServiceProvider.GetService(parameter.ParameterType);
+                    if (valueFromProvider != null)
                     {
                         if (context.Debug)
                         {
                             var methodName = method.GetName();
-                            context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                            context.Debug("There is a property of type {0} found in service provider. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
+                        continue;
                     }
                 }
+
+                if (bagTypes.ContainsKey(parameter.ParameterType))
+                {
+                    if (context.Debug)
+                    {
+                        var methodName = method.GetName();
+                        context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                    }
+                    continue;
+                }
+
+                var singleAssignableType = bagTypes.Keys.SingleOrDefault(bagType => parameter.ParameterType.IsAssignableFrom(bagType));
+                if (singleAssignableType != null)
+                {
+                    if (context.Debug)
+                    {
+                        var methodName = method.GetName();
+                        context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                    }
+                    continue;
+                }
+
+                if (context.Debug)
+                {
+                    var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
+                    var message = formattedMessage;
+
+                    if (metadata != null)
+                    {
+                        if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
+                    }
+                    else if (methodIsStrict)
+                    {
+                        message = $"{formattedMessage} {MethodClaimsAllParameters}";
+                    }
+                    else if (IsStrict)
+                    {
+                        message = $"{formattedMessage} {ClassClaimsAllParameters}";
+                    }
+
+                    context.Debug(message);
+                }
+
+                context.End();
+
+                return false;
             }
 
             return true;

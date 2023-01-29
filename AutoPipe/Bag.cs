@@ -182,6 +182,12 @@ namespace AutoPipe
             set => SetProperty(ThrowOnMissingProperty, value);
         }
 
+        public IServiceProvider ServiceProvider
+        {
+            get => Get(ServiceProviderProperty, (IServiceProvider) null);
+            set => SetProperty(ServiceProviderProperty, value);
+        }
+
         public void Dispose()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -956,7 +962,7 @@ namespace AutoPipe
         /// <summary>
         /// Default parameterless constructor allowing you to create and use pipeline context.
         /// </summary>
-        public Bag(bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null)
+        public Bag(bool? debug = null, bool? throwOnMissing = null, IServiceProvider serviceProvider = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null)
         {
             if (debug != null)
             {
@@ -966,6 +972,11 @@ namespace AutoPipe
             if (throwOnMissing != null)
             {
                 this.ThrowOnMissing = throwOnMissing.Value;
+            }
+
+            if (serviceProvider != null)
+            {
+                this.ServiceProvider = serviceProvider;
             }
 
             if (onMessage != null)
@@ -994,7 +1005,7 @@ namespace AutoPipe
             }
         }
 
-        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage, onError: onError, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
+        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, IServiceProvider serviceProvider = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, serviceProvider: serviceProvider, onMessage: onMessage, onError: onError, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
         {
             if (propertyContainer.HasValue())
             {
@@ -1051,6 +1062,7 @@ namespace AutoPipe
         public static readonly string DebugProperty = "debug";
         public static readonly string ThrowOnMissingProperty = "throwonmissing";
         public static readonly string ResultProperty = "result";
+        public static readonly string ServiceProviderProperty = "serviceprovider";
 
         /// <summary>
         /// Returns a value of the result property.
