@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 namespace AutoPipe
 {
     public delegate void MessageAdded(Bag bag, PipelineMessage message);
+    public delegate void SpecificMessageAdded(Bag bag, string message);
     public delegate void PropertyAdded(Bag bag, string name, object value);
     public delegate void PropertyRemoved(Bag bag, string name, object value);
     public delegate void PropertyChanged(Bag bag, string name, object oldValue, object newValue);
@@ -153,6 +154,7 @@ namespace AutoPipe
         }
 
         public event MessageAdded OnMessage;
+        public event SpecificMessageAdded OnError;
 
         public event PropertyAdded OnPropertyAdded;
         public event PropertyRemoved OnPropertyRemoved;
@@ -199,9 +201,10 @@ namespace AutoPipe
             }
 
             OnMessage = null;
+            OnError = null;
             OnPropertyAdded = null;
             OnPropertyRemoved = null;
-            OnPropertyChanged= null;
+            OnPropertyChanged = null;
         }
 
         /// <summary>
@@ -928,6 +931,8 @@ namespace AutoPipe
         {
             MessagesCollection.Value.Add(message);
             OnMessage?.Invoke(this, message);
+
+            if (OnError != null && message.IsError) { OnError.Invoke(this, message.Message); }
         }
 
         /// <summary>
@@ -951,7 +956,7 @@ namespace AutoPipe
         /// <summary>
         /// Default parameterless constructor allowing you to create and use pipeline context.
         /// </summary>
-        public Bag(bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null)
+        public Bag(bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null)
         {
             if (debug != null)
             {
@@ -966,6 +971,11 @@ namespace AutoPipe
             if (onMessage != null)
             {
                 this.OnMessage += onMessage;
+            }
+
+            if (onError != null)
+            {
+                this.OnError += onError;
             }
 
             if (onPropertyAdded != null)
@@ -984,7 +994,7 @@ namespace AutoPipe
             }
         }
 
-        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
+        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage, onError: onError, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
         {
             if (propertyContainer.HasValue())
             {

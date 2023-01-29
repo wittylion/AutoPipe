@@ -60,5 +60,10 @@ namespace AutoPipe
         {
             return new PipelineMessage(message, MessageType.Information);
         }
+
+        public bool IsError => MessageType == MessageType.Error;
+        public bool IsWarning => MessageType == MessageType.Warning;
+        public bool IsDebug => MessageType == MessageType.Debug;
+        public bool IsInfo => MessageType == MessageType.Information;
     }
 }
