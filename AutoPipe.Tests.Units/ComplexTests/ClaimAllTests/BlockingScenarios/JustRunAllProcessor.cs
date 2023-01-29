@@ -2,7 +2,8 @@
 
 namespace AutoPipe.Tests.Units.ComplexTests.ClaimAllTests.Implementations
 {
-    [RunAll(ClaimAllParameters = true)]
+    [RunAll]
+    [Strict]
     public class JustRunAllProcessor
     {
         public object CheckProperty(string message)

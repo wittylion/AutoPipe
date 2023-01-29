@@ -1,5 +1,4 @@
-﻿using AutoPipe.Attributes;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,8 +20,8 @@ namespace AutoPipe
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
         public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
         public static readonly string ProcessorMustNotBeNull = "Processor passed to the constructor is null. Please provide an object.";
-        public static readonly string MethodClaimsAllParameters = "Run attribute of the current execution method contains condition (ClaimAllParameters = true), which requires all parameters to be declared before execution.";
-        public static readonly string ClassClaimsAllParameters = "Run attribute of your processor class contains condition (ClaimAllParameters = true), which requires all parameters to be declared before execution.";
+        public static readonly string MethodClaimsAllParameters = "Run attribute of the current execution method contains attribute [Strict], which requires all parameters to be declared before execution.";
+        public static readonly string ClassClaimsAllParameters = "Run attribute of your processor class contains attribute [Strict], which requires all parameters to be declared before execution.";
 
         /// <summary>
         /// Collection of methods that will be executed one by one.
@@ -47,14 +46,14 @@ namespace AutoPipe
         {
             Processor = this;
             Methods = GetMethodsToExecute();
-            claimAllParameters = new Lazy<bool?>(() => Processor.GetType().ClaimAllParameters());
+            IsStrict = Processor.GetType().IsStrict();
         }
 
         public AutoProcessor(object processor)
         {
             Processor = processor;
             Methods = GetMethodsToExecute();
-            claimAllParameters = new Lazy<bool?>(() => Processor.GetType().ClaimAllParameters());
+            IsStrict = Processor.GetType().IsStrict();
         }
 
         /// <summary>
@@ -163,8 +162,7 @@ namespace AutoPipe
             }
         }
 
-        private Lazy<bool?> claimAllParameters;
-        protected virtual bool? ClaimAllParameters => claimAllParameters.Value;
+        protected virtual bool IsStrict { get; }
 
         /// <summary>
         /// Returns attributes of methods to be taken into account during methods
@@ -673,7 +671,7 @@ namespace AutoPipe
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
             var bagTypes = context.GetSingleTypeValues();
-            var claimAllMethodParameters = method.ClaimAllParameters();
+            var methodIsStrict = method.IsStrict();
 
             foreach (var parameter in parameters)
             {
@@ -686,17 +684,9 @@ namespace AutoPipe
 
                 if (metadata == null)
                 {
-                    if (claimAllMethodParameters.HasValue && !claimAllMethodParameters.Value)
+                    if (!methodIsStrict && !IsStrict)
                     {
                         continue;
-                    }
-
-                    if (!claimAllMethodParameters.HasValue)
-                    {
-                        if (!ClaimAllParameters.HasValue || ClaimAllParameters.HasValue && !ClaimAllParameters.Value)
-                        {
-                            continue;
-                        }
                     }
                 }
 
@@ -722,11 +712,11 @@ namespace AutoPipe
                             {
                                 if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
                             }
-                            else if (claimAllMethodParameters.HasValue && claimAllMethodParameters.Value)
+                            else if (methodIsStrict)
                             {
                                 message = $"{formattedMessage} {MethodClaimsAllParameters}";
                             }
-                            else if (ClaimAllParameters.HasValue && ClaimAllParameters.Value)
+                            else if (IsStrict)
                             {
                                 message = $"{formattedMessage} {ClassClaimsAllParameters}";
                             }
@@ -755,11 +745,11 @@ namespace AutoPipe
                                 {
                                     if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
                                 }
-                                else if (claimAllMethodParameters.HasValue && claimAllMethodParameters.Value)
+                                else if (methodIsStrict)
                                 {
                                     message = $"{formattedMessage} {MethodClaimsAllParameters}";
                                 }
-                                else if (ClaimAllParameters.HasValue && ClaimAllParameters.Value)
+                                else if (IsStrict)
                                 {
                                     message = $"{formattedMessage} {ClassClaimsAllParameters}";
                                 }

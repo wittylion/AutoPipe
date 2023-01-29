@@ -1,9 +1,10 @@
 ﻿namespace AutoPipe.Tests.Units.ComplexTests.ClaimAllTests.Implementations
 {
-    [Run(ClaimAllParameters = false)]
+    [Run]
     public class RunMethodRequireRunClassNotProcessor
     {
-        [Run(ClaimAllParameters = true)]
+        [Run]
+        [Strict]
         public object CheckProperty(string message)
         {
             return new { valid = message != null };

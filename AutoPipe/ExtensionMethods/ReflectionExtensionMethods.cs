@@ -55,10 +55,10 @@ namespace AutoPipe
             return runAllAttribute != null;
         }
 
-        public static bool? ClaimAllParameters(this MemberInfo member)
+        public static bool IsStrict(this MemberInfo member)
         {
-            var runAllAttribute = member?.GetCustomAttribute<RunAttribute>();
-            return runAllAttribute?.ClaimAllParameters;
+            var strictAttribute = member?.GetCustomAttribute<StrictAttribute>();
+            return strictAttribute != null;
         }
 
         public static string GetDescription(this MemberInfo member)

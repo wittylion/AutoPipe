@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AutoPipe.Attributes
+namespace AutoPipe
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class AfterAttribute : Attribute

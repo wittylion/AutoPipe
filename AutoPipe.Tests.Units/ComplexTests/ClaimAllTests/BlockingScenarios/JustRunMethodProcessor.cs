@@ -2,7 +2,8 @@
 {
     public class JustRunMethodProcessor
     {
-        [Run(ClaimAllParameters = true)]
+        [Run]
+        [Strict]
         public object CheckProperty(string message)
         {
             return new { valid = message != null };

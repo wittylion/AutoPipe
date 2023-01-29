@@ -1,6 +1,7 @@
 ﻿namespace AutoPipe.Tests.Units.ComplexTests.ClaimAllTests.Implementations
 {
-    [RunAll(ClaimAllParameters = true)]
+    [RunAll]
+    [Strict]
     public class RunAllClass_NoRunMethod_ParameterRequired_Processor
     {
         public object CheckProperty([Required(Message = "The parameter \'Message\' should be passed.")] string message)
