@@ -13,6 +13,11 @@ namespace AutoPipe
         public bool IncludeSkipped { get; }
         public IServiceProvider ServiceProvider { get; }
 
+        public static NamespacePipeline From(string @namespace, bool recursive = true, bool includeSkipped = false, IServiceProvider serviceProvider = null)
+        {
+            return new NamespacePipeline(@namespace: @namespace, recursive: recursive, includeSkipped: includeSkipped, serviceProvider: serviceProvider);
+        }
+
         public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false, IServiceProvider serviceProvider = null)
         {
             if (@namespace == null)
