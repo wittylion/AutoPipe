@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
@@ -139,18 +140,18 @@ namespace AutoPipe
             }
 
             var reviewMethods = methodsDictionary.Where(x => x.Value.HasNoValue()).Select(x => x.Key).ToList();
+            var orderedMethods = methodsDictionary.Where(x => x.Value != null).OrderBy(x => x.Value).ThenBy(x => x.Key.Name).Select(x => x.Key).ToList();
             foreach (var method in reviewMethods)
             {
-                var reorder = CalculateOrderBasedOnAttributes(method, methodsDictionary, namesDictionary, new HashSet<MethodInfo>(), paramsDictionary, methodParamsDictionary);
-                methodsDictionary[method] = reorder;
+                CalculateOrderBasedOnAttributes(method, orderedMethods, namesDictionary, new HashSet<MethodInfo>(), paramsDictionary, methodParamsDictionary);
             }
 
-            return methodsDictionary.Keys.OrderBy(x => methodsDictionary[x] ?? default).ThenBy(method => method.Name);
+            return orderedMethods;
         }
 
-        protected virtual int? CalculateOrderBasedOnAttributes(MethodInfo method, Dictionary<MethodInfo, int?> methodsDictionary, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods, Dictionary<string, List<MethodInfo>> paramsDictionary, Dictionary<MethodInfo, List<string>>  methodParamsDictionary)
+        protected virtual void CalculateOrderBasedOnAttributes(MethodInfo method, List<MethodInfo> orderedMethods, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods, Dictionary<string, List<MethodInfo>> paramsDictionary, Dictionary<MethodInfo, List<string>> methodParamsDictionary)
         {
-            if (methodsDictionary.TryGetValue(method, out int? maybeValue) && maybeValue.HasValue) return maybeValue;
+            if (orderedMethods.Contains(method)) return;
 
             visitedMethods.Add(method);
 
@@ -170,23 +171,21 @@ namespace AutoPipe
                     throw new Exception($"Circular dependency detected. The name [{previous}] in [After] attribute of [{currentName}] method is already used by one of the methods in the chain. Check the order of the methods execution.");
                 }
 
-                if (methodsDictionary[previousMethod] == null)
+                if (!orderedMethods.Contains(previousMethod))
                 {
-                    var previousIndexCalculated = CalculateOrderBasedOnAttributes(previousMethod, methodsDictionary, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
-
-                    int previousIndex = previousIndexCalculated ?? default;
-                    int newIndex = previousIndex + 1;
-                    methodsDictionary[method] = newIndex;
-
-                    visitedMethods.Remove(method);
-                    return newIndex;
+                    CalculateOrderBasedOnAttributes(previousMethod, orderedMethods, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
                 }
+
+                var index = orderedMethods.FindIndex(x => previousMethod == x);
+                orderedMethods.Insert(index, method);
+                visitedMethods.Remove(method);
+                return;
             }
 
             var requiredParameters = methodParamsDictionary[method];
             if (requiredParameters.Any())
             {
-                var orders = new List<int?>();
+                var precedentList = new List<MethodInfo>();
                 foreach (var requiredParameter in requiredParameters)
                 {
                     var allGenerators = paramsDictionary[requiredParameter];
@@ -194,21 +193,19 @@ namespace AutoPipe
                     {
                         if (generator == method) continue;
 
-                        var order = CalculateOrderBasedOnAttributes(generator, methodsDictionary, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
-                        orders.Add((order ?? default) + 1);
+                        CalculateOrderBasedOnAttributes(generator, orderedMethods, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
+                        precedentList.Add(generator);
                     }
                 }
 
-                if (orders.Any(x => x.HasValue))
-                {
-                    var order = orders.Max();
-                    visitedMethods.Remove(method);
-                    return order + 1;
-                }
+                var index = orderedMethods.FindLastIndex(x => precedentList.Contains(x));
+                orderedMethods.Insert(index + 1, method);
+                visitedMethods.Remove(method);
+                return;
             }
 
+            orderedMethods.Insert(0, method);
             visitedMethods.Remove(method);
-            return default(int);
         }
 
         private bool? runAll;
