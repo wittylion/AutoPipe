@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -89,6 +90,13 @@ namespace AutoPipe
         {
             var methodsDictionary = new Dictionary<MethodInfo, int?>();
             var namesDictionary = new Dictionary<string, MethodInfo>();
+
+            // param, List of generating methods
+            var paramsDictionary = new Dictionary<string, List<MethodInfo>>();
+            var methodParamsDictionary = new Dictionary<MethodInfo, List<string>>();
+
+            var allIdentifiers = GetPropertyUpdateIdentifiers().Concat(GetPropertyEnsureIdentifiers());
+
             foreach (var method in methods)
             {
                 var order = GetOrderOfExecution(method);
@@ -104,26 +112,51 @@ namespace AutoPipe
                         throw new Exception($"The same alias [{name}] was applied for methods [{method.Name}] and [{existingMethod.Name}]. Please use unique names for each method.");
                     }
                 }
+
+                var parameters = method.GetParameters().Select(x => x.Name.ToLower()).ToList();
+                methodParamsDictionary.Add(method, parameters);
+                foreach (var parameter in parameters)
+                {
+                    if (!paramsDictionary.ContainsKey(parameter))
+                    {
+                        paramsDictionary.Add(parameter.ToLower(), new List<MethodInfo>());
+                    }
+                }
+
+                var returningParameter = allIdentifiers.FirstOrDefault(x => method.Name.StartsWith(x));
+                if (returningParameter != null)
+                {
+                    var parameterName = method.Name.Substring(returningParameter.Length).ToLower();
+                    if (paramsDictionary.TryGetValue(parameterName, out var data))
+                    {
+                        data.Add(method);
+                    }
+                    else
+                    {
+                        paramsDictionary.Add(parameterName, new List<MethodInfo>() { method });
+                    }
+                }
             }
 
             var reviewMethods = methodsDictionary.Where(x => x.Value.HasNoValue()).Select(x => x.Key).ToList();
             foreach (var method in reviewMethods)
             {
-                var reorder = CalculateOrderBasedOnAttributes(method, methodsDictionary, namesDictionary, new HashSet<MethodInfo>());
+                var reorder = CalculateOrderBasedOnAttributes(method, methodsDictionary, namesDictionary, new HashSet<MethodInfo>(), paramsDictionary, methodParamsDictionary);
                 methodsDictionary[method] = reorder;
             }
 
             return methodsDictionary.Keys.OrderBy(x => methodsDictionary[x] ?? default).ThenBy(method => method.Name);
         }
 
-        protected virtual int? CalculateOrderBasedOnAttributes(MethodInfo method, Dictionary<MethodInfo, int?> methodsDictionary, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods)
+        protected virtual int? CalculateOrderBasedOnAttributes(MethodInfo method, Dictionary<MethodInfo, int?> methodsDictionary, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods, Dictionary<string, List<MethodInfo>> paramsDictionary, Dictionary<MethodInfo, List<string>>  methodParamsDictionary)
         {
             if (methodsDictionary.TryGetValue(method, out int? maybeValue) && maybeValue.HasValue) return maybeValue;
 
-            var previous = method.GetCustomAttribute<AfterAttribute>()?.PreviousName;
-            if (previous == null) return null;
+            visitedMethods.Add(method);
 
-            if (namesDictionary.TryGetValue(previous, out MethodInfo previousMethod))
+            var previous = method.GetCustomAttribute<AfterAttribute>()?.PreviousName;
+
+            if (previous != null && namesDictionary.TryGetValue(previous, out MethodInfo previousMethod))
             {
                 if (previousMethod == method)
                 {
@@ -139,18 +172,43 @@ namespace AutoPipe
 
                 if (methodsDictionary[previousMethod] == null)
                 {
-                    visitedMethods.Add(method);
-                    var previousIndexCalculated = CalculateOrderBasedOnAttributes(previousMethod, methodsDictionary, namesDictionary, visitedMethods);
-                    visitedMethods.Remove(method);
+                    var previousIndexCalculated = CalculateOrderBasedOnAttributes(previousMethod, methodsDictionary, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
 
                     int previousIndex = previousIndexCalculated ?? default;
                     int newIndex = previousIndex + 1;
                     methodsDictionary[method] = newIndex;
+
+                    visitedMethods.Remove(method);
                     return newIndex;
                 }
             }
 
-            return null;
+            var requiredParameters = methodParamsDictionary[method];
+            if (requiredParameters.Any())
+            {
+                var orders = new List<int?>();
+                foreach (var requiredParameter in requiredParameters)
+                {
+                    var allGenerators = paramsDictionary[requiredParameter];
+                    foreach (var generator in allGenerators)
+                    {
+                        if (generator == method) continue;
+
+                        var order = CalculateOrderBasedOnAttributes(generator, methodsDictionary, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
+                        orders.Add((order ?? default) + 1);
+                    }
+                }
+
+                if (orders.Any(x => x.HasValue))
+                {
+                    var order = orders.Max();
+                    visitedMethods.Remove(method);
+                    return order + 1;
+                }
+            }
+
+            visitedMethods.Remove(method);
+            return default(int);
         }
 
         private bool? runAll;
@@ -621,18 +679,22 @@ namespace AutoPipe
                     }
                 }
 
-                if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
-                {
-                    yield return valueOfType;
-                    continue;
-                }
 
-                var singleAssignableType = bagTypes.Where(bagType => parameter.ParameterType.IsAssignableFrom(bagType.Key));
-
-                if (singleAssignableType.Count() == 1)
+                if (parameters.Count(param => param.ParameterType == parameter.ParameterType) == 1)
                 {
-                    yield return singleAssignableType.First().Value;
-                    continue;
+                    if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
+                    {
+                        yield return valueOfType;
+                        continue;
+                    }
+
+                    var singleAssignableType = bagTypes.Where(bagType => parameter.ParameterType.IsAssignableFrom(bagType.Key));
+
+                    if (singleAssignableType.Count() == 1)
+                    {
+                        yield return singleAssignableType.First().Value;
+                        continue;
+                    }
                 }
 
                 var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
@@ -724,25 +786,29 @@ namespace AutoPipe
                     }
                 }
 
-                if (bagTypes.ContainsKey(parameter.ParameterType))
-                {
-                    if (context.Debug)
-                    {
-                        var methodName = method.GetName();
-                        context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
-                    }
-                    continue;
-                }
 
-                var singleAssignableType = bagTypes.Keys.SingleOrDefault(bagType => parameter.ParameterType.IsAssignableFrom(bagType));
-                if (singleAssignableType != null)
+                if (parameters.Count(param => param.ParameterType == parameter.ParameterType) == 1)
                 {
-                    if (context.Debug)
+                    if (bagTypes.ContainsKey(parameter.ParameterType))
                     {
-                        var methodName = method.GetName();
-                        context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                        if (context.Debug)
+                        {
+                            var methodName = method.GetName();
+                            context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                        }
+                        continue;
                     }
-                    continue;
+
+                    var singleAssignableType = bagTypes.Keys.SingleOrDefault(bagType => parameter.ParameterType.IsAssignableFrom(bagType));
+                    if (singleAssignableType != null)
+                    {
+                        if (context.Debug)
+                        {
+                            var methodName = method.GetName();
+                            context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                        }
+                        continue;
+                    }
                 }
 
                 if (context.Debug)

@@ -18,8 +18,4 @@
     <ProjectReference Include="..\AutoPipe\AutoPipe.csproj" />
   </ItemGroup>
   
-  <ItemGroup>
-    <Folder Include="ComplexTests\ClaimAllTests\NonBlockingScenarios\" />
-  </ItemGroup>
-  
 </Project>
