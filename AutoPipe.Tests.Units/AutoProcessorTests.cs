@@ -74,8 +74,8 @@ namespace AutoPipe.Tests.Units
             var expected = new[]
             {
                 processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethodMinus2)),
-                processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethod)),
                 processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethod2)),
+                processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethod)),
             };
 
             processor.GetMethodsToExecute().Should().
@@ -110,12 +110,12 @@ namespace AutoPipe.Tests.Units
         {
             TestAutoProcessor processor = new TestAutoProcessor();
 
-            Bag context = Bag.Create();
+            Bag context = new Bag(debug: true);
             Task task = null;
 
             await processor.ProcessResult(TestAutoProcessor.EmptyMethodInfo, context, task).ConfigureAwait(false);
 
-            context.Should().BeEmpty();
+            context.Should().BeEmpty("because method does not do any action");
         }
 
 

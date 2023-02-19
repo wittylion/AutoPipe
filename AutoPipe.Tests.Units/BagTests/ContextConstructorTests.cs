@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
+using System.Collections.Generic;
 using Xunit;
 
 namespace AutoPipe.Tests.Units.BagTests
@@ -17,7 +16,7 @@ namespace AutoPipe.Tests.Units.BagTests
             };
             var context = Bag.CreateFromDictionary(dictionary);
 
-            context.Should().BeEquivalentTo(dictionary);
+            dictionary.Should().BeEquivalentTo(context);
         }
     }
 }

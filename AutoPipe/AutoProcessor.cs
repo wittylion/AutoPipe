@@ -177,7 +177,7 @@ namespace AutoPipe
                 }
 
                 var index = orderedMethods.FindIndex(x => previousMethod == x);
-                orderedMethods.Insert(index, method);
+                orderedMethods.Insert(index + 1, method);
                 visitedMethods.Remove(method);
                 return;
             }
@@ -192,6 +192,7 @@ namespace AutoPipe
                     foreach (var generator in allGenerators)
                     {
                         if (generator == method) continue;
+                        if (visitedMethods.Contains(generator)) continue;
 
                         CalculateOrderBasedOnAttributes(generator, orderedMethods, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
                         precedentList.Add(generator);
@@ -204,7 +205,7 @@ namespace AutoPipe
                 return;
             }
 
-            orderedMethods.Insert(0, method);
+            orderedMethods.Add(method);
             visitedMethods.Remove(method);
         }
 
