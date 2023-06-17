@@ -10,11 +10,11 @@
     <Copyright>Witty Lion © 2021</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://wittylion.github.io/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/wittylion/Pipelines.Net</RepositoryUrl>
+    <RepositoryUrl>https://github.com/wittylion/AutoPipe</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
 
-      This is a new release of a previously known package: https://www.nuget.org/packages/Pipelines.Net/
+      This is a new release of a previously known package: https://www.nuget.org/packages/AutoPipe/
 
       Write your code easily with AutoPipe:
       - Create classes based on AutoProcessor;
