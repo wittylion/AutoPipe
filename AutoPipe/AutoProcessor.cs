@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AutoPipe
@@ -447,7 +448,26 @@ namespace AutoPipe
                 return;
             }
 
-            await task.ConfigureAwait(false);
+            try
+            {
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"During the execution of the task returned by [{method.GetName()}] was thrown an exception:");
+
+                do
+                {
+                    sb.AppendLine(ex.Message);
+                    ex = ex.InnerException;
+                }
+                while (ex != null);
+
+                context.ErrorEnd(sb.ToString());
+
+                return;
+            }
 
             var property = task.GetType().GetProperty(nameof(Task<object>.Result));
 

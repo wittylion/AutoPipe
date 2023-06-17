@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AutoPipe
+﻿namespace AutoPipe
 {
     internal static class ObjectExtensionMethods
     {
@@ -32,6 +30,16 @@ namespace AutoPipe
         public static T[] ToAnArray<T>(this T obj)
         {
             return new[] {obj};
+        }
+
+        public static Bag ToBag<T>(this T obj)
+        {
+            if (!(obj is Bag bag))
+            {
+                bag = new Bag(obj);
+            }
+
+            return bag;
         }
     }
 }
