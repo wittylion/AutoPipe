@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using AutoPipe;
 using FluentAssertions;
 using Xunit;
 
-namespace AutoPipe.Tests.Units
+namespace AutoPipe.Tests.Units.BagTests
 {
     public class PipelineContextTests
     {
@@ -66,11 +67,11 @@ namespace AutoPipe.Tests.Units
 
             pipelineContext.Set(key, value);
 
-            pipelineContext.Get(key, (IAsyncLifetime) null)
+            pipelineContext.Get(key, (IAsyncLifetime)null)
                 .Should()
                 .BeNull("because method must check a type before value is converted into this type");
         }
-        
+
         [Fact]
         public void GetPropertyValueOrDefault_Retrieves_Default_Value_When_Requested_An_Incorrect_Type()
         {
@@ -104,7 +105,7 @@ namespace AutoPipe.Tests.Units
         public void ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection()
         {
             var expectedValue = nameof(ObjectConstructor_Sets_Properties_Of_An_Object_To_Property_Collection);
-            var pipelineContext = new Bag(new {PipelineContextTests = expectedValue});
+            var pipelineContext = new Bag(new { PipelineContextTests = expectedValue });
 
             pipelineContext.GetOrThrow<string>("PipelineContextTests")
                 .Should()
@@ -127,7 +128,7 @@ namespace AutoPipe.Tests.Units
             var expectedValue = nameof(GetPropertyValueOrNull_Retrieves_Null_When_Value_Is_Not_Set);
             var key = nameof(PipelineContextTests);
 
-            pipelineContext.Get(key, (string) null)
+            pipelineContext.Get(key, (string)null)
                 .Should()
                 .BeNull(expectedValue, "because the value was not set");
         }
@@ -154,7 +155,7 @@ namespace AutoPipe.Tests.Units
 
             pipelineContext.Set(nameof(PipelineContextTests), value);
             pipelineContext.Set(nameof(PipelineContextTests), expectedValue);
-            
+
             pipelineContext.GetOrThrow<string>(key)
                 .Should()
                 .Be(expectedValue, "because method must update a value if it previously was set");
@@ -193,16 +194,16 @@ namespace AutoPipe.Tests.Units
 
             pipelineContext.DeleteProperty(property);
 
-            pipelineContext.Get(property, (string) null)
+            pipelineContext.Get(property, (string)null)
                 .Should()
                 .BeNull("because value has been deleted by 'DeleteProperty' method");
         }
-        
+
         [Fact]
         public void ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property()
         {
             var name = nameof(ApplyProperty_With_SkipIfExists_Does_Not_Overwrite_The_Existing_Property);
-            var context = Bag.Create(new {Message = name});
+            var context = Bag.Create(new { Message = name });
             context.ApplyProperty("Message", "test", PropertyModificator.SkipIfExists);
             context.GetOrThrow<string>("Message")
                 .Should().Be(name);
@@ -217,7 +218,7 @@ namespace AutoPipe.Tests.Units
             context.GetOrThrow<string>("Message")
                 .Should().Be("test");
         }
-        
+
         [Fact]
         public void ContainsProperty_With_Generic_Type_Returns_False_If_Type_Of_The_Property_Has_Other_Type()
         {
@@ -228,7 +229,7 @@ namespace AutoPipe.Tests.Units
             context.Contains<bool>(nameof(members.Message))
                 .Should().BeFalse();
         }
-        
+
         [Fact]
         public void ContainsProperty_With_Generic_Type_Returns_True_If_Type_Of_The_Property_Requested()
         {

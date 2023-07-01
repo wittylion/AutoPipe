@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AutoPipe
@@ -15,22 +16,45 @@ namespace AutoPipe
     /// in the derived type will be executed based on 
     /// <see cref="OrderAttribute"/>.
     /// </summary>
-    public abstract class AutoProcessor : SafeProcessor
+    public class AutoProcessor : IProcessor
     {
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
         public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
+        public static readonly string ProcessorMustNotBeNull = "Processor passed to the constructor is null. Please provide an object.";
+        public static readonly string MethodClaimsAllParameters = "Run attribute of the current execution method contains attribute [Strict], which requires all parameters to be declared before execution.";
+        public static readonly string ClassClaimsAllParameters = "Run attribute of your processor class contains attribute [Strict], which requires all parameters to be declared before execution.";
 
         /// <summary>
         /// Collection of methods that will be executed one by one.
         /// </summary>
         public IEnumerable<MethodInfo> Methods { get; set; }
+        public object Processor { get; }
+
+        public static IProcessor From(object processorClass)
+        {
+            return new AutoProcessor(processorClass);
+        }
+
+        public static IProcessor From<T>() where T : class, new()
+        {
+            return new AutoProcessor(new T());
+        }
 
         /// <summary>
         /// A simple parameterless constructor.
         /// </summary>
-        public AutoProcessor()
+        protected AutoProcessor()
         {
+            Processor = this;
             Methods = GetMethodsToExecute();
+            IsStrict = Processor.GetType().IsStrict();
+        }
+
+        public AutoProcessor(object processor)
+        {
+            Processor = processor;
+            Methods = GetMethodsToExecute();
+            IsStrict = Processor.GetType().IsStrict();
         }
 
         /// <summary>
@@ -41,7 +65,12 @@ namespace AutoPipe
         /// </returns>
         public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
-            var type = this.GetType();
+            if (Processor.HasNoValue() || Processor.GetType() == typeof(AutoProcessor))
+            {
+                return Enumerable.Empty<MethodInfo>();
+            }
+
+            var type = Processor.GetType();
             var allAttributes = GetMethodBindingAttributes();
 
             if (allAttributes.HasNoValue())
@@ -50,8 +79,145 @@ namespace AutoPipe
             }
 
             var bindingAttr = allAttributes.Aggregate((l, r) => l | r);
-            return type.GetMethods(bindingAttr).Where(AcceptableByFilter).OrderBy(GetOrderOfExecution).ThenBy(method => method.Name);
+            var methods = type.GetMethods(bindingAttr);
+            var filteredMethods = methods.Where(AcceptableByFilter);
+            var orderedMethods = OrderMethods(filteredMethods);
+
+            return orderedMethods;
         }
+
+        protected virtual IEnumerable<MethodInfo> OrderMethods(IEnumerable<MethodInfo> methods)
+        {
+            var methodsDictionary = new Dictionary<MethodInfo, int?>();
+            var namesDictionary = new Dictionary<string, MethodInfo>();
+
+            // param, List of generating methods
+            var paramsDictionary = new Dictionary<string, List<MethodInfo>>();
+            var methodParamsDictionary = new Dictionary<MethodInfo, List<string>>();
+
+            var allIdentifiers = GetPropertyUpdateIdentifiers().Concat(GetPropertyEnsureIdentifiers());
+
+            foreach (var method in methods)
+            {
+                var order = GetOrderOfExecution(method);
+                methodsDictionary.Add(method, order);
+                foreach (var name in method.GetNames())
+                {
+                    if (!namesDictionary.TryGetValue(name, out MethodInfo existingMethod))
+                    {
+                        namesDictionary.Add(name, method);
+                    }
+                    else
+                    {
+                        throw new Exception($"The same alias [{name}] was applied for methods [{method.Name}] and [{existingMethod.Name}]. Please use unique names for each method.");
+                    }
+                }
+
+                var parameters = method.GetParameters().Select(x => x.Name.ToLower()).ToList();
+                methodParamsDictionary.Add(method, parameters);
+                foreach (var parameter in parameters)
+                {
+                    if (!paramsDictionary.ContainsKey(parameter))
+                    {
+                        paramsDictionary.Add(parameter.ToLower(), new List<MethodInfo>());
+                    }
+                }
+
+                var returningParameter = allIdentifiers.FirstOrDefault(x => method.Name.StartsWith(x));
+                if (returningParameter != null)
+                {
+                    var parameterName = method.Name.Substring(returningParameter.Length).ToLower();
+                    if (paramsDictionary.TryGetValue(parameterName, out var data))
+                    {
+                        data.Add(method);
+                    }
+                    else
+                    {
+                        paramsDictionary.Add(parameterName, new List<MethodInfo>() { method });
+                    }
+                }
+            }
+
+            var reviewMethods = methodsDictionary.Where(x => x.Value.HasNoValue()).Select(x => x.Key).ToList();
+            var orderedMethods = methodsDictionary.Where(x => x.Value != null).OrderBy(x => x.Value).ThenBy(x => x.Key.Name).Select(x => x.Key).ToList();
+            foreach (var method in reviewMethods)
+            {
+                CalculateOrderBasedOnAttributes(method, orderedMethods, namesDictionary, new HashSet<MethodInfo>(), paramsDictionary, methodParamsDictionary);
+            }
+
+            return orderedMethods;
+        }
+
+        protected virtual void CalculateOrderBasedOnAttributes(MethodInfo method, List<MethodInfo> orderedMethods, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods, Dictionary<string, List<MethodInfo>> paramsDictionary, Dictionary<MethodInfo, List<string>> methodParamsDictionary)
+        {
+            if (orderedMethods.Contains(method)) return;
+
+            visitedMethods.Add(method);
+
+            var previous = method.GetCustomAttribute<AfterAttribute>()?.PreviousName;
+
+            if (previous != null && namesDictionary.TryGetValue(previous, out MethodInfo previousMethod))
+            {
+                if (previousMethod == method)
+                {
+                    var currentName = method.GetName();
+                    throw new Exception($"The [{previous}] and [{currentName}] are names of the same method. After attribute cannot be applied to the same method. Check [Aka] attribute for duplicates.");
+                }
+
+                if (visitedMethods.Contains(previousMethod))
+                {
+                    var currentName = method.GetName();
+                    throw new Exception($"Circular dependency detected. The name [{previous}] in [After] attribute of [{currentName}] method is already used by one of the methods in the chain. Check the order of the methods execution.");
+                }
+
+                if (!orderedMethods.Contains(previousMethod))
+                {
+                    CalculateOrderBasedOnAttributes(previousMethod, orderedMethods, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
+                }
+
+                var index = orderedMethods.FindIndex(x => previousMethod == x);
+                orderedMethods.Insert(index + 1, method);
+                visitedMethods.Remove(method);
+                return;
+            }
+
+            var requiredParameters = methodParamsDictionary[method];
+            if (requiredParameters.Any())
+            {
+                var precedentList = new List<MethodInfo>();
+                foreach (var requiredParameter in requiredParameters)
+                {
+                    var allGenerators = paramsDictionary[requiredParameter];
+                    foreach (var generator in allGenerators)
+                    {
+                        if (generator == method) continue;
+                        if (visitedMethods.Contains(generator)) continue;
+
+                        CalculateOrderBasedOnAttributes(generator, orderedMethods, namesDictionary, visitedMethods, paramsDictionary, methodParamsDictionary);
+                        precedentList.Add(generator);
+                    }
+                }
+
+                var index = orderedMethods.FindLastIndex(x => precedentList.Contains(x));
+                orderedMethods.Insert(index + 1, method);
+                visitedMethods.Remove(method);
+                return;
+            }
+
+            orderedMethods.Add(method);
+            visitedMethods.Remove(method);
+        }
+
+        private bool? runAll;
+        protected virtual bool RunAll
+        {
+            get
+            {
+                return (runAll ?? (runAll = this.Processor.GetType().ShouldRunAll())).Value;
+            }
+        }
+
+        protected virtual bool IsStrict { get; }
 
         /// <summary>
         /// Returns attributes of methods to be taken into account during methods
@@ -62,7 +228,7 @@ namespace AutoPipe
         /// </returns>
         protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
-            return new[] { BindingFlags.Public, BindingFlags.NonPublic, BindingFlags.Instance, BindingFlags.Static };
+            yield return Repository.RunningMethodsFlags;
         }
 
         /// <summary>
@@ -76,7 +242,7 @@ namespace AutoPipe
         /// </returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return method.ShouldRun() && !method.ShouldSkip();
+            return (this.RunAll || method.ShouldRun()) && !method.ShouldSkip();
         }
 
         /// <summary>
@@ -88,7 +254,7 @@ namespace AutoPipe
         /// <returns>
         /// A number indicating the order of methods execution.
         /// </returns>
-        public virtual int GetOrderOfExecution(MethodInfo method)
+        public virtual int? GetOrderOfExecution(MethodInfo method)
         {
             var order = method?.GetCustomAttribute<OrderAttribute>()?.Order;
             if (order != null)
@@ -96,7 +262,7 @@ namespace AutoPipe
                 return order.Value;
             }
 
-            return default;
+            return null;
         }
 
         /// <summary>
@@ -114,10 +280,10 @@ namespace AutoPipe
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public virtual async Task Run(MethodInfo method, Bag context)
+        protected virtual async Task RunMethod(MethodInfo method, Bag context)
         {
             var values = GetExecutionParameters(method, context);
-            var result = method.Invoke(this, values.ToArray());
+            var result = method.Invoke(Processor, values.ToArray());
             await ProcessResult(method, context, result, skipNameBasedActions: false).ConfigureAwait(false);
         }
 
@@ -280,7 +446,26 @@ namespace AutoPipe
                 return;
             }
 
-            await task.ConfigureAwait(false);
+            try
+            {
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"During the execution of the task returned by [{method.GetName()}] was thrown an exception:");
+
+                do
+                {
+                    sb.AppendLine(ex.Message);
+                    ex = ex.InnerException;
+                }
+                while (ex != null);
+
+                context.ErrorEnd(sb.ToString());
+
+                return;
+            }
 
             var property = task.GetType().GetProperty(nameof(Task<object>.Result));
 
@@ -431,6 +616,35 @@ namespace AutoPipe
             return context => context.ErrorResult(result, message);
         }
 
+        public virtual string Name => this.Names.First();
+
+        public virtual IEnumerable<string> Names
+        {
+            get
+            {
+                if (Processor == this)
+                {
+                    return this.Names();
+                }
+
+                return Processor.GetType().GetNames();
+            }
+        }
+
+
+        public virtual string Description
+        {
+            get
+            {
+                if (Processor == this)
+                {
+                    return this.Description();
+                }
+
+                return Processor.GetType().GetDescription();
+            }
+        }
+
         /// <summary>
         /// Tries to define values to pass them to the method.
         /// Uses the reflection to get the names of the parameters
@@ -467,25 +681,41 @@ namespace AutoPipe
                     if (parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
                         yield return val;
-                    }
-                    else
-                    {
-                        var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                        yield return defaultValueAttribute?.DefaultValue;
+                        continue;
                     }
                 }
-                else
+
+                if (context.ServiceProvider != null)
+                {
+                    var valueFromProvider = context.ServiceProvider.GetService(parameter.ParameterType);
+                    if (valueFromProvider != null)
+                    {
+                        yield return valueFromProvider;
+                        continue;
+                    }
+                }
+
+
+                if (parameters.Count(param => param.ParameterType == parameter.ParameterType) == 1)
                 {
                     if (bagTypes.TryGetValue(parameter.ParameterType, out var valueOfType))
                     {
                         yield return valueOfType;
+                        continue;
                     }
-                    else
+
+                    var singleAssignableType = bagTypes.Where(bagType => parameter.ParameterType.IsAssignableFrom(bagType.Key));
+
+                    if (singleAssignableType.Count() == 1)
                     {
-                        var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
-                        yield return defaultValueAttribute?.DefaultValue;
+                        yield return singleAssignableType.First().Value;
+                        continue;
                     }
                 }
+
+                var defaultValueAttribute = parameter.GetCustomAttribute<OrAttribute>();
+                yield return defaultValueAttribute?.DefaultValue;
+                continue;
             }
         }
 
@@ -522,6 +752,7 @@ namespace AutoPipe
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
             var bagTypes = context.GetSingleTypeValues();
+            var methodIsStrict = method.IsStrict();
 
             foreach (var parameter in parameters)
             {
@@ -534,7 +765,10 @@ namespace AutoPipe
 
                 if (metadata == null)
                 {
-                    continue;
+                    if (!methodIsStrict && !IsStrict)
+                    {
+                        continue;
+                    }
                 }
 
                 var orAttribute = parameter.GetCustomAttribute<OrAttribute>();
@@ -548,51 +782,114 @@ namespace AutoPipe
                 if (context.ContainsAny(names, out object property))
                 {
                     var val = property;
-                    if (val == null || !parameter.ParameterType.IsAssignableFrom(val.GetType()))
+                    if (val != null && parameter.ParameterType.IsAssignableFrom(val.GetType()))
                     {
-                        if (context.Debug)
-                        {
-                            var formattedMessage = SkipMethodOnWrongTypeMessage.FormatWith(parameter.Name, parameter.ParameterType, val, method.GetName(), method.DeclaringType.GetName());
-                            var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
-
-                            context.Debug(message);
-                        }
-
-                        context.End();
-
-                        return false;
+                        continue;
                     }
                 }
-                else
+
+                if (context.ServiceProvider != null)
                 {
-                    if (!bagTypes.TryGetValue(parameter.ParameterType, out property))
+                    var valueFromProvider = context.ServiceProvider.GetService(parameter.ParameterType);
+                    if (valueFromProvider != null)
                     {
                         if (context.Debug)
                         {
-                            var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
-                            var message = metadata.Message.HasValue() ? formattedMessage + $" {metadata.Message}" : formattedMessage;
-
-                            context.Debug(message);
+                            var methodName = method.GetName();
+                            context.Debug("There is a property of type {0} found in service provider. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
-
-                        context.End();
-
-                        return false;
+                        continue;
                     }
-                    else
+                }
+
+
+                if (parameters.Count(param => param.ParameterType == parameter.ParameterType) == 1)
+                {
+                    if (bagTypes.ContainsKey(parameter.ParameterType))
                     {
                         if (context.Debug)
                         {
                             var methodName = method.GetName();
                             context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
+                        continue;
+                    }
+
+                    var singleAssignableType = bagTypes.Keys.SingleOrDefault(bagType => parameter.ParameterType.IsAssignableFrom(bagType));
+                    if (singleAssignableType != null)
+                    {
+                        if (context.Debug)
+                        {
+                            var methodName = method.GetName();
+                            context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
+                        }
+                        continue;
                     }
                 }
+
+                if (context.Debug)
+                {
+                    var formattedMessage = SkipMethodOnMissingPropertyMessage.FormatWith(parameter.Name, method.GetName(), method.DeclaringType.GetName());
+                    var message = formattedMessage;
+
+                    if (metadata != null)
+                    {
+                        if (metadata.Message.HasValue()) message = $"{formattedMessage} {metadata.Message}";
+                    }
+                    else if (methodIsStrict)
+                    {
+                        message = $"{formattedMessage} {MethodClaimsAllParameters}";
+                    }
+                    else if (IsStrict)
+                    {
+                        message = $"{formattedMessage} {ClassClaimsAllParameters}";
+                    }
+
+                    context.Debug(message);
+                }
+
+                context.End();
+
+                return false;
             }
 
             return true;
         }
 
+        protected virtual async Task CheckAndRunMethod(MethodInfo method, Bag bag)
+        {
+            if (bag.Debug)
+            {
+                var methodName = method.GetName();
+                var methodDescription = method.GetDescription();
+                if (methodDescription.HasValue())
+                {
+                    bag.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription.ToLower()));
+                }
+                else
+                {
+                    bag.Debug("Verifying parameters of method [{0}].".FormatWith(methodName));
+                }
+
+                if (AllParametersAreValid(method, bag))
+                {
+                    bag.Debug("All parameters are valid. Running method [{0}].".FormatWith(methodName));
+                    await RunMethod(method, bag).ConfigureAwait(false);
+                    bag.Debug("Completed method [{0}].".FormatWith(methodName));
+                }
+                else
+                {
+                    bag.Debug("Method [{0}] cannot be run. Going to the next one.".FormatWith(methodName));
+                }
+            }
+            else
+            {
+                if (AllParametersAreValid(method, bag))
+                {
+                    await RunMethod(method, bag).ConfigureAwait(false);
+                }
+            }
+        }
 
         /// <summary>
         /// Executes all methods found with <see cref="GetMethodsToExecute"/> 
@@ -605,49 +902,36 @@ namespace AutoPipe
         /// <returns>
         /// A task object indicating whether execution of the method has been completed.
         /// </returns>
-        public override async Task SafeRun(Bag args)
+        public async Task Run(Bag bag)
         {
-            if (Methods != null)
+            if (Methods == null)
             {
-                foreach (var method in Methods)
+                if (bag.Debug)
                 {
-                    if (args.Ended)
-                    {
-                        break;
-                    }
-
-                    if (args.Debug)
-                    {
-                        var methodName = method.GetName();
-                        var methodDescription = method.GetDescription();
-                        if (methodDescription.HasValue())
-                        {
-                            args.Debug("Verifying parameters of method [{0}]. Method is {1}".FormatWith(methodName, methodDescription.ToLower()));
-                        }
-                        else
-                        {
-                            args.Debug("Verifying parameters of method [{0}].".FormatWith(methodName));
-                        }
-
-                        if (AllParametersAreValid(method, args))
-                        {
-                            args.Debug("All parameters are valid. Running method [{0}].".FormatWith(methodName));
-                            await Run(method, args).ConfigureAwait(false);
-                            args.Debug("Completed method [{0}].".FormatWith(methodName));
-                        }
-                        else
-                        {
-                            args.Debug("Method [{0}] cannot be run. Going to the next one.".FormatWith(methodName));
-                        }
-                    }
-                    else
-                    {
-                        if (AllParametersAreValid(method, args))
-                        {
-                            await Run(method, args).ConfigureAwait(false);
-                        }
-                    }
+                    bag.Debug("Methods collection in the processor [0] is null".FormatWith(this.Name));
                 }
+
+                return;
+            }
+
+            if (!Methods.Any())
+            {
+                if (bag.Debug)
+                {
+                    bag.Debug("Methods collection in the processor [0] is empty. Nothing will be executed.".FormatWith(this.Name));
+                }
+
+                return;
+            }
+
+            foreach (var method in Methods)
+            {
+                if (bag.Ended)
+                {
+                    break;
+                }
+
+                await CheckAndRunMethod(method, bag).ConfigureAwait(false);
             }
         }
     }

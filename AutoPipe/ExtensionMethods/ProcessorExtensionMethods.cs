@@ -103,73 +103,66 @@ namespace AutoPipe
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
+        public static async Task<Bag> Run(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
             args = args ?? new Bag();
-            return runner.Run(processor, args);
+            await runner.Run(processor, args);
+            return args;
         }
 
-        public static Task Run(this IProcessor processor, object args, IProcessorRunner runner = null)
+        public static Task<Bag> Run(this IProcessor processor, object args, IProcessorRunner runner = null)
         {
-            if (!(args is Bag bag))
-            {
-                bag = new Bag(args);
-            }
+            var bag = args.ToBag();
             return processor.Run(bag, runner);
         }
 
-        public static async Task<TResult> Run<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
-        {
-            args = args ?? new Bag();
-            await processor.Run(args, runner).ConfigureAwait(false);
-            return args.ResultOrThrow<TResult>();
-        }
-
-        public static async Task<TResult> Run<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
-        {
-            if (!(args is Bag bag))
-            {
-                bag = new Bag(args);
-            }
-            await processor.Run(bag, runner).ConfigureAwait(false);
-            return bag.ResultOrThrow<TResult>();
-        }
-
         /// <summary>
-        /// Runs a processor with <paramref name="args"/> context
+        /// Runs a processor with <paramref name="bag"/> context
         /// and <paramref name="runner"/> synchronously, waiting until
         /// all processors of the pipeline will be executed.
         /// </summary>
         /// <param name="processor">
         /// The processor to be executed. It will be executed
         /// by <see cref="IProcessorRunner.Run{TArgs}"/>
-        /// method with <paramref name="args"/> passed.
+        /// method with <paramref name="bag"/> passed.
         /// </param>
-        /// <param name="args">
+        /// <param name="bag">
         /// The context which will be passed to the processor during execution.
         /// </param>
         /// <param name="runner">
         /// The runner which will be used to run the processor.
         /// </param>
-        public static void RunSync(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
+        public static Bag RunSync(this IProcessor processor, Bag bag = null, IProcessorRunner runner = null)
         {
-            processor.Run(args, runner).Wait();
+            var task = processor.Run(bag, runner);
+            try
+            {
+                task.Wait();
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    throw ex.InnerException;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+            return task.Result;
         }
 
-        public static void RunSync(this IProcessor processor, object args, IProcessorRunner runner = null)
+        public static Bag RunSync(this IProcessor processor, object args, IProcessorRunner runner = null)
         {
-            processor.Run(args, runner).Wait();
-        }
-
-        public static TResult RunSync<TResult>(this IProcessor processor, Bag args = null, IProcessorRunner runner = null)
-        {
-            return processor.Run<TResult>(args, runner).Result;
-        }
-
-        public static TResult RunSync<TResult>(this IProcessor processor, object args, IProcessorRunner runner = null)
-        {
-            return processor.Run<TResult>(args, runner).Result;
+            var bag = args.ToBag();
+            return processor.RunSync(bag, runner);
         }
 
         /// <summary>
@@ -191,6 +184,11 @@ namespace AutoPipe
         public static string Name(this IProcessor processor)
         {
             return processor.GetType().GetName();
+        }
+
+        public static IEnumerable<string> Names(this IProcessor processor)
+        {
+            return processor.GetType().GetNames();
         }
 
         public static string Description(this IProcessor processor)

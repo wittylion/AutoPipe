@@ -122,6 +122,19 @@ namespace AutoPipe
             }
         }
 
+        public static TBag Computed<TBag>(this TBag bag, string key, LambdaExpression value, bool skipIfExists = true) where TBag : Bag
+        {
+            bag.SetProperty(key, (ComputedProperty)value, skipIfExists);
+            return bag;
+        }
+
+        public static TBag Use<TBag>(this TBag bag, string property, LambdaExpression value,
+            bool skipIfExists = true) where TBag : Bag
+        {
+            bag.Computed(property, value, skipIfExists);
+            return bag;
+        }
+
         public static TBag Use<TBag>(this TBag bag, string property, object value,
             bool skipIfExists = true) where TBag : Bag
         {
@@ -149,7 +162,7 @@ namespace AutoPipe
 
         public static object Map<TProperty>(this Bag bag, Expression<Func<TProperty, object>> expression)
         {
-            return bag.Map((LambdaExpression) expression);
+            return bag.Map((LambdaExpression)expression);
         }
 
         public static TValue Map<TValue>(this Bag bag, LambdaExpression expression) where TValue : class

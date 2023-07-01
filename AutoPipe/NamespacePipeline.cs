@@ -11,8 +11,14 @@ namespace AutoPipe
         public string Namespace { get; }
         public bool Recursive { get; }
         public bool IncludeSkipped { get; }
+        public IServiceProvider ServiceProvider { get; }
 
-        public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false)
+        public static NamespacePipeline From(string @namespace, bool recursive = true, bool includeSkipped = false, IServiceProvider serviceProvider = null)
+        {
+            return new NamespacePipeline(@namespace: @namespace, recursive: recursive, includeSkipped: includeSkipped, serviceProvider: serviceProvider);
+        }
+
+        public NamespacePipeline(string @namespace = null, bool recursive = true, bool includeSkipped = false, IServiceProvider serviceProvider = null)
         {
             if (@namespace == null)
             {
@@ -33,9 +39,10 @@ namespace AutoPipe
 
             Recursive = recursive;
             IncludeSkipped = includeSkipped;
+            ServiceProvider = serviceProvider;
         }
 
-        public IEnumerable<IProcessor> GetProcessors()
+        public virtual IEnumerable<IProcessor> GetProcessors()
         {
             return Repository.Instance.Types
                 .Where(FilterProcessors)
@@ -77,7 +84,30 @@ namespace AutoPipe
 
         protected virtual IProcessor ConstructProcessor(Type type)
         {
-            return type?.GetConstructor(Type.EmptyTypes)?.Invoke(new object[0]) as IProcessor;
+            var emptyConstructor = type?.GetConstructor(Type.EmptyTypes);
+            if (emptyConstructor != null)
+            {
+                var obj = emptyConstructor.Invoke(new object[0]);
+                if (obj is IProcessor processor)
+                {
+                    return processor;
+                }
+
+                return new AutoProcessor(obj);
+            }
+
+            if (ServiceProvider != null)
+            {
+                var s = ServiceProvider?.GetService(type);
+                if (s != null)
+                {
+                    if (s is IProcessor processor) return processor;
+
+                    return new AutoProcessor(s);
+                }
+            }
+
+            return null;
         }
     }
 }

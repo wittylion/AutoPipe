@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using AutoPipe;
 using FluentAssertions;
 using Xunit;
 
-namespace AutoPipe.Tests.Units
+namespace AutoPipe.Tests.Units.BagTests
 {
     public class ChainingContextBuilderTests
     {
@@ -15,7 +16,7 @@ namespace AutoPipe.Tests.Units
                 .Use("string", "aqwe")
                 .Run(
                     Pipeline.From(
-                        Processor.From(
+                        ActionProcessor.From(
                             (ctx) => ctx.Set("string", ctx.Get("one", 0) + ctx.Get("two", 0)))),
                     Runner.Instance).ContinueWith(a => a.Result.Get("string", 0));
 
@@ -93,7 +94,7 @@ namespace AutoPipe.Tests.Units
                 .Be("Hello, Bob!");
         }
 
-        public class EnsureName : SafeProcessor
+        public class EnsureName : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -102,7 +103,7 @@ namespace AutoPipe.Tests.Units
             }
         }
 
-        public class HelloMessageNameReplacer : SafeProcessor
+        public class HelloMessageNameReplacer : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -116,7 +117,7 @@ namespace AutoPipe.Tests.Units
             }
         }
 
-        public class HelloMessageNameToResultReplacer : SafeProcessor
+        public class HelloMessageNameToResultReplacer : Processor
         {
             public override Task SafeRun(Bag args)
             {
@@ -137,7 +138,7 @@ namespace AutoPipe.Tests.Units
             }
         }
 
-        public class EnsureMessage : SafeProcessor
+        public class EnsureMessage : Processor
         {
             public override Task SafeRun(Bag args)
             {

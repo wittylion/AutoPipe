@@ -15,6 +15,11 @@ namespace AutoPipe
             return new Pipeline(processors);
         }
 
+        public static NamespacePipeline FromNamespace(string @namespace, bool recursive = true, bool includeSkipped = false, IServiceProvider serviceProvider = null)
+        {
+            return NamespacePipeline.From(@namespace: @namespace, recursive: recursive, includeSkipped: includeSkipped, serviceProvider: serviceProvider);
+        }
+
         public static IPipeline From(IEnumerable<IProcessor> processors)
         {
             return new Pipeline(processors);

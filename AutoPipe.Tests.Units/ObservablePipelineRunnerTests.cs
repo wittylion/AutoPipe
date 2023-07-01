@@ -11,7 +11,7 @@ namespace AutoPipe.Tests.Units
             bool started = false;
             
             // The runner to be tested.
-            Runner runner = new Runner(onPipelineStart: (o, e) => started = true);
+            Runner runner = new Runner(onPipelineStart: (e) => started = true);
 
             await runner.Run(Pipeline.Empty, new Bag()).ConfigureAwait(false);
 
@@ -24,9 +24,9 @@ namespace AutoPipe.Tests.Units
             bool started = false;
 
             // The runner to be tested.
-            Runner runner = new Runner(onProcessorStart: (o, e) => started = true);
+            Runner runner = new Runner(onProcessorStart: (e) => started = true);
 
-            await runner.Run(Processor.From(() => { }), new Bag()).ConfigureAwait(false);
+            await runner.Run(ActionProcessor.From(() => { }), new Bag()).ConfigureAwait(false);
 
             started.Should().BeTrue("because method must trigger the flag");
         }

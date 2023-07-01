@@ -28,7 +28,7 @@ namespace AutoPipe.Tests.Units
         public async void PipelineExecutor_Passes_Exact_Parameters_When_Executed()
         {
             var property = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
-            var processor = Processor.From(ctx => ctx.Set(property, true));
+            var processor = ActionProcessor.From(ctx => ctx.Set(property, true));
             var pipeline = Pipeline.From(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);
 
@@ -44,7 +44,7 @@ namespace AutoPipe.Tests.Units
         public async void PipelineExecutor_Returns_Exact_Value_When_Query_Is_Executed()
         {
             var propertyValue = nameof(PipelineExecutor_Passes_Exact_Parameters_When_Executed);
-            var processor = Processor.From(ctx =>
+            var processor = ActionProcessor.From(ctx =>
                 ctx.InfoResult(propertyValue, "Result is set."));
             var pipeline = Pipeline.From(processor);
             var pipelineExecutor = new PipelineExecutor(pipeline);

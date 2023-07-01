@@ -44,7 +44,7 @@ namespace AutoPipe
         /// </returns>
         public static IProcessor ToProcessor(this IPipeline pipeline, IPipelineRunner runner)
         {
-            return Processor.From(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
+            return ActionProcessor.From(async args => await pipeline.Run(args, runner).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -69,60 +69,23 @@ namespace AutoPipe
         /// <returns>
         /// The task object indicating the status of an executing pipeline.
         /// </returns>
-        public static Task Run(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
+        public static async Task<Bag> Run(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
             args = args ?? new Bag();
-            return runner.Run(pipeline, args);
+            await runner.Run(pipeline, args);
+            return args;
         }
 
-        public static Task Run(this IPipeline pipeline, object args, IPipelineRunner runner = null)
+        public static async Task<Bag> Run(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
             if (!(args is Bag bag))
             {
                 bag = new Bag(args);
             }
-            return runner.Run(pipeline, bag);
-        }
-
-        /// <summary>
-        /// Runs a pipeline with <paramref name="args"/> context
-        /// and <paramref name="runner"/>, and then returns a result.
-        /// </summary>
-        /// <typeparam name="TResult">
-        /// The type of the result that is supposed to be returned from the method.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
-        /// method with <paramref name="args"/> passed.
-        /// </param>
-        /// <param name="args">
-        /// The context which will be passed to each processor of
-        /// the pipeline during execution.
-        /// </param>
-        /// <param name="runner">
-        /// The runner which will be used to run the wrapped pipeline.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null) where TResult : class
-        {
-            args = args ?? new Bag();
-            await pipeline.Run(args, runner).ConfigureAwait(false);
-            return args.ResultOrThrow<TResult>();
-        }
-
-        public static async Task<TResult> Run<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
-        {
-            if (!(args is Bag bag))
-            {
-                bag = new Bag(args);
-            }
-            await pipeline.Run(bag, runner).ConfigureAwait(false);
-            return bag.ResultOrThrow<TResult>();
+            await runner.Run(pipeline, bag);
+            return bag;
         }
 
         /// <summary>
@@ -142,48 +105,14 @@ namespace AutoPipe
         /// <param name="runner">
         /// The runner which will be used to run the wrapped pipeline.
         /// </param>
-        public static void RunSync(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
+        public static Bag RunSync(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
         {
-            pipeline.Run(args, runner).Wait();
+            return pipeline.Run(args, runner).Result;
         }
 
-        public static void RunSync(this IPipeline pipeline, object args, IPipelineRunner runner = null)
+        public static Bag RunSync(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
-            pipeline.Run(args, runner).Wait();
-        }
-
-        /// <summary>
-        /// Runs a pipeline with <paramref name="args"/> context
-        /// and <paramref name="runner"/> synchronously, waiting until
-        /// all processors of the pipeline will be executed
-        /// and then returns a result.
-        /// </summary>
-        /// <typeparam name="TResult">
-        /// The type of the result that is supposed to be returned from the method.
-        /// </typeparam>
-        /// <param name="pipeline">
-        /// The pipeline to be executed. Each processor of this pipeline
-        /// will be executed by <see cref="IPipelineRunner.Run{TArgs}"/>
-        /// method with <paramref name="args"/> passed.
-        /// </param>
-        /// <param name="args">
-        /// The context which will be passed to each processor of
-        /// the pipeline during execution.
-        /// </param>
-        /// <param name="runner">
-        /// The runner which will be used to run the wrapped pipeline.
-        /// </param>
-        /// <returns>
-        /// The task object indicating the status of an executing pipeline.
-        /// </returns>
-        public static TResult RunSync<TResult>(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null) where TResult : class
-        {
-            return pipeline.Run<TResult>(args, runner).Result;
-        }
-
-        public static TResult RunSync<TResult>(this IPipeline pipeline, object args = null, IPipelineRunner runner = null) where TResult : class
-        {
-            return pipeline.Run<TResult>(args, runner).Result;
+            return pipeline.Run(args, runner).Result;
         }
 
         /// <summary>

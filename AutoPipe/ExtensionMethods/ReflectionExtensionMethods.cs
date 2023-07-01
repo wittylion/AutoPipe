@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace AutoPipe
@@ -7,16 +9,21 @@ namespace AutoPipe
     {
         public static string GetName(this MemberInfo member)
         {
-            if (member == null) return "Undefined";
+            return member.GetNames().First();
+        }
+
+        public static IEnumerable<string> GetNames(this MemberInfo member)
+        {
+            if (member == null) return new[] { "Undefined" };
 
             var nameAttribute = member.GetCustomAttribute<AkaAttribute>();
-            var alias = nameAttribute?.Aliases.FirstOrDefault();
-            if (alias != null)
+            var aliases = nameAttribute?.Aliases;
+            if (aliases != null && aliases.Any())
             {
-                return alias;
+                return aliases;
             }
 
-            return member.Name;
+            return new[] { member.Name };
         }
 
         public static int GetOrder(this MemberInfo member)
@@ -42,9 +49,40 @@ namespace AutoPipe
             return runAttribute != null;
         }
 
+        public static bool ShouldRunAll(this MemberInfo member)
+        {
+            var runAllAttribute = member?.GetCustomAttribute<RunAllAttribute>();
+            return runAllAttribute != null;
+        }
+
+        public static bool IsStrict(this MemberInfo member)
+        {
+            var strictAttribute = member?.GetCustomAttribute<StrictAttribute>();
+            return strictAttribute != null;
+        }
+
         public static string GetDescription(this MemberInfo member)
         {
             return member?.GetCustomAttribute<IsAttribute>()?.Description;
+        }
+
+        public static bool IsProcessor(this Type type)
+        {
+            return typeof(IProcessor).IsAssignableFrom(type);
+        }
+
+        public static bool IsPipeline(this Type type)
+        {
+            return typeof(IPipeline).IsAssignableFrom(type);
+        }
+
+        public static object GetDefault(this Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
         }
     }
 }

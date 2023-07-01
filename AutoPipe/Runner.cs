@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace AutoPipe
 {
+    public delegate void PipelineStarting(PipelineInfo pipelineInfo);
+    public delegate void PipelineEnded(PipelineInfo pipelineInfo);
+    public delegate void ProcessorStarting(ProcessorInfo pipelineInfo);
+    public delegate void ProcessorEnded(ProcessorInfo pipelineInfo);
+
     /// <summary>
     /// Runs instances of <see cref="IProcessor"/> and <see cref="IPipeline"/>.
     /// </summary>
@@ -16,33 +20,33 @@ namespace AutoPipe
         public static Runner Instance => instance ?? (instance = new Runner());
         private static Runner instance;
 
-        public Runner(EventHandler<PipelineInfo> onPipelineStart = null, EventHandler<ProcessorInfo> onProcessorStart = null, EventHandler<ProcessorInfo> onProcessorEnd = null, EventHandler <PipelineInfo> onPipelineEnd = null)
+        public Runner(PipelineStarting onPipelineStart = null, ProcessorStarting onProcessorStart = null, ProcessorEnded onProcessorEnd = null, PipelineEnded onPipelineEnd = null)
         {
-            if (onProcessorStart != null)
-            {
-                OnProcessorStart += onProcessorStart;
-            }
-
             if (onPipelineStart != null)
             {
                 OnPipelineStart += onPipelineStart;
             }
 
-            if (onPipelineEnd != null)
+            if (onProcessorStart != null)
             {
-                OnPipelineEnd += onPipelineEnd;
+                OnProcessorStart += onProcessorStart;
             }
 
             if (onProcessorEnd != null)
             {
                 OnProcessorEnd += onProcessorEnd;
             }
+
+            if (onPipelineEnd != null)
+            {
+                OnPipelineEnd += onPipelineEnd;
+            }
         }
 
-        public event EventHandler<ProcessorInfo> OnProcessorStart;
-        public event EventHandler<ProcessorInfo> OnProcessorEnd;
-        public event EventHandler<PipelineInfo> OnPipelineStart;
-        public event EventHandler<PipelineInfo> OnPipelineEnd;
+        public event PipelineStarting OnPipelineStart;
+        public event ProcessorStarting OnProcessorStart;
+        public event ProcessorEnded OnProcessorEnd;
+        public event PipelineEnded OnPipelineEnd;
 
         /// <summary>
         /// Runs pipeline's processors one by one in an order
@@ -69,6 +73,12 @@ namespace AutoPipe
                 return;
             }
 
+            if (bag.Ended)
+            {
+                bag.Debug($"The bag contained end property set to True. Skipping pipeline: [{pipeline.Name()}].");
+                return;
+            }
+
             PipelineInfo pipelineInfo = null;
             if (OnPipelineStart != null || OnPipelineEnd != null)
             {
@@ -77,7 +87,7 @@ namespace AutoPipe
 
             if (OnPipelineStart != null)
             {
-                OnPipelineStart(this, pipelineInfo);
+                OnPipelineStart(pipelineInfo);
             }
 
             var processors = pipeline.GetProcessors();
@@ -107,7 +117,7 @@ namespace AutoPipe
 
             if (OnPipelineEnd != null)
             {
-                OnPipelineEnd(this, pipelineInfo);
+                OnPipelineEnd(pipelineInfo);
             }
         }
 
@@ -131,39 +141,27 @@ namespace AutoPipe
         /// </returns>
         public virtual async Task Run(IEnumerable<IProcessor> processors, Bag bag)
         {
+            if (bag.Ended)
+            {
+                bag.Debug("The bag contained end property set to True. Skipping all processors.");
+                return;
+            }
+
             int index = 0;
             processors = processors ?? Enumerable.Empty<IProcessor>();
             foreach (var processor in processors)
             {
-                if (bag.Debug)
+                bag.Debug("Running processor #{0}.".FormatWith(index));
+                await Run(processor, bag).ConfigureAwait(false);
+
+                if (bag.Ended)
                 {
-                    var processorName = processor.Name();
-                    var description = processor.Description();
-
-                    if (description.HasValue())
-                    {
-                        bag.Debug("Running processor at index [{1}]: [{0}]. Processor is {2}".FormatWith(processorName, index, description.ToLower()));
-                    }
-                    else
-                    {
-                        bag.Debug("Running processor at index [{1}]: [{0}].".FormatWith(processorName, index));
-                    }
-
-                    await Run(processor, bag).ConfigureAwait(false);
-
-                    if (bag.Ended)
-                    {
-                        bag.Debug("Completed processor [{0}]. Ending signal has been sent.".FormatWith(processorName));
-                        break;
-                    }
-                    else
-                    {
-                        bag.Debug("Completed processor [{0}]. Continue to the next one.".FormatWith(processorName));
-                    }
+                    bag.Debug("Completed processor #{0}. Ending loop.".FormatWith(index));
+                    break;
                 }
                 else
                 {
-                    await Run(processor, bag).ConfigureAwait(false);
+                    bag.Debug("Completed processor #{0}. Continue loop.".FormatWith(index));
                 }
 
                 ++index;
@@ -190,6 +188,13 @@ namespace AutoPipe
         {
             if (!processor.HasValue())
             {
+                bag.Debug("Cannot run the processor because its value is null.");
+                return;
+            }
+
+            if (bag.Ended)
+            {
+                bag.Debug("The bag contained end property set to True. Skipping processor.");
                 return;
             }
 
@@ -201,14 +206,44 @@ namespace AutoPipe
 
             if (OnProcessorStart != null)
             {
-                OnProcessorStart(this, processorInfo);
+                bag.Debug("Running processor's start event.");
+                OnProcessorStart(processorInfo);
             }
 
-            await processor.Run(bag).ConfigureAwait(false);
+            if (bag.Debug)
+            {
+                var processorName = processor.Name();
+                var description = processor.Description();
+
+                if (description.HasValue())
+                {
+                    bag.Debug("Running processor [{0}] that is {2}".FormatWith(processorName, description.ToLower()));
+                }
+                else
+                {
+                    bag.Debug("Running processor [{0}].".FormatWith(processorName));
+                }
+
+                await processor.Run(bag).ConfigureAwait(false);
+
+                if (bag.Ended)
+                {
+                    bag.Debug("Processor [{0}] completed with end pipeline signal.".FormatWith(processorName));
+                }
+                else
+                {
+                    bag.Debug("Processor [{0}] completed.".FormatWith(processorName));
+                }
+            }
+            else
+            {
+                await processor.Run(bag).ConfigureAwait(false);
+            }
 
             if (OnProcessorEnd != null)
             {
-                OnProcessorEnd(this, processorInfo);
+                bag.Debug("Running processor end event.");
+                OnProcessorEnd(processorInfo);
             }
         }
     }

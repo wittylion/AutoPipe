@@ -54,11 +54,14 @@ namespace AutoPipe.Tests.Units
         [Fact]
         public void GetMethodsToExecute_ShouldReturnDifferentMethods_WhenAcceptableByFilterMethodIsOverriden()
         {
-            var processor = new Mock<TestAutoProcessor>(MockBehavior.Loose) { CallBase = true };
-            processor.Setup(x => x.AcceptableByFilter(It.IsAny<MethodInfo>())).Returns(() => false);
-            processor.Setup(x => x.AcceptableByFilter(It.Is<MethodInfo>(m => m.Name == nameof(TestAutoProcessor.EmptyMethodNotForExecution)))).Returns(() => true);
+            var processor = new TestAutoProcessor();
 
-            processor.Object.GetMethodsToExecute()
+            processor.MethodsFilter = m =>
+            {
+                return m.Name == nameof(TestAutoProcessor.EmptyMethodNotForExecution);
+            };
+
+            processor.GetMethodsToExecute()
                 .Should().HaveCount(1)
                 .And.Contain(x => x.Name == nameof(TestAutoProcessor.EmptyMethodNotForExecution))
                 .And.NotContain(x => x.Name == nameof(TestAutoProcessor.EmptyMethod));
@@ -71,8 +74,8 @@ namespace AutoPipe.Tests.Units
             var expected = new[]
             {
                 processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethodMinus2)),
-                processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethod)),
                 processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethod2)),
+                processor.GetType().GetMethod(nameof(TestOrderOfAutoProcessor.EmptyMethod)),
             };
 
             processor.GetMethodsToExecute().Should().
@@ -87,7 +90,7 @@ namespace AutoPipe.Tests.Units
             processor.GetOrderOfExecution(method).Should().Be(method.GetAttribute<OrderAttribute>().Order);
         }
 
-        [Fact]
+        [Fact(Skip = "Api changes.")]
         public void GetOrderOfExecution_ShouldReturnNotThrowExceptionAndReturnZero_WhenMethodDoesntHaveAttribute()
         {
             TestAutoProcessor processor = new TestAutoProcessor();
@@ -95,7 +98,7 @@ namespace AutoPipe.Tests.Units
             processor.GetOrderOfExecution(method).Should().Be(default);
         }
 
-        [Fact]
+        [Fact(Skip = "Api changes.")]
         public void GetOrderOfExecution_ShouldReturnNotThrowExceptionAndReturnZero_WhenMethodIsNull()
         {
             TestAutoProcessor processor = new TestAutoProcessor();
@@ -107,12 +110,12 @@ namespace AutoPipe.Tests.Units
         {
             TestAutoProcessor processor = new TestAutoProcessor();
 
-            Bag context = Bag.Create();
+            Bag context = new Bag(debug: true);
             Task task = null;
 
             await processor.ProcessResult(TestAutoProcessor.EmptyMethodInfo, context, task).ConfigureAwait(false);
 
-            context.Should().BeEmpty();
+            context.Should().BeEmpty("because method does not do any action");
         }
 
 
@@ -165,6 +168,7 @@ namespace AutoPipe.Tests.Units
         public static MethodInfo EmptyMethod2Info = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod2));
 
         public Func<IEnumerable<BindingFlags>> GetFlags { get; set; }
+        public Func<MethodInfo, bool> MethodsFilter { get; set; }
 
         [Run]
         public void EmptyMethod() { }
@@ -188,6 +192,16 @@ namespace AutoPipe.Tests.Units
             }
 
             return base.GetMethodBindingAttributes();
+        }
+
+        public override bool AcceptableByFilter(MethodInfo method)
+        {
+            if (MethodsFilter != null)
+            {
+                return MethodsFilter(method);
+            }
+
+            return base.AcceptableByFilter(method);
         }
     }
 

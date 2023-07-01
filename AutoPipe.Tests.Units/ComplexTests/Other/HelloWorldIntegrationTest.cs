@@ -61,7 +61,7 @@ namespace AutoPipe.Tests.Integrations
             "To get a proper result of this pipeline, please provide a valuable name.";
     }
 
-    public abstract class HelloWorldProcessors : SafeProcessor { }
+    public abstract class HelloWorldProcessors : Processor { }
 
     public class WhenTheNameIsNotProvidedEndWithErrorMessage : HelloWorldProcessors
     {

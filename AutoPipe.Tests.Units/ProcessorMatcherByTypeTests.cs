@@ -9,14 +9,14 @@ namespace AutoPipe.Tests.Units
         [Fact]
         public void Instance_ReturnsTrue_WhenTheSameTypeIsPassed()
         {
-            var processor = new TestProcessor(() => { });
-            new ProcessorMatcherByType(typeof(TestProcessor)).Matches(processor).Should().BeTrue();
+            var processor = Processor.Empty;
+            new ProcessorMatcherByType(typeof(ActionProcessor)).Matches(processor).Should().BeTrue();
         }
 
         [Fact]
         public void Instance_ReturnsFalse_WhenOtherTypeIsPassed()
         {
-            var processor = new Processor(o => PipelineTask.CompletedTask);
+            var processor = ActionProcessor.From(o => PipelineTask.CompletedTask);
             new ProcessorMatcherByType(typeof(TestProcessor)).Matches(processor).Should().BeFalse();
         }
     }

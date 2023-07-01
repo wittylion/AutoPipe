@@ -94,7 +94,7 @@ namespace AutoPipe
             if (action.HasNoValue())
                 return null;
 
-            return Processor.From(action);
+            return ActionProcessor.From(action);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace AutoPipe
             if (action.HasNoValue())
                 return null;
 
-            return Processor.From(context => action());
+            return ActionProcessor.From(context => action());
         }
     }
 }

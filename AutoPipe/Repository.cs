@@ -12,6 +12,7 @@ namespace AutoPipe
     {
         private static Lazy<Repository> _instance = new Lazy<Repository>(() => new Repository());
         public static Repository Instance => _instance.Value;
+        public static readonly BindingFlags RunningMethodsFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
         public IEnumerable<Type> Types { get; }
 
         public Repository()
@@ -68,7 +69,7 @@ namespace AutoPipe
 
         protected virtual bool FilterProcessors(Type type)
         {
-            return typeof(IProcessor).IsAssignableFrom(type);
+            return type.IsProcessor() || type.ShouldRun() || type.GetMembers(RunningMethodsFlags).Any(x => x.ShouldRun());
         }
 
         protected virtual IEnumerable<Type> GetProcessorTypes(Assembly assembly)

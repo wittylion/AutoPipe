@@ -6,6 +6,12 @@ using System.Runtime.Serialization;
 
 namespace AutoPipe
 {
+    public delegate void MessageAdded(Bag bag, PipelineMessage message);
+    public delegate void SpecificMessageAdded(Bag bag, string message);
+    public delegate void PropertyAdded(Bag bag, string name, object value);
+    public delegate void PropertyRemoved(Bag bag, string name, object value);
+    public delegate void PropertyChanged(Bag bag, string name, object oldValue, object newValue);
+
     /// <summary>
     /// Introduces possibility to keep context information
     /// about the flow of the pipeline. By default it has
@@ -147,7 +153,12 @@ namespace AutoPipe
             return context;
         }
 
-        public event EventHandler<PipelineMessage> OnMessage;
+        public event MessageAdded OnMessage;
+        public event SpecificMessageAdded OnError;
+
+        public event PropertyAdded OnPropertyAdded;
+        public event PropertyRemoved OnPropertyRemoved;
+        public event PropertyChanged OnPropertyChanged;
 
         /// <summary>
         /// Flag identifying whether pipeline must be ended/stopped,
@@ -171,6 +182,12 @@ namespace AutoPipe
             set => SetProperty(ThrowOnMissingProperty, value);
         }
 
+        public IServiceProvider ServiceProvider
+        {
+            get => Get(ServiceProviderProperty, (IServiceProvider) null);
+            set => SetProperty(ServiceProviderProperty, value);
+        }
+
         public void Dispose()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -181,7 +198,7 @@ namespace AutoPipe
                     disposable.Dispose();
                 }
 
-                PropertiesDictionary.Value.Clear();
+                this.Clear();
             }
 
             if (MessagesCollection.IsValueCreated)
@@ -190,6 +207,10 @@ namespace AutoPipe
             }
 
             OnMessage = null;
+            OnError = null;
+            OnPropertyAdded = null;
+            OnPropertyRemoved = null;
+            OnPropertyChanged = null;
         }
 
         /// <summary>
@@ -285,16 +306,18 @@ namespace AutoPipe
             if (!dictionary.ContainsKey(name))
             {
                 dictionary.Add(name, value);
+                OnPropertyAdded?.Invoke(this, name, value);
             }
             else
             {
                 if (!skipIfExists)
                 {
+                    var oldValue = dictionary[name];
                     dictionary[name] = value;
+                    OnPropertyChanged?.Invoke(this, name, oldValue, value);
                 }
             }
         }
-
 
         public virtual TValue Get<TValue>(string name)
         {
@@ -334,16 +357,11 @@ namespace AutoPipe
 
         public virtual TValue GetOrThrow<TValue>(string name)
         {
-            if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
+            return Get<TValue>(name, or: () =>
             {
-                if (maybeValue is TValue value)
-                {
-                    return value;
-                }
-            }
-
-            var summaryMessage = Summary();
-            throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context. Try to go through messages:\r\n{summaryMessage}");
+                var summaryMessage = Summary();
+                throw new ArgumentOutOfRangeException(nameof(name), $"The property \"{name}\" was not added to the Pipeline context. Try to go through messages:\r\n{summaryMessage}");
+            });
         }
 
         public virtual string String(string name)
@@ -381,6 +399,11 @@ namespace AutoPipe
             return Get(name, or: Enumerable.Empty<TElement>()).ToList();
         }
 
+        public virtual TElement[] Array<TElement>(string name)
+        {
+            return Get(name, or: new TElement[0]);
+        }
+
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
@@ -388,6 +411,11 @@ namespace AutoPipe
                 if (maybeValue is TValue value)
                 {
                     return value;
+                }
+
+                if (maybeValue is ComputedProperty computed && typeof(TValue).IsAssignableFrom(computed.Lambda.ReturnType))
+                {
+                    return computed.Invoke<TValue>(this);
                 }
             }
 
@@ -413,6 +441,11 @@ namespace AutoPipe
             return Contains<TProperty>(name);
         }
 
+        public virtual bool Has(string name)
+        {
+            return Contains(name);
+        }
+
         public virtual bool Has<TProperty>(string name, out TProperty property)
         {
             return Contains(name, out property);
@@ -436,9 +469,13 @@ namespace AutoPipe
         {
             return PropertiesDictionary.IsValueCreated &&
                 PropertiesDictionary.Value.TryGetValue(name, out object foundValue) &&
-                foundValue is TProperty;
+                (foundValue is TProperty || foundValue is ComputedProperty computed && typeof(TProperty).IsAssignableFrom(computed.Lambda.ReturnType));
         }
 
+        public virtual bool Contains(string name)
+        {
+            return ContainsKey(name);
+        }
 
         public virtual bool ContainsSingle(Type type, out object valueOfType)
         {
@@ -468,6 +505,12 @@ namespace AutoPipe
             if (foundValue is TProperty result)
             {
                 value = result;
+                return true;
+            }
+
+            if (foundValue is ComputedProperty computed && typeof(TProperty).IsAssignableFrom(computed.Lambda.ReturnType))
+            {
+                value = computed.Invoke<TProperty>(this);
                 return true;
             }
 
@@ -528,6 +571,11 @@ namespace AutoPipe
             return !Contains<TProperty>(name);
         }
 
+        public virtual bool DoesNotContain(string name)
+        {
+            return !Contains(name);
+        }
+
         /// <summary>
         /// Deletes a property with the
         /// specified <paramref name="name"/> from the context.
@@ -540,7 +588,10 @@ namespace AutoPipe
             if (PropertiesDictionary.IsValueCreated)
             {
                 var dictionary = PropertiesDictionary.Value;
-                return dictionary.Remove(name);
+                var value = dictionary[name];
+                var result = dictionary.Remove(name);
+                OnPropertyRemoved?.Invoke(this, name, value);
+                return result;
             }
 
             return false;
@@ -553,10 +604,18 @@ namespace AutoPipe
             if (PropertiesDictionary.IsValueCreated)
             {
                 var dictionary = PropertiesDictionary.Value;
-                if (dictionary.TryGetValue(name, out object prop) && prop is TElement result)
+                if (dictionary.TryGetValue(name, out object prop))
                 {
-                    element = result;
-                    return dictionary.Remove(name);
+                    if (prop is TElement result)
+                    {
+                        element = result;
+                    }
+                    else if (prop is ComputedProperty computed && typeof(TElement).IsAssignableFrom(computed.Lambda.ReturnType))
+                    {
+                        element = computed.Invoke<TElement>(this);
+                    }
+
+                    return DeleteProperty(name);
                 }
             }
 
@@ -878,6 +937,8 @@ namespace AutoPipe
         {
             MessagesCollection.Value.Add(message);
             OnMessage?.Invoke(this, message);
+
+            if (OnError != null && message.IsError) { OnError.Invoke(this, message.Message); }
         }
 
         /// <summary>
@@ -901,7 +962,7 @@ namespace AutoPipe
         /// <summary>
         /// Default parameterless constructor allowing you to create and use pipeline context.
         /// </summary>
-        public Bag(bool? debug = null, bool? throwOnMissing = null, EventHandler<PipelineMessage> onMessage = null)
+        public Bag(bool? debug = null, bool? throwOnMissing = null, IServiceProvider serviceProvider = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null)
         {
             if (debug != null)
             {
@@ -913,19 +974,44 @@ namespace AutoPipe
                 this.ThrowOnMissing = throwOnMissing.Value;
             }
 
+            if (serviceProvider != null)
+            {
+                this.ServiceProvider = serviceProvider;
+            }
+
             if (onMessage != null)
             {
                 this.OnMessage += onMessage;
             }
+
+            if (onError != null)
+            {
+                this.OnError += onError;
+            }
+
+            if (onPropertyAdded != null)
+            {
+                this.OnPropertyAdded += onPropertyAdded;
+            }
+
+            if (onPropertyChanged != null)
+            {
+                this.OnPropertyChanged += onPropertyChanged;
+            }
+
+            if (onPropertyRemoved != null)
+            {
+                this.OnPropertyRemoved += onPropertyRemoved;
+            }
         }
 
-        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, EventHandler<PipelineMessage> onMessage = null) : this(debug: debug, throwOnMissing: throwOnMissing, onMessage: onMessage)
+        public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, IServiceProvider serviceProvider = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, serviceProvider: serviceProvider, onMessage: onMessage, onError: onError, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
         {
             if (propertyContainer.HasValue())
             {
                 foreach (var prop in propertyContainer.GetType().GetProperties())
                 {
-                    this.PropertiesDictionary.Value.Add(prop.Name, prop.GetValue(propertyContainer, null));
+                    this.SetProperty(prop.Name, prop.GetValue(propertyContainer, null));
                 }
             }
         }
@@ -976,6 +1062,7 @@ namespace AutoPipe
         public static readonly string DebugProperty = "debug";
         public static readonly string ThrowOnMissingProperty = "throwonmissing";
         public static readonly string ResultProperty = "result";
+        public static readonly string ServiceProviderProperty = "serviceprovider";
 
         /// <summary>
         /// Returns a value of the result property.
@@ -1092,7 +1179,10 @@ namespace AutoPipe
         {
             if (PropertiesDictionary.IsValueCreated)
             {
-                PropertiesDictionary.Value.Clear();
+                foreach (var item in PropertiesDictionary.Value)
+                {
+                    DeleteProperty(item.Key);
+                }
             }
         }
 

@@ -9,7 +9,7 @@ AutoPipe is a library developed for purpose of composing logical blocks and acti
 
 Using NuGet package manager source https://api.nuget.org/v3/index.json :
 
-![NuGet Installation](https://raw.githubusercontent.com/wittylion/Pipelines.Net/2.0/docs/README/nuget.png)
+![NuGet Installation](https://raw.githubusercontent.com/wittylion/AutoPipe/2.0/docs/README/nuget.png)
 
 or powershell console:
 
@@ -21,11 +21,11 @@ PM> Install-Package AutoPipe
 
 Create an AutoProcessor and start writing your code:
 
-![Creating an Autoprocessor](https://raw.githubusercontent.com/wittylion/Pipelines.Net/2.0/docs/images/first-step.gif)
+![Creating an Autoprocessor](https://raw.githubusercontent.com/wittylion/AutoPipe/2.0/docs/images/first-step.gif)
 
 The library knows what you want, it reads the names of the methods and parameters:
 
-![Get message](https://raw.githubusercontent.com/wittylion/Pipelines.Net/2.0/docs/images/get-message.gif)
+![Get message](https://raw.githubusercontent.com/wittylion/AutoPipe/2.0/docs/images/get-message.gif)
 
 ## What is this library good for?
 
