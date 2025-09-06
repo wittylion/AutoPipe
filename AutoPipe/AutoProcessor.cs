@@ -648,7 +648,7 @@ namespace AutoPipe
         /// <summary>
         /// Tries to define values to pass them to the method.
         /// Uses the reflection to get the names of the parameters
-        /// and then searches them in the pipeline conetext.
+        /// and then searches them in the pipeline context.
         /// In case parameter method has a type derived from <see cref="PipelineContext"/>
         /// passes the <paramref name="context"/>.
         /// </summary>

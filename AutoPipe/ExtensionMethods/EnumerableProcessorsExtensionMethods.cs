@@ -54,7 +54,7 @@ namespace AutoPipe
         /// and returned one more time.
         /// </param>
         /// <returns>
-        /// Enumerable object retutning instances of <see cref="IProcessor"/>
+        /// Enumerable object returning instances of <see cref="IProcessor"/>
         /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
         /// </returns>
         public static IEnumerable<IProcessor> RepeatProcessorsWhile(

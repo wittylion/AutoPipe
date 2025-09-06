@@ -35,7 +35,7 @@ namespace AutoPipe
 
         /// <summary>
         /// Represents a filter for all possible messages,
-        /// including: Informations, Warnings and Errors.
+        /// including: Information, Warnings and Errors.
         /// </summary>
         All = int.MaxValue,
     }

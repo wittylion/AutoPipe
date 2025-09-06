@@ -140,7 +140,7 @@ namespace AutoPipe
         {
             this.AddMessage(message, MessageType.Error);
         }
-        
+
         /// <summary>
         /// Method returns messages of the context according to the passed
         /// parameter <paramref name="filter"/>. This method is more flexible
@@ -159,9 +159,9 @@ namespace AutoPipe
         /// context.AddWarning("Could not recognize the id of the site, continued with the default");
         /// context.AddError("Request to the database failed, review the connection string");
         ///
-        /// context.GetMessages(MessageFilter.Informations);
-        /// context.GetMessages(MessageFilter.Informations | MessageFilter.Errors);
-        /// context.GetMessages(MessageFilter.Errors| MessageFilter.Warnings);
+        /// context.GetMessages(MessageFilter.Info);
+        /// context.GetMessages(MessageFilter.Info | MessageFilter.Error);
+        /// context.GetMessages(MessageFilter.Error | MessageFilter.Warning);
         /// context.GetMessages(MessageFilter.All);
         /// 
         /// </example>
@@ -182,7 +182,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations and warnings.
+        /// including: information and warnings.
         /// </summary>
         /// <returns>
         /// Information and warning messages of the context,

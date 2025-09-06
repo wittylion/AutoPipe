@@ -162,7 +162,7 @@ namespace AutoPipe
 
         /// <summary>
         /// Flag identifying whether pipeline must be ended/stopped,
-        /// it can be used as a cancelation identifier for the execution flow.
+        /// it can be used as a cancellation identifier for the execution flow.
         /// </summary>
         public bool Ended
         {
@@ -282,7 +282,7 @@ namespace AutoPipe
         /// has been added previously (alias to <see cref="UpdateOrAddProperty{TValue}"/>).
         /// </summary>
         /// <remarks>
-        /// Parameter name will be used in case-insensetive way.
+        /// Parameter name will be used in case-insensitive way.
         /// It means that if you previously added property name "MESSAGE"
         /// it will be updated if you pass to this method property name "message".
         /// </remarks>
@@ -290,7 +290,7 @@ namespace AutoPipe
         /// The type of the added value.
         /// </typeparam>
         /// <param name="name">
-        /// Key to identify the property (case-insensetive).
+        /// Key to identify the property (case-insensitive).
         /// </param>
         /// <param name="value">
         /// The value to be kept under the <paramref name="name"/> of the property.
@@ -640,9 +640,9 @@ namespace AutoPipe
         /// context.AddWarning("Could not recognize the id of the site, continued with the default");
         /// context.AddError("Request to the database failed, review the connection string");
         ///
-        /// context.GetMessages(MessageFilter.Informations);
-        /// context.GetMessages(MessageFilter.Informations | MessageFilter.Errors);
-        /// context.GetMessages(MessageFilter.Errors| MessageFilter.Warnings);
+        /// context.GetMessages(MessageFilter.Info);
+        /// context.GetMessages(MessageFilter.Info | MessageFilter.Error);
+        /// context.GetMessages(MessageFilter.Error| MessageFilter.Warning);
         /// context.GetMessages(MessageFilter.All);
         /// 
         /// </example>
@@ -666,7 +666,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <returns>
         /// All messages of the context, that have been added
@@ -680,7 +680,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <returns>
         /// All text messages of the context, that have been added
@@ -696,7 +696,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns filtered text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="filter">
         /// A filter for the message collection.
@@ -715,7 +715,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns filtered text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="filter">
         /// A filter for the message collection.
@@ -745,7 +745,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns filtered text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="filter">
         /// A filter for the message collection.
@@ -774,7 +774,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="format">
         /// Function that accepts <see cref="PipelineMessage.Message"/>
@@ -801,7 +801,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="format">
         /// Function that accepts <see cref="PipelineMessage.Message"/>
@@ -847,7 +847,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations and warnings.
+        /// including: information and warnings.
         /// </summary>
         /// <returns>
         /// Information and warning messages of the context,
