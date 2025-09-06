@@ -4,7 +4,7 @@ namespace AutoPipe.Modifications
 {
     /// <summary>
     /// Matcher that contains a method <see cref="Matches(IProcessor)"/>
-    /// which compares a type passed in the constructor to a type of an
+    /// which compares a type passed in the constructor to a type of
     /// instance passed to the method.
     /// </summary>
     public class ProcessorMatcherByType : IProcessorMatcher
@@ -35,7 +35,7 @@ namespace AutoPipe.Modifications
         /// A processor which type has to be compared to predefined <see cref="Type"/>.
         /// </param>
         /// <returns>
-        /// Value indicating whether a type of a passed 
+        /// Value indicating whether a type of passed 
         /// processor is equal by reference to a predefined <see cref="Type"/>.
         /// </returns>
         public bool Matches(IProcessor processor)

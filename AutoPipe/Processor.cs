@@ -27,7 +27,7 @@ namespace AutoPipe
         /// Arguments to be processed.
         /// </param>
         /// <returns>
-        /// Returns a task class which is responsible of asynchronous code execution.
+        /// Returns a task class which is responsible for asynchronous code execution.
         /// </returns>
         public abstract Task SafeRun(Bag bag);
 
@@ -57,7 +57,7 @@ namespace AutoPipe
         /// Arguments to be processed.
         /// </param>
         /// <returns>
-        /// Returns a task class which is responsible of asynchronous code execution.
+        /// Returns a task class which is responsible for asynchronous code execution.
         /// </returns>
         public Task Run(Bag bag)
         {
@@ -76,7 +76,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Additionally to the base class method
+        /// Additionally, to the base class method
         /// <see cref="SafeTypeProcessor{TArgs}.SafeCondition"/>,
         /// checks <see cref="PipelineContext.Ended"/> status.
         /// In case it true, the processor should not be executed.

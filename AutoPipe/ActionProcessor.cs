@@ -67,7 +67,7 @@ namespace AutoPipe
         /// in case processor was created without an <see cref="Action"/>.
         /// </summary>
         /// <param name="bag">
-        /// A bag of properties, messages and bunch of handy methods.
+        /// A bag of properties, messages and a bunch of handy methods.
         /// </param>
         /// <returns>
         /// Returns the <see cref="Task"/> that identifies execution result.

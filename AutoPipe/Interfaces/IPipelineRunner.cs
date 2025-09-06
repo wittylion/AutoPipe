@@ -10,9 +10,6 @@ namespace AutoPipe
         /// <summary>
         /// Runs processors that are returned by <paramref name="pipeline"/>.
         /// </summary>
-        /// <typeparam name="TArgs">
-        /// Type of the arguments that are supposed to be used in each processors of the pipeline.
-        /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline which processors should be executed.
         /// </param>

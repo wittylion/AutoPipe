@@ -3,7 +3,7 @@
 namespace AutoPipe.Modifications
 {
     /// <summary>
-    /// A static helper that helps creating instances of <see cref="IProcessorMatcher"/>.
+    /// A static helper that helps to create instances of <see cref="IProcessorMatcher"/>.
     /// </summary>
     public static class ProcessorMatcher
     {

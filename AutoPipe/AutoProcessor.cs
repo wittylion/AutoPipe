@@ -735,7 +735,7 @@ namespace AutoPipe
 
         /// <summary>
         /// Does a predefined check to validate execution
-        /// possibility of the of the <paramref name="method"/>.
+        /// possibility at the <paramref name="method"/>.
         /// Uses <see cref="RequiredAttribute"/> to do some
         /// parameter validation checks.
         /// </summary>

@@ -130,7 +130,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Method that allows add a processor into <paramref name="enumerable"/> object.
+        /// Method that allows to add a processor into <paramref name="enumerable"/> object.
         /// </summary>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> where <paramref name="nextProcessor"/>
@@ -148,7 +148,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Method that allows concatenate processors into <paramref name="enumerable"/> object.
+        /// Method that allows to concatenate processors into <paramref name="enumerable"/> object.
         /// </summary>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> where <paramref name="nextProcessors"/>

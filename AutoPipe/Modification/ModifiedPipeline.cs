@@ -30,7 +30,7 @@ namespace AutoPipe.Modifications
 
         /// <summary>
         /// Pipeline, which processors will be passed to configurator to decide which
-        /// processors will left and which will be substituted or expanded.
+        /// processors will stay and which will be substituted or expanded.
         /// </summary>
         public IPipeline OriginalPipeline { get; }
 

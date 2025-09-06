@@ -283,7 +283,7 @@ namespace AutoPipe
         /// Text that describes a cause of the end.
         /// </param>
         /// <param name="type">
-        /// A type of the message, it will help you to find message
+        /// A type of the message, it will help you find message
         /// by using <see cref="GetMessages"/> method.
         /// </param>
         public static TBag End<TBag>(this TBag bag, string message, MessageType type) where TBag : Bag
@@ -538,7 +538,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Resets the result to null and adds a error message
+        /// Resets the result to null and adds an error message
         /// describing the reason of the reset result.
         /// </summary>
         /// <param name="message">

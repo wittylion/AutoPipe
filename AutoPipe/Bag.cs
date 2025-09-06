@@ -14,7 +14,7 @@ namespace AutoPipe
 
     /// <summary>
     /// Introduces possibility to keep context information
-    /// about the flow of the pipeline. By default it has
+    /// about the flow of the pipeline. By default, it has
     /// messages collection which can be accessed by using
     /// <see cref="MessageObjects"/> method and a flag
     /// <see cref="Ended"/> identifying whether pipeline was ended.
@@ -55,7 +55,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with properties composed from
+        /// Creates a new <see cref="PipelineContext"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
@@ -63,7 +63,7 @@ namespace AutoPipe
         /// Dictionary which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
-        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// New pipeline context with properties from a dictionary passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
         public static Bag Create<TValue>(IDictionary<string, TValue> propertyContainer)
         {
@@ -87,7 +87,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="TContext"/> with properties composed from
+        /// Creates a new <see cref="TContext"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TContext">
@@ -99,7 +99,7 @@ namespace AutoPipe
         /// Dictionary which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
-        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// New pipeline context with properties from a dictionary passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
         public static TContext Create<TContext, TValue>(IDictionary<string, TValue> propertyContainer) where TContext : Bag, new()
         {
@@ -130,7 +130,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with properties composed from
+        /// Creates a new <see cref="PipelineContext"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
@@ -138,7 +138,7 @@ namespace AutoPipe
         /// Dictionary which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
-        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// New pipeline context with properties from a dictionary passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
         public static Bag CreateFromDictionary<TValue>(IDictionary<string, TValue> propertyContainer)
         {
@@ -332,23 +332,23 @@ namespace AutoPipe
         /// <summary>
         /// Retrieves the value that is defined under the property
         /// of parameter <paramref name="name"/> or if was not added
-        /// or the type of the contained property is different than
+        /// or the type of the contained property is different from
         /// <see cref="TValue"/>, the <paramref name="or"/> will be retrieved.
         /// </summary>
         /// <typeparam name="TValue">
         /// The type of the retrieved value.
         /// </typeparam>
         /// <param name="name">
-        /// Key to identify the property (case-insensetive).
+        /// Key to identify the property (case-insensitive).
         /// </param>
         /// <param name="or">
         /// Default value to be retrieved if the value of the property
-        /// was not added or the type of the value is different than <see cref="TValue"/>.
+        /// was not added or the type of the value is different from <see cref="TValue"/>.
         /// </param>
         /// <returns>
         /// The value kept under the <paramref name="name"/> of the property
         /// or <paramref name="or"/> if property was not added or the type
-        /// of the value is different than <see cref="TValue"/>.
+        /// of the value is different from <see cref="TValue"/>.
         /// </returns>
         public virtual TValue Get<TValue>(string name, TValue or)
         {
