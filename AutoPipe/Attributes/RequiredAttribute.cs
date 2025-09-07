@@ -12,7 +12,7 @@ namespace AutoPipe
     {
         /// <summary>
         /// If true pipeline will end execution if
-        /// <see cref="PipelineContext"/> does not contain 
+        /// <see cref="Bag"/> does not contain 
         /// a property called as <see cref="Name"/> or parameter name.
         /// Will add an <see cref="ErrorMessage"/> as the end reason.
         /// </summary>
@@ -20,7 +20,7 @@ namespace AutoPipe
 
         /// <summary>
         /// In case <see cref="EndIfNotExist"/> true and property is not found,
-        /// this message will be added to the messages collection of the <see cref="PipelineContext"/>.
+        /// this message will be added to the messages collection of the <see cref="Bag"/>.
         /// </summary>
         public string Message { get; set; }
 

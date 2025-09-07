@@ -6,7 +6,7 @@ namespace AutoPipe
 {
     /// <summary>
     /// Implementation of SafeTypeProcessor with default type of the context
-    /// which is intended to handle <see cref="PipelineContext"/>
+    /// which is intended to handle <see cref="Bag"/>
     /// type of arguments.
     /// </summary>
     public abstract class Processor : IProcessor
@@ -78,7 +78,7 @@ namespace AutoPipe
         /// <summary>
         /// Additionally, to the base class method
         /// <see cref="SafeTypeProcessor{TArgs}.SafeCondition"/>,
-        /// checks <see cref="PipelineContext.Ended"/> status.
+        /// checks <see cref="Bag.Ended"/> status.
         /// In case it true, the processor should not be executed.
         /// </summary>
         /// <param name="bag">
@@ -86,7 +86,7 @@ namespace AutoPipe
         /// </param>
         /// <returns>
         /// Returns <c>true</c> in case base condition is true and
-        /// <see cref="PipelineContext.Ended"/> property is false,
+        /// <see cref="Bag.Ended"/> property is false,
         /// otherwise returns <c>false</c> which means that the processor
         /// should not be executed.
         /// </returns>

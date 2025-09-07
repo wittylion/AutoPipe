@@ -16,7 +16,7 @@ namespace AutoPipe
     /// Introduces possibility to keep context information
     /// about the flow of the pipeline. By default, it has
     /// messages collection which can be accessed by using
-    /// <see cref="MessageObjects"/> method and a flag
+    /// <see cref="MessageObjects()"/> method and a flag
     /// <see cref="Ended"/> identifying whether pipeline was ended.
     /// </summary>
     [Serializable]
@@ -39,10 +39,9 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with
+        /// Creates a new <see cref="Bag"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
-        /// <typeparam name="TProperties">The type of property container.</typeparam>
         /// <param name="propertyContainer">
         /// Object which properties will be used in pipeline context when it will be created.
         /// </param>
@@ -55,7 +54,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with properties composed of
+        /// Creates a new <see cref="Bag"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
@@ -76,7 +75,7 @@ namespace AutoPipe
         /// </summary>
         /// <typeparam name="TContext">
         /// The type of the pipeline context that is derived from
-        /// <see cref="PipelineContext"/> and has a parameter-less constructor.
+        /// <see cref="Bag"/> and has a parameter-less constructor.
         /// </typeparam>
         /// <returns>
         /// A new pipeline context.
@@ -92,7 +91,7 @@ namespace AutoPipe
         /// </summary>
         /// <typeparam name="TContext">
         /// The type of the pipeline context that is derived from
-        /// <see cref="PipelineContext"/> and has a parameter-less constructor.
+        /// <see cref="Bag"/> and has a parameter-less constructor.
         /// </typeparam>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
         /// <param name="propertyContainer">
@@ -115,7 +114,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with
+        /// Creates a new <see cref="Bag"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <param name="propertyContainer">
@@ -130,7 +129,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with properties composed of
+        /// Creates a new <see cref="Bag"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
@@ -223,7 +222,7 @@ namespace AutoPipe
         /// <summary>
         /// Collection of the properties that contains all the collected
         /// or obtained values during pipeline execution or before
-        /// execution is started <see cref="PipelineContext(object)"/>.
+        /// execution is started <see cref="Bag"/>.
         /// </summary>
         protected Lazy<Dictionary<string, object>> PropertiesDictionary { get; } = new Lazy<Dictionary<string, object>>(() =>
             new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
@@ -279,7 +278,7 @@ namespace AutoPipe
         /// <summary>
         /// Adds the property to the collection <see cref="PropertiesDictionary"/>
         /// or updates the value if key of parameter <paramref name="name"/>
-        /// has been added previously (alias to <see cref="UpdateOrAddProperty{TValue}"/>).
+        /// has been added previously.
         /// </summary>
         /// <remarks>
         /// Parameter name will be used in case-insensitive way.
@@ -401,7 +400,7 @@ namespace AutoPipe
 
         public virtual TElement[] Array<TElement>(string name)
         {
-            return Get(name, or: new TElement[0]);
+            return Get(name, or: System.Array.Empty<TElement>());
         }
 
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
@@ -491,7 +490,7 @@ namespace AutoPipe
 
         public virtual bool Contains<TProperty>(string name, out TProperty value)
         {
-            value = default(TProperty);
+            value = default;
             if (!PropertiesDictionary.IsValueCreated)
             {
                 return false;
@@ -660,7 +659,7 @@ namespace AutoPipe
                 }
                 return MessagesCollection.Value.Where(message => ((int)message.MessageType & (int)filter) > 0).ToArray();
             }
-            return new PipelineMessage[0];
+            return System.Array.Empty<PipelineMessage>();
         }
 
         /// <summary>
@@ -1193,8 +1192,6 @@ namespace AutoPipe
 
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            if (array == null) return;
-
             if (PropertiesDictionary.IsValueCreated)
             {
                 var props = PropertiesDictionary.Value.Skip(arrayIndex);

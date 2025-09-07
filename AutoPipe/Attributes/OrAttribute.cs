@@ -8,7 +8,7 @@ namespace AutoPipe
         public static readonly string DefaultValueShouldNotBeNull = "The default value of the parameter cannot be null.";
 
         /// <summary>
-        /// If <see cref="PipelineContext"/> does not contain a property
+        /// If <see cref="Bag"/> does not contain a property
         /// called as <see cref="Name"/> or parameter name will use this
         /// value to pass into the method.
         /// </summary>

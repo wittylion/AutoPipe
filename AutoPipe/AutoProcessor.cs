@@ -61,7 +61,7 @@ namespace AutoPipe
         /// Finds methods to be executed in scope of this processor.
         /// </summary>
         /// <returns>
-        /// Found methods that will be executed in <see cref="SafeExecute(PipelineContext)"/>.
+        /// Found methods that will be executed in <see cref="SafeExecute(Bag)"/>.
         /// </returns>
         public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
@@ -266,7 +266,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Executes a method with all the power of <see cref="PipelineContext"/>.
+        /// Executes a method with all the power of <see cref="Bag"/>.
         /// Checks methods parameters and tries to find names of the parameters in the context.
         /// Handles the returned value to put it in the context.
         /// </summary>
@@ -483,10 +483,10 @@ namespace AutoPipe
 
         /// <summary>
         /// A quick reference to be returned in custom methods
-        /// to execute <see cref="PipelineContext.AddInformation(string)"/> method.
+        /// to execute <see cref="Bag.AddInformation(string)"/> method.
         /// </summary>
         /// <param name="message">
-        /// A message to be passed to <see cref="PipelineContext.AddInformation(string)"/> method.
+        /// A message to be passed to <see cref="Bag.AddInformation(string)"/> method.
         /// </param>
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
@@ -503,10 +503,10 @@ namespace AutoPipe
 
         /// <summary>
         /// A quick reference to be returned in custom methods
-        /// to execute <see cref="PipelineContext.AddErrorMessage(string)"/> method.
+        /// to execute <see cref="Bag.AddErrorMessage(string)"/> method.
         /// </summary>
         /// <param name="message">
-        /// A message to be passed to <see cref="PipelineContext.AddErrorMessage(string)"/> method.
+        /// A message to be passed to <see cref="Bag.AddErrorMessage(string)"/> method.
         /// </param>
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
@@ -518,10 +518,10 @@ namespace AutoPipe
 
         /// <summary>
         /// A quick reference to be returned in custom methods
-        /// to execute <see cref="PipelineContext.AddMessageObjects(IEnumerable{PipelineMessage})"/> method.
+        /// to execute <see cref="Bag.AddMessageObjects(IEnumerable{PipelineMessage})"/> method.
         /// </summary>
         /// <param name="message">
-        /// A message to be passed to <see cref="PipelineContext.AddMessageObjects(IEnumerable{PipelineMessage})"/> method.
+        /// A message to be passed to <see cref="Bag.AddMessageObjects(IEnumerable{PipelineMessage})"/> method.
         /// </param>
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
@@ -533,10 +533,10 @@ namespace AutoPipe
 
         /// <summary>
         /// A quick reference to be returned in custom methods
-        /// to execute <see cref="PipelineContext.EndPipelineWithErrorMessage(string)"/> method.
+        /// to execute <see cref="Bag.EndPipelineWithErrorMessage(string)"/> method.
         /// </summary>
         /// <param name="message">
-        /// A message to be passed to <see cref="PipelineContext.EndPipelineWithErrorMessage(string)"/> method.
+        /// A message to be passed to <see cref="Bag.EndPipelineWithErrorMessage(string)"/> method.
         /// </param>
         /// <returns>
         /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
@@ -649,7 +649,7 @@ namespace AutoPipe
         /// Tries to define values to pass them to the method.
         /// Uses the reflection to get the names of the parameters
         /// and then searches them in the pipeline context.
-        /// In case parameter method has a type derived from <see cref="PipelineContext"/>
+        /// In case parameter method has a type derived from <see cref="Bag"/>
         /// passes the <paramref name="context"/>.
         /// </summary>
         /// <param name="method">
@@ -893,7 +893,7 @@ namespace AutoPipe
 
         /// <summary>
         /// Executes all methods found with <see cref="GetMethodsToExecute"/> 
-        /// using all the power of <see cref="PipelineContext"/>.
+        /// using all the power of <see cref="Bag"/>.
         /// </summary>
         /// <param name="context">
         /// A context which properties are searched for methods parameters and

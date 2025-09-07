@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AutoPipe
 {
     /// <summary>
-    /// Extensions for the <see cref="PipelineContext"/>.
+    /// Extensions for the <see cref="Bag"/>.
     /// </summary>
     public static class BagExtensionMethods
     {
