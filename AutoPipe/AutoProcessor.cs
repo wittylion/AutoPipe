@@ -10,38 +10,55 @@ using System.Threading.Tasks;
 namespace AutoPipe
 {
     /// <summary>
-    /// An abstract processor that can be derived to implement
-    /// processor with several methods to execute.
-    /// The methods that are marked with <see cref="RunAttribute"/>
-    /// in the derived type will be executed based on 
-    /// <see cref="OrderAttribute"/>.
+    /// Provides a base processor that automatically discovers and executes methods marked with <see cref="RunAttribute"/>.
+    /// Methods are executed in the order specified by <see cref="OrderAttribute"/> or by dependency analysis.
     /// </summary>
     public class AutoProcessor : IProcessor
     {
+        /// <summary>
+        /// Message format for skipping a method due to missing property.
+        /// </summary>
         public static readonly string SkipMethodOnMissingPropertyMessage = "Property [{0}] is not found. Skipping method [{1}] in [{2}].";
-        public static readonly string SkipMethodOnWrongTypeMessage = "Property [{0}] is not assignable to type [{1}], its value is [{2}]. Skipping method [{3}] in [{4}].";
-        public static readonly string ProcessorMustNotBeNull = "Processor passed to the constructor is null. Please provide an object.";
+        /// <summary>
+        /// Message indicating that strict mode requires all parameters to be present for method execution.
+        /// </summary>
         public static readonly string MethodClaimsAllParameters = "Run attribute of the current execution method contains attribute [Strict], which requires all parameters to be declared before execution.";
+        /// <summary>
+        /// Message indicating that strict mode requires all parameters to be present for class execution.
+        /// </summary>
         public static readonly string ClassClaimsAllParameters = "Run attribute of your processor class contains attribute [Strict], which requires all parameters to be declared before execution.";
 
         /// <summary>
-        /// Collection of methods that will be executed one by one.
+        /// Gets or sets the collection of methods to be executed by the processor.
         /// </summary>
         public IEnumerable<MethodInfo> Methods { get; set; }
+        /// <summary>
+        /// Gets the underlying processor instance.
+        /// </summary>
         public object Processor { get; }
 
+        /// <summary>
+        /// Creates an <see cref="AutoProcessor"/> from an existing processor class instance.
+        /// </summary>
+        /// <param name="processorClass">The processor class instance.</param>
+        /// <returns>An <see cref="IProcessor"/> wrapping the given instance.</returns>
         public static IProcessor From(object processorClass)
         {
             return new AutoProcessor(processorClass);
         }
 
+        /// <summary>
+        /// Creates an <see cref="AutoProcessor"/> from a new instance of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The processor class type.</typeparam>
+        /// <returns>An <see cref="IProcessor"/> wrapping the new instance.</returns>
         public static IProcessor From<T>() where T : class, new()
         {
             return new AutoProcessor(new T());
         }
 
         /// <summary>
-        /// A simple parameterless constructor.
+        /// Initializes a new instance of <see cref="AutoProcessor"/> with itself as the processor.
         /// </summary>
         protected AutoProcessor()
         {
@@ -50,19 +67,21 @@ namespace AutoPipe
             IsStrict = Processor.GetType().IsStrict();
         }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="AutoProcessor"/> with the specified processor object.
+        /// </summary>
+        /// <param name="processor">The processor object to wrap.</param>
         public AutoProcessor(object processor)
         {
             Processor = processor;
             Methods = GetMethodsToExecute();
-            IsStrict = Processor.GetType().IsStrict();
+            IsStrict = Processor?.GetType().IsStrict() ?? false;
         }
 
         /// <summary>
-        /// Finds methods to be executed in scope of this processor.
+        /// Discovers and returns the methods to be executed by this processor, based on attributes and filters.
         /// </summary>
-        /// <returns>
-        /// Found methods that will be executed in <see cref="SafeExecute(Bag)"/>.
-        /// </returns>
+        /// <returns>A sequence of <see cref="MethodInfo"/> objects to execute.</returns>
         public virtual IEnumerable<MethodInfo> GetMethodsToExecute()
         {
             if (Processor.HasNoValue() || Processor.GetType() == typeof(AutoProcessor))
@@ -71,7 +90,7 @@ namespace AutoPipe
             }
 
             var type = Processor.GetType();
-            var allAttributes = GetMethodBindingAttributes();
+            var allAttributes = GetMethodBindingAttributes().ToArray();
 
             if (allAttributes.HasNoValue())
             {
@@ -86,6 +105,11 @@ namespace AutoPipe
             return orderedMethods;
         }
 
+        /// <summary>
+        /// Orders the discovered methods according to their dependencies and <see cref="OrderAttribute"/> values.
+        /// </summary>
+        /// <param name="methods">The methods to order.</param>
+        /// <returns>An ordered sequence of <see cref="MethodInfo"/>.</returns>
         protected virtual IEnumerable<MethodInfo> OrderMethods(IEnumerable<MethodInfo> methods)
         {
             var methodsDictionary = new Dictionary<MethodInfo, int?>();
@@ -148,6 +172,15 @@ namespace AutoPipe
             return orderedMethods;
         }
 
+        /// <summary>
+        /// Calculates the order of a method based on its attributes and dependencies.
+        /// </summary>
+        /// <param name="method">The method to order.</param>
+        /// <param name="orderedMethods">The current ordered list.</param>
+        /// <param name="namesDictionary">Dictionary of method names to MethodInfo.</param>
+        /// <param name="visitedMethods">Set of visited methods for cycle detection.</param>
+        /// <param name="paramsDictionary">Dictionary of parameter names to generating methods.</param>
+        /// <param name="methodParamsDictionary">Dictionary of methods to their parameter names.</param>
         protected virtual void CalculateOrderBasedOnAttributes(MethodInfo method, List<MethodInfo> orderedMethods, Dictionary<string, MethodInfo> namesDictionary, HashSet<MethodInfo> visitedMethods, Dictionary<string, List<MethodInfo>> paramsDictionary, Dictionary<MethodInfo, List<string>> methodParamsDictionary)
         {
             if (orderedMethods.Contains(method)) return;
@@ -209,6 +242,9 @@ namespace AutoPipe
         }
 
         private bool? runAll;
+        /// <summary>
+        /// Gets a value indicating whether all methods should be run regardless of attributes.
+        /// </summary>
         protected virtual bool RunAll
         {
             get
@@ -217,43 +253,35 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether strict parameter validation is enabled for this processor.
+        /// </summary>
         protected virtual bool IsStrict { get; }
 
         /// <summary>
-        /// Returns attributes of methods to be taken into account during methods
-        /// search in <see cref="GetMethodsToExecute"/>
+        /// Returns the binding flags used to discover executable methods in <see cref="GetMethodsToExecute"/>.
         /// </summary>
-        /// <returns>
-        /// Attributes of the methods to be found during methods search.
-        /// </returns>
+        /// <returns>A sequence of <see cref="BindingFlags"/> for method discovery.</returns>
         protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
             yield return Repository.RunningMethodsFlags;
         }
 
         /// <summary>
-        /// A condition that checks for <see cref="RunAttribute"/> presence.
+        /// Determines if a method is eligible for execution based on attributes and filters.
         /// </summary>
-        /// <param name="method">
-        /// A method to be checked for acceptance criteria.
-        /// </param>
-        /// <returns>
-        /// Value indicating whether method should be added to <see cref="Methods"/> collection.
-        /// </returns>
+        /// <param name="method">The method to check.</param>
+        /// <returns><c>true</c> if the method should be executed; otherwise, <c>false</c>.</returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
             return (this.RunAll || method.ShouldRun()) && !method.ShouldSkip();
         }
 
         /// <summary>
-        /// Gets an order of method execution among the <see cref="Methods"/> collection.
+        /// Gets the explicit order value for a method, if specified by <see cref="OrderAttribute"/>.
         /// </summary>
-        /// <param name="method">
-        /// A method which order should be determined.
-        /// </param>
-        /// <returns>
-        /// A number indicating the order of methods execution.
-        /// </returns>
+        /// <param name="method">The method to check.</param>
+        /// <returns>The order value, or <c>null</c> if not specified.</returns>
         public virtual int? GetOrderOfExecution(MethodInfo method)
         {
             var order = method?.GetCustomAttribute<OrderAttribute>()?.Order;
@@ -266,20 +294,12 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Executes a method with all the power of <see cref="Bag"/>.
-        /// Checks methods parameters and tries to find names of the parameters in the context.
-        /// Handles the returned value to put it in the context.
+        /// Executes a method using parameters resolved from the pipeline context.
+        /// Handles the result and updates the context as needed.
         /// </summary>
-        /// <param name="method">
-        /// A method to be executed.
-        /// </param>
-        /// <param name="context">
-        /// A context which properties are searched for methods parameters and
-        /// which is used for returned value handling.
-        /// </param>
-        /// <returns>
-        /// A task object indicating whether execution of the method has been completed.
-        /// </returns>
+        /// <param name="method">The method to execute.</param>
+        /// <param name="context">The pipeline context.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual async Task RunMethod(MethodInfo method, Bag context)
         {
             var values = GetExecutionParameters(method, context);
@@ -287,6 +307,10 @@ namespace AutoPipe
             await ProcessResult(method, context, result, skipNameBasedActions: false).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Gets identifiers for methods that update properties in the context.
+        /// </summary>
+        /// <returns>A sequence of update identifiers.</returns>
         protected virtual IEnumerable<string> GetPropertyUpdateIdentifiers()
         {
             yield return "Set";
@@ -294,6 +318,10 @@ namespace AutoPipe
             yield return "Overwrite";
         }
 
+        /// <summary>
+        /// Gets identifiers for methods that ensure properties exist in the context.
+        /// </summary>
+        /// <returns>A sequence of ensure identifiers.</returns>
         protected virtual IEnumerable<string> GetPropertyEnsureIdentifiers()
         {
             yield return "Get";
@@ -301,6 +329,12 @@ namespace AutoPipe
             yield return "Add";
         }
 
+        /// <summary>
+        /// Executes an action based on method name prefixes and provided identifiers.
+        /// </summary>
+        /// <param name="method">The method to check.</param>
+        /// <param name="actions">The list of action identifiers.</param>
+        /// <param name="executor">The action to execute if a match is found.</param>
         protected virtual void ProcessBasedOnName(MethodInfo method, IEnumerable<string> actions, Action<string> executor)
         {
             foreach (var identifier in actions)
@@ -325,21 +359,13 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Tries to process a result of the method. Has checks of:
-        /// Task, Task<T>, IEnumerable, Action<Bag>, Func<Bag, object>, object.
-        /// All the properties of the object will be added to the Bag as properties.
-        /// Task and Task<T> will be awaited and object of Task<T> will be processed as described earlier.
-        /// Each object of IEnumerable collection will be processed as described earlier.
+        /// Processes the result of a method execution, handling various result types and updating the context.
         /// </summary>
-        /// <param name="context">
-        /// A pipeline context to be used in result processing.
-        /// </param>
-        /// <param name="methodResult">
-        /// A result of the executed method to be handled with pipeline context.
-        /// </param>
-        /// <returns>
-        /// A task indicating whether method result has been processed or not.
-        /// </returns>
+        /// <param name="method">The method that produced the result.</param>
+        /// <param name="context">The pipeline context.</param>
+        /// <param name="methodResult">The result to process.</param>
+        /// <param name="skipNameBasedActions">Whether to skip name-based property actions.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual async Task ProcessResult(MethodInfo method, Bag context, object methodResult, bool skipNameBasedActions = true)
         {
             if (methodResult.HasNoValue())
@@ -394,6 +420,13 @@ namespace AutoPipe
             ProcessObjectProperties(context, methodResult);
         }
 
+        /// <summary>
+        /// Processes a lambda expression result and updates the context accordingly.
+        /// </summary>
+        /// <param name="method">The method that produced the expression.</param>
+        /// <param name="bag">The pipeline context.</param>
+        /// <param name="expression">The lambda expression to process.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual async Task ProcessExpression(MethodInfo method, Bag bag, LambdaExpression expression)
         {
             var result = bag.Map(expression);
@@ -402,15 +435,10 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// For each property of the <paramref name="propertyContainer"/>
-        /// adds or updates a property in <paramref name="context"/>.
+        /// Adds or updates properties in the context from the given object's properties.
         /// </summary>
-        /// <param name="context">
-        /// A context to be used for adding or updating properties.
-        /// </param>
-        /// <param name="propertyContainer">
-        /// An object which properties will be added to the pipeline context.
-        /// </param>
+        /// <param name="context">The pipeline context.</param>
+        /// <param name="propertyContainer">The object whose properties are added.</param>
         protected virtual void ProcessObjectProperties(Bag context, object propertyContainer)
         {
             if (propertyContainer.HasNoValue() || context.HasNoValue())
@@ -425,20 +453,12 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Awaits a task and if it has a result value, takes
-        /// the result value and puts all its properties to the
-        /// <paramref name="context"/>.
+        /// Awaits a task and processes its result, updating the context as needed.
         /// </summary>
-        /// <param name="context">
-        /// A context to be used to set properties of the task result.
-        /// </param>
-        /// <param name="task">
-        /// A task to be awaited.
-        /// </param>
-        /// <returns>
-        /// A task indicating whether the processing of the <paramref name="task"/>
-        /// has been completed.
-        /// </returns>
+        /// <param name="method">The method that produced the task.</param>
+        /// <param name="context">The pipeline context.</param>
+        /// <param name="task">The task to process.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual async Task ProcessTask(MethodInfo method, Bag context, Task task)
         {
             if (task.HasNoValue())
@@ -482,142 +502,208 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// A quick reference to be returned in custom methods
-        /// to execute <see cref="Bag.AddInformation(string)"/> method.
+        /// Returns an action that adds an informational message to the context.
         /// </summary>
-        /// <param name="message">
-        /// A message to be passed to <see cref="Bag.AddInformation(string)"/> method.
-        /// </param>
-        /// <returns>
-        /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
-        /// </returns>
+        /// <param name="message">The message to add.</param>
+        /// <returns>An action for adding information.</returns>
         protected virtual Action<Bag> Info(string message)
         {
             return context => context.Info(message);
         }
 
+        /// <summary>
+        /// Returns an action that adds a warning message to the context.
+        /// </summary>
+        /// <param name="message">The warning message.</param>
+        /// <returns>An action for adding a warning.</returns>
         protected virtual Action<Bag> Warning(string message)
         {
             return context => context.Warning(message);
         }
 
         /// <summary>
-        /// A quick reference to be returned in custom methods
-        /// to execute <see cref="Bag.AddErrorMessage(string)"/> method.
+        /// Returns an action that adds an error message to the context.
         /// </summary>
-        /// <param name="message">
-        /// A message to be passed to <see cref="Bag.AddErrorMessage(string)"/> method.
-        /// </param>
-        /// <returns>
-        /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
-        /// </returns>
+        /// <param name="message">The error message.</param>
+        /// <returns>An action for adding an error.</returns>
         protected virtual Action<Bag> Error(string message)
         {
             return context => context.Error(message);
         }
 
         /// <summary>
-        /// A quick reference to be returned in custom methods
-        /// to execute <see cref="Bag.AddMessageObjects(IEnumerable{PipelineMessage})"/> method.
+        /// Returns an action that adds multiple messages to the context.
         /// </summary>
-        /// <param name="message">
-        /// A message to be passed to <see cref="Bag.AddMessageObjects(IEnumerable{PipelineMessage})"/> method.
-        /// </param>
-        /// <returns>
-        /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
-        /// </returns>
+        /// <param name="messages">The messages to add.</param>
+        /// <returns>An action for adding messages.</returns>
         protected virtual Action<Bag> AddMessages(params PipelineMessage[] messages)
         {
             return context => context.AddMessages(messages);
         }
 
         /// <summary>
-        /// A quick reference to be returned in custom methods
-        /// to execute <see cref="Bag.EndPipelineWithErrorMessage(string)"/> method.
+        /// Returns an action that ends the pipeline with an error message.
         /// </summary>
-        /// <param name="message">
-        /// A message to be passed to <see cref="Bag.EndPipelineWithErrorMessage(string)"/> method.
-        /// </param>
-        /// <returns>
-        /// An action that will be executed in <see cref="AutoProcessor"/> return handler.
-        /// </returns>
+        /// <param name="message">The error message.</param>
+        /// <returns>An action for ending the pipeline with error.</returns>
         protected virtual Action<Bag> ErrorEnd(string message)
         {
             return context => context.ErrorEnd(message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with a warning message.
+        /// </summary>
+        /// <param name="message">The warning message.</param>
+        /// <returns>An action for ending the pipeline with warning.</returns>
         protected virtual Action<Bag> WarningEnd(string message)
         {
             return context => context.WarningEnd(message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with an informational message.
+        /// </summary>
+        /// <param name="message">The informational message.</param>
+        /// <returns>An action for ending the pipeline with information.</returns>
         protected virtual Action<Bag> InfoEnd(string message)
         {
             return context => context.InfoEnd(message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline.
+        /// </summary>
+        /// <returns>An action for ending the pipeline.</returns>
         protected virtual Action<Bag> End()
         {
             return context => context.End();
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline and sets a result value.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <returns>An action for ending the pipeline with a result.</returns>
         protected virtual Action<Bag> EndResult(object result)
         {
             return context => context.EndResult(result);
         }
 
+        /// <summary>
+        /// Returns an action that sets a result value in the context.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <returns>An action for setting the result.</returns>
         protected virtual Action<Bag> Result(object result)
         {
             return context => context.SetResult(result);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with an informational message and result.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <param name="message">The informational message.</param>
+        /// <returns>An action for ending with info and result.</returns>
         protected virtual Action<Bag> InfoEndResult(object result, string message)
         {
             return context => context.InfoEndResult(result, message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with a warning message and result.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <param name="message">The warning message.</param>
+        /// <returns>An action for ending with warning and result.</returns>
         protected virtual Action<Bag> WarningEndResult(object result, string message)
         {
             return context => context.WarningEndResult(result, message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with an error message and result.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <param name="message">The error message.</param>
+        /// <returns>An action for ending with error and result.</returns>
         protected virtual Action<Bag> ErrorEndResult(object result, string message)
         {
             return context => context.ErrorEndResult(result, message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with an informational message and no result.
+        /// </summary>
+        /// <param name="message">The informational message.</param>
+        /// <returns>An action for ending with info and no result.</returns>
         protected virtual Action<Bag> InfoEndNoResult(string message)
         {
             return context => context.InfoEndNoResult(message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with a warning message and no result.
+        /// </summary>
+        /// <param name="message">The warning message.</param>
+        /// <returns>An action for ending with warning and no result.</returns>
         protected virtual Action<Bag> WarningEndNoResult(string message)
         {
             return context => context.WarningEndNoResult(message);
         }
 
+        /// <summary>
+        /// Returns an action that ends the pipeline with an error message and no result.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <returns>An action for ending with error and no result.</returns>
         protected virtual Action<Bag> ErrorEndNoResult(string message)
         {
             return context => context.ErrorEndNoResult(message);
         }
 
+        /// <summary>
+        /// Returns an action that sets an informational result in the context.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <param name="message">The informational message.</param>
+        /// <returns>An action for setting info result.</returns>
         protected virtual Action<Bag> InfoResult(object result, string message)
         {
             return context => context.InfoResult(result, message);
         }
 
+        /// <summary>
+        /// Returns an action that sets a warning result in the context.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <param name="message">The warning message.</param>
+        /// <returns>An action for setting warning result.</returns>
         protected virtual Action<Bag> WarningResult(object result, string message)
         {
             return context => context.WarningResult(result, message);
         }
 
+        /// <summary>
+        /// Returns an action that sets an error result in the context.
+        /// </summary>
+        /// <param name="result">The result to set.</param>
+        /// <param name="message">The error message.</param>
+        /// <returns>An action for setting error result.</returns>
         protected virtual Action<Bag> ErrorResult(object result, string message)
         {
             return context => context.ErrorResult(result, message);
         }
 
+        /// <summary>
+        /// Gets the primary name of the processor.
+        /// </summary>
         public virtual string Name => this.Names.First();
 
+        /// <summary>
+        /// Gets all names (aliases) of the processor.
+        /// </summary>
         public virtual IEnumerable<string> Names
         {
             get
@@ -631,7 +717,9 @@ namespace AutoPipe
             }
         }
 
-
+        /// <summary>
+        /// Gets the description of the processor.
+        /// </summary>
         public virtual string Description
         {
             get
@@ -646,21 +734,11 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Tries to define values to pass them to the method.
-        /// Uses the reflection to get the names of the parameters
-        /// and then searches them in the pipeline context.
-        /// In case parameter method has a type derived from <see cref="Bag"/>
-        /// passes the <paramref name="context"/>.
+        /// Resolves parameter values for a method from the pipeline context, using reflection and service provider.
         /// </summary>
-        /// <param name="method">
-        /// A method to be used to define parameters.
-        /// </param>
-        /// <param name="context">
-        /// A context to find values to be passed to the method.
-        /// </param>
-        /// <returns>
-        /// Collection of values in order defined in the <paramref name="method"/>.
-        /// </returns>
+        /// <param name="method">The method to resolve parameters for.</param>
+        /// <param name="context">The pipeline context.</param>
+        /// <returns>A sequence of parameter values in method parameter order.</returns>
         protected virtual IEnumerable<object> GetExecutionParameters(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
@@ -719,6 +797,11 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Gets all possible names (including aliases) for a method parameter.
+        /// </summary>
+        /// <param name="parameter">The parameter to get names for.</param>
+        /// <returns>A sequence of parameter names and aliases.</returns>
         protected virtual IEnumerable<string> GetParameterNames(ParameterInfo parameter)
         {
             yield return parameter.Name;
@@ -734,20 +817,11 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Does a predefined check to validate execution
-        /// possibility at the <paramref name="method"/>.
-        /// Uses <see cref="RequiredAttribute"/> to do some
-        /// parameter validation checks.
+        /// Validates that all required parameters for a method are present in the pipeline context.
         /// </summary>
-        /// <param name="method">
-        /// A method which parameters should be checked for validity.
-        /// </param>
-        /// <param name="context">
-        /// A context used to do a parameters check.
-        /// </param>
-        /// <returns>
-        /// Value indicating whether all parameters are valid or not.
-        /// </returns>
+        /// <param name="method">The method to validate.</param>
+        /// <param name="context">The pipeline context.</param>
+        /// <returns><c>true</c> if all parameters are valid; otherwise, <c>false</c>.</returns>
         protected virtual bool AllParametersAreValid(MethodInfo method, Bag context)
         {
             var parameters = method.GetParameters().Where(x => x.GetCustomAttribute<SkipAttribute>() == null);
@@ -856,6 +930,12 @@ namespace AutoPipe
             return true;
         }
 
+        /// <summary>
+        /// Checks parameters and executes the method if valid, logging debug information as appropriate.
+        /// </summary>
+        /// <param name="method">The method to check and run.</param>
+        /// <param name="bag">The pipeline context.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual async Task CheckAndRunMethod(MethodInfo method, Bag bag)
         {
             if (bag.Debug)
@@ -892,16 +972,10 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Executes all methods found with <see cref="GetMethodsToExecute"/> 
-        /// using all the power of <see cref="Bag"/>.
+        /// Executes all discovered methods in order, using the pipeline context for parameter resolution and result handling.
         /// </summary>
-        /// <param name="context">
-        /// A context which properties are searched for methods parameters and
-        /// which is used for returned value handling.
-        /// </param>
-        /// <returns>
-        /// A task object indicating whether execution of the method has been completed.
-        /// </returns>
+        /// <param name="bag">The pipeline context.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task Run(Bag bag)
         {
             if (Methods == null)

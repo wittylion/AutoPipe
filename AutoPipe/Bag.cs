@@ -33,6 +33,11 @@ namespace AutoPipe
             return new Bag();
         }
 
+        /// <summary>
+        /// Creates a copy of the specified <see cref="Bag"/>, optionally including its messages.
+        /// </summary>
+        /// <param name="bag">The bag to copy.</param>
+        /// <param name="includeMessages">Whether to include messages in the copy.</param>
         public static Bag Copy(Bag bag, bool includeMessages = false)
         {
             return bag.Copy(includeMessages);
@@ -152,11 +157,25 @@ namespace AutoPipe
             return context;
         }
 
+        /// <summary>
+        /// Occurs when a message is added to the context.
+        /// </summary>
         public event MessageAdded OnMessage;
+        /// <summary>
+        /// Occurs when an error message is added to the context.
+        /// </summary>
         public event SpecificMessageAdded OnError;
-
+        /// <summary>
+        /// Occurs when a property is added to the context.
+        /// </summary>
         public event PropertyAdded OnPropertyAdded;
+        /// <summary>
+        /// Occurs when a property is removed from the context.
+        /// </summary>
         public event PropertyRemoved OnPropertyRemoved;
+        /// <summary>
+        /// Occurs when a property value is changed in the context.
+        /// </summary>
         public event PropertyChanged OnPropertyChanged;
 
         /// <summary>
@@ -169,24 +188,36 @@ namespace AutoPipe
             set => SetProperty(EndedProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether debug mode is enabled for this context.
+        /// </summary>
         public bool Debug
         {
             get => Get(DebugProperty, DebugDefault);
             set => SetProperty(DebugProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether missing properties should throw exceptions.
+        /// </summary>
         public bool ThrowOnMissing
         {
             get => Get(ThrowOnMissingProperty, ThrowOnMissingDefault);
             set => SetProperty(ThrowOnMissingProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets the service provider for dependency resolution.
+        /// </summary>
         public IServiceProvider ServiceProvider
         {
             get => Get(ServiceProviderProperty, (IServiceProvider) null);
             set => SetProperty(ServiceProviderProperty, value);
         }
 
+        /// <summary>
+        /// Releases all resources used by the context, including properties collection and messages collection.
+        /// </summary>
         public void Dispose()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -227,14 +258,29 @@ namespace AutoPipe
         protected Lazy<Dictionary<string, object>> PropertiesDictionary { get; } = new Lazy<Dictionary<string, object>>(() =>
             new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
 
+        /// <summary>
+        /// Gets the collection of property keys.
+        /// </summary>
         public ICollection<string> Keys => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Keys : (ICollection<string>)Enumerable.Empty<string>();
 
+        /// <summary>
+        /// Gets the collection of property values.
+        /// </summary>
         public ICollection<object> Values => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Values.ToList() : (ICollection<object>)Enumerable.Empty<object>();
 
+        /// <summary>
+        /// Gets the number of properties in the context.
+        /// </summary>
         public int Count => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Count : 0;
 
+        /// <summary>
+        /// Gets a value indicating whether the context is read-only.
+        /// </summary>
         public bool IsReadOnly => false;
 
+        /// <summary>
+        /// Gets or sets a property value by key.
+        /// </summary>
         public object this[string key]
         {
             get => this.Get<object>(key);
@@ -318,6 +364,11 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Gets a property value by name, or throws if missing and <see cref="ThrowOnMissing"/> is true.
+        /// </summary>
+        /// <typeparam name="TValue">Type of the value.</typeparam>
+        /// <param name="name">Property name.</param>
         public virtual TValue Get<TValue>(string name)
         {
             if (ThrowOnMissing)
@@ -354,6 +405,11 @@ namespace AutoPipe
             return Get(name, or: () => or);
         }
 
+        /// <summary>
+        /// Gets a property value by name, or throws an exception if not found.
+        /// </summary>
+        /// <typeparam name="TValue">Type of the value.</typeparam>
+        /// <param name="name">Property name.</param>
         public virtual TValue GetOrThrow<TValue>(string name)
         {
             return Get<TValue>(name, or: () =>
@@ -363,6 +419,9 @@ namespace AutoPipe
             });
         }
 
+        /// <summary>
+        /// Gets a string property value by name, or empty string if not found.
+        /// </summary>
         public virtual string String(string name)
         {
             if (Has(name, out string value))
@@ -373,6 +432,9 @@ namespace AutoPipe
             return string.Empty;
         }
 
+        /// <summary>
+        /// Gets an integer property value by name, or zero if not found.
+        /// </summary>
         public virtual int Int(string name)
         {
             if (Has(name, out int value))
@@ -383,6 +445,9 @@ namespace AutoPipe
             return 0;
         }
 
+        /// <summary>
+        /// Gets a boolean property value by name, or false if not found.
+        /// </summary>
         public virtual bool Bool(string name)
         {
             if (Has(name, out bool value))
@@ -393,16 +458,28 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Gets a list property value by name, or an empty list if not found.
+        /// </summary>
         public virtual List<TElement> List<TElement>(string name)
         {
             return Get(name, or: Enumerable.Empty<TElement>()).ToList();
         }
 
+        /// <summary>
+        /// Gets an array property value by name, or an empty array if not found.
+        /// </summary>
         public virtual TElement[] Array<TElement>(string name)
         {
             return Get(name, or: System.Array.Empty<TElement>());
         }
 
+        /// <summary>
+        /// Gets a property value by name, or uses a function to provide a default if not found.
+        /// </summary>
+        /// <typeparam name="TValue">Type of the value.</typeparam>
+        /// <param name="name">Property name.</param>
+        /// <param name="or">Function to provide default value.</param>
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
@@ -440,11 +517,17 @@ namespace AutoPipe
             return Contains<TProperty>(name);
         }
 
+        /// <summary>
+        /// Checks if a property exists by name.
+        /// </summary>
         public virtual bool Has(string name)
         {
             return Contains(name);
         }
 
+        /// <summary>
+        /// Checks if a property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool Has<TProperty>(string name, out TProperty property)
         {
             return Contains(name, out property);
@@ -471,11 +554,17 @@ namespace AutoPipe
                 (foundValue is TProperty || foundValue is ComputedProperty computed && typeof(TProperty).IsAssignableFrom(computed.Lambda.ReturnType));
         }
 
+        /// <summary>
+        /// Checks if a property exists by name.
+        /// </summary>
         public virtual bool Contains(string name)
         {
             return ContainsKey(name);
         }
 
+        /// <summary>
+        /// Checks if a single property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool ContainsSingle(Type type, out object valueOfType)
         {
             var bagTypes = this.GetSingleTypeValues();
@@ -488,6 +577,9 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Checks if a property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool Contains<TProperty>(string name, out TProperty value)
         {
             value = default;
@@ -516,6 +608,9 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Checks if any property from the given names exists and retrieves its value.
+        /// </summary>
         public virtual bool ContainsAny<TProperty>(IEnumerable<string> names, out TProperty value)
         {
             value = default;
@@ -532,6 +627,9 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Checks if a single property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool ContainsSingle<TProperty>(out TProperty value)
         {
             value = default;
@@ -570,6 +668,9 @@ namespace AutoPipe
             return !Contains<TProperty>(name);
         }
 
+        /// <summary>
+        /// Checks if a property is missing by name.
+        /// </summary>
         public virtual bool DoesNotContain(string name)
         {
             return !Contains(name);
@@ -596,6 +697,12 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Deletes a property by name and retrieves its value.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the property value.</typeparam>
+        /// <param name="name">Property name.</param>
+        /// <param name="element">The deleted value.</param>
         public virtual bool DeleteProperty<TElement>(string name, out TElement element)
         {
             element = default;
@@ -826,9 +933,9 @@ namespace AutoPipe
         /// <summary>
         /// Produces a string of joined texts of message collection.
         /// </summary>
-        /// <param name="separator">
-        /// A separator to join the texts of the messages.
-        /// </param>
+        /// <param name="separator">Separator string.</param>
+        /// <param name="filter">Message filter.</param>
+        /// <param name="format">Formatting function.</param>
         /// <returns>
         /// Returns a string of joined texts of message collection.
         /// </returns>
@@ -1004,6 +1111,9 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="Bag"/> and populates it with properties from the given object.
+        /// </summary>
         public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, IServiceProvider serviceProvider = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, serviceProvider: serviceProvider, onMessage: onMessage, onError: onError, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
         {
             if (propertyContainer.HasValue())
@@ -1027,6 +1137,11 @@ namespace AutoPipe
         {
         }
 
+
+        /// <summary>
+        /// Creates a copy of the current <see cref="Bag"/>, optionally including its messages.
+        /// </summary>
+        /// <param name="includeMessages">Whether to include messages in the copy.</param>
         public Bag Copy(bool includeMessages = false)
         {
             var result = CreateFromDictionary(this);
@@ -1054,13 +1169,34 @@ namespace AutoPipe
             info.AddValue($"{nameof(Bag)}.{nameof(MessagesCollection)}", MessagesCollection, typeof(ICollection<PipelineMessage>));
         }
 
+        /// <summary>
+        /// Default value for the Debug property.
+        /// </summary>
         public static readonly bool DebugDefault = false;
+        /// <summary>
+        /// Default value for the ThrowOnMissing property.
+        /// </summary>
         public static readonly bool ThrowOnMissingDefault = true;
 
+        /// <summary>
+        /// The property name for the Ended flag.
+        /// </summary>
         public static readonly string EndedProperty = "ended";
+        /// <summary>
+        /// The property name for the Debug flag.
+        /// </summary>
         public static readonly string DebugProperty = "debug";
+        /// <summary>
+        /// The property name for the ThrowOnMissing flag.
+        /// </summary>
         public static readonly string ThrowOnMissingProperty = "throwonmissing";
+        /// <summary>
+        /// The property name for the result value.
+        /// </summary>
         public static readonly string ResultProperty = "result";
+        /// <summary>
+        /// The property name for the service provider.
+        /// </summary>
         public static readonly string ServiceProviderProperty = "serviceprovider";
 
         /// <summary>
@@ -1076,11 +1212,17 @@ namespace AutoPipe
             return this.GetOrThrow<TResult>(ResultProperty);
         }
 
+        /// <summary>
+        /// Gets the result property value as a string.
+        /// </summary>
         public string StringResult()
         {
             return this.String(ResultProperty);
         }
 
+        /// <summary>
+        /// Gets the result property value as a list.
+        /// </summary>
         public List<TElement> ListResult<TElement>()
         {
             return this.List<TElement>(ResultProperty);
@@ -1101,12 +1243,10 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// In case the value of the result is null, you can specify a
-        /// <paramref name="fallbackValue"/> which will be returned
-        /// instead of the value in result property.
+        /// Gets the result property value or uses a function to provide a fallback if not set.
         /// </summary>
         /// <returns>
-        /// Value of the result property or <paramref name="fallbackValue"/>
+        /// Value of the result property or executes <paramref name="or"/> function
         /// if value of the result is null.
         /// </returns>
         public TResult GetResult<TResult>(Func<TResult> or)
@@ -1126,29 +1266,33 @@ namespace AutoPipe
             return this.Contains<TResult>(ResultProperty);
         }
 
+        /// <summary>
+        /// Checks if the result property is set and retrieves its value.
+        /// </summary>
         public virtual bool ContainsResult<TResult>(out TResult result)
         {
             return this.Contains(ResultProperty, out result);
         }
 
         /// <summary>
-        /// Returns value indicating whether result is missing,
-        /// the value may be not specified or reset.
+        /// Checks if the result property is missing.
         /// </summary>
-        /// <returns>
-        /// Returns <c>true</c> in case result is missing,
-        /// otherwise <c>false</c>.
-        /// </returns>
         public virtual bool DoesNotContainResult<TResult>()
         {
             return !ContainsResult<TResult>();
         }
 
+        /// <summary>
+        /// Adds a property to the context.
+        /// </summary>
         public void Add(string key, object value)
         {
             this.SetProperty(key, value);
         }
 
+        /// <summary>
+        /// Checks if a property exists by key.
+        /// </summary>
         public bool ContainsKey(string key)
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1159,21 +1303,33 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Removes a property by key.
+        /// </summary>
         public bool Remove(string key)
         {
             return this.DeleteProperty(key);
         }
 
+        /// <summary>
+        /// Tries to get a property value by key.
+        /// </summary>
         public bool TryGetValue(string key, out object value)
         {
             return Contains(key, out value);
         }
 
+        /// <summary>
+        /// Adds a key-value pair to the context.
+        /// </summary>
         public void Add(KeyValuePair<string, object> item)
         {
             this.Set(item.Key, item.Value);
         }
 
+        /// <summary>
+        /// Clears all properties from the context.
+        /// </summary>
         public void Clear()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1185,11 +1341,17 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Checks if a key-value pair exists in the context.
+        /// </summary>
         public bool Contains(KeyValuePair<string, object> item)
         {
             return TryGetValue(item.Key, out object val) && val == item.Value;
         }
 
+        /// <summary>
+        /// Copies properties to an array starting at the specified index.
+        /// </summary>
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1203,12 +1365,18 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Removes a key-value pair from the context.
+        /// </summary>
         public bool Remove(KeyValuePair<string, object> item)
         {
             if (Contains(item)) DeleteProperty(item.Key);
             return true;
         }
 
+        /// <summary>
+        /// Returns an enumerator for the context's properties.
+        /// </summary>
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1222,6 +1390,9 @@ namespace AutoPipe
             yield break;
         }
 
+        /// <summary>
+        /// Returns a non-generic enumerator for the context's properties.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

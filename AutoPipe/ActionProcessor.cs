@@ -6,48 +6,60 @@ using System.Threading.Tasks;
 namespace AutoPipe
 {
     /// <summary>
-    /// Processor constructed from action or function. Inherits <see cref="Processor"/>
-    /// so all the rules used in base class will be applied here.
+    /// Represents a processor that executes a provided action or function.
+    /// Inherits from <see cref="Processor"/>, applying all base class rules.
     /// </summary>
     public class ActionProcessor : Processor
     {
         /// <summary>
-        /// A message to be thrown when the action is not provided.
+        /// Error message thrown when no action is supplied to the processor.
         /// </summary>
         public static readonly string ActionMustBeSpecified = "Creating an 'action' processor, you have to provide action which will be executed. Action represented by parameter Func<object, Task>.";
 
+        /// <summary>
+        /// Creates an <see cref="ActionProcessor"/> from a parameterless <see cref="Action"/>.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
+        /// <returns>An instance of <see cref="IProcessor"/>.</returns>
         public static IProcessor From(Action action)
         {
             return new ActionProcessor(action.ToAsync<Bag>());
         }
 
+        /// <summary>
+        /// Creates an <see cref="ActionProcessor"/> from an <see cref="Action{Bag}"/>.
+        /// </summary>
+        /// <param name="action">The action to execute with a <see cref="Bag"/> parameter.</param>
+        /// <returns>An instance of <see cref="IProcessor"/>.</returns>
         public static IProcessor From(Action<Bag> action)
         {
             return new ActionProcessor(action.ToAsync());
         }
 
+        /// <summary>
+        /// Creates an <see cref="ActionProcessor"/> from a <see cref="Func{Bag, Task}"/>.
+        /// </summary>
+        /// <param name="action">The asynchronous function to execute with a <see cref="Bag"/> parameter.</param>
+        /// <returns>An instance of <see cref="IProcessor"/>.</returns>
         public static IProcessor From(Func<Bag, Task> action)
         {
             return new ActionProcessor(action);
         }
 
         /// <summary>
-        /// Creates an empty processor that has no action.
+        /// Initializes an empty processor with no action assigned.
         /// </summary>
         public ActionProcessor()
         {
         }
 
         /// <summary>
-        /// Creates a processor with an action. Action will be executed
-        /// as soon as <see cref="SafeRun(Bag)"/> is called.
+        /// Initializes a processor with a specified asynchronous action and optional property requirements.
         /// </summary>
-        /// <param name="action">
-        /// An action to be executed during the <see cref="SafeRun(Bag)"/>.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// An exception thrown in case action parameter is null.
-        /// </exception>
+        /// <param name="action">The asynchronous action to execute.</param>
+        /// <param name="requiredProperties">Properties that must exist in the bag before execution.</param>
+        /// <param name="unnecessaryProperties">Properties that must not exist in the bag before execution.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="action"/> is null.</exception>
         public ActionProcessor(Func<Bag, Task> action, IEnumerable<string> requiredProperties = null, IEnumerable<string> unnecessaryProperties = null)
         {
             Action = action ?? throw new ArgumentNullException(ActionMustBeSpecified);
@@ -56,22 +68,26 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// An action to be executed during the <see cref="SafeRun(Bag)"/>.
+        /// The asynchronous action to execute when <see cref="SafeRun(Bag)"/> is called.
         /// </summary>
         protected internal Func<Bag, Task> Action { get; }
+
+        /// <summary>
+        /// Properties that must be present in the bag for execution.
+        /// </summary>
         protected internal IEnumerable<string> RequiredProperties { get; }
+
+        /// <summary>
+        /// Properties that must be absent from the bag for execution.
+        /// </summary>
         protected internal IEnumerable<string> UnnecessaryProperties { get; }
 
         /// <summary>
-        /// Executing the action passed via constructor or doing nothing
-        /// in case processor was created without an <see cref="Action"/>.
+        /// Executes the assigned action using the provided <see cref="Bag"/>.
+        /// If no action is assigned, logs a debug message and completes immediately.
         /// </summary>
-        /// <param name="bag">
-        /// A bag of properties, messages and a bunch of handy methods.
-        /// </param>
-        /// <returns>
-        /// Returns the <see cref="Task"/> that identifies execution result.
-        /// </returns>
+        /// <param name="bag">The pipeline context containing properties and messages.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public override Task SafeRun(Bag bag)
         {
             if (this.Action.HasValue())
@@ -83,6 +99,10 @@ namespace AutoPipe
             return PipelineTask.CompletedTask;
         }
 
+        /// <summary>
+        /// Returns the collection of required property names, or the base implementation if none are specified.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{String}"/> of required property names.</returns>
         public override IEnumerable<string> MustHaveProperties()
         {
             if (RequiredProperties?.Any() ?? false)
@@ -93,6 +113,13 @@ namespace AutoPipe
             return base.MustHaveProperties();
         }
 
+        /// <summary>
+        /// Retrieves a collection of property names that must be excluded from processing.
+        /// </summary>
+        /// <remarks>If <see cref="UnnecessaryProperties"/> contains any elements, they are returned. 
+        /// Otherwise, the result is determined by the base implementation.</remarks>
+        /// <returns>An <see cref="IEnumerable{String}"/> representing the property names to exclude. If no properties are
+        /// specified, the result from the base implementation is returned.</returns>
         public override IEnumerable<string> MustMissProperties()
         {
             if (UnnecessaryProperties?.Any() ?? false)
