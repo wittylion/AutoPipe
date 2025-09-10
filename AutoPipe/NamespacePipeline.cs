@@ -44,7 +44,7 @@ namespace AutoPipe
 
         public virtual IEnumerable<IProcessor> GetProcessors()
         {
-            return Repository.Instance.Types
+            return ProcessorTypeRepository.Instance.Types
                 .Where(FilterProcessors)
                 .OrderBy(GetProcessorOrder)
                 .Select(ConstructProcessor);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -72,6 +73,11 @@ namespace AutoPipe
         public static Bag Create<TValue>(IDictionary<string, TValue> propertyContainer)
         {
             return Bag.CreateFromDictionary(propertyContainer);
+        }
+
+        public static Bag Create(NameValueCollection propertyContainer)
+        {
+            return Bag.CreateFromNameValueCollection(propertyContainer);
         }
 
         /// <summary>
@@ -152,6 +158,19 @@ namespace AutoPipe
                 foreach (var item in propertyContainer)
                 {
                     context.Set(item.Key, item.Value);
+                }
+            }
+            return context;
+        }
+
+        public static Bag CreateFromNameValueCollection(NameValueCollection collection)
+        {
+            var context = new Bag();
+            if (collection != null && collection.Count > 0)
+            {
+                foreach (string key in collection)
+                {
+                    context.SetProperty(key, collection[key]);
                 }
             }
             return context;
@@ -471,7 +490,7 @@ namespace AutoPipe
         /// </summary>
         public virtual TElement[] Array<TElement>(string name)
         {
-            return Get(name, or: System.Array.Empty<TElement>());
+            return Get(name, or: new TElement[0]);
         }
 
         /// <summary>
@@ -766,7 +785,7 @@ namespace AutoPipe
                 }
                 return MessagesCollection.Value.Where(message => ((int)message.MessageType & (int)filter) > 0).ToArray();
             }
-            return System.Array.Empty<PipelineMessage>();
+            return new PipelineMessage[0];
         }
 
         /// <summary>

@@ -37,6 +37,8 @@ namespace AutoPipe
         /// </summary>
         public object Processor { get; }
 
+        public bool SkipNameBasedActions { get; set; }
+
         /// <summary>
         /// Creates an <see cref="AutoProcessor"/> from an existing processor class instance.
         /// </summary>
@@ -90,7 +92,7 @@ namespace AutoPipe
             }
 
             var type = Processor.GetType();
-            var allAttributes = GetMethodBindingAttributes().ToArray();
+            var allAttributes = GetMethodBindingAttributes();
 
             if (allAttributes.HasNoValue())
             {
@@ -253,6 +255,15 @@ namespace AutoPipe
             }
         }
 
+        private bool? hasRunningMembers;
+        protected virtual bool HasRunningMembers
+        {
+            get
+            {
+                return (hasRunningMembers ?? (hasRunningMembers = this.Processor.GetType().HasRunningMembers())).Value;
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether strict parameter validation is enabled for this processor.
         /// </summary>
@@ -264,7 +275,15 @@ namespace AutoPipe
         /// <returns>A sequence of <see cref="BindingFlags"/> for method discovery.</returns>
         protected virtual IEnumerable<BindingFlags> GetMethodBindingAttributes()
         {
-            yield return Repository.RunningMethodsFlags;
+            yield return BindingFlags.DeclaredOnly;
+            yield return BindingFlags.Instance;
+            yield return BindingFlags.Public;
+
+            if (HasRunningMembers || RunAll)
+            {
+                yield return BindingFlags.NonPublic;
+                yield return BindingFlags.Static;
+            }
         }
 
         /// <summary>
@@ -274,7 +293,18 @@ namespace AutoPipe
         /// <returns><c>true</c> if the method should be executed; otherwise, <c>false</c>.</returns>
         public virtual bool AcceptableByFilter(MethodInfo method)
         {
-            return (this.RunAll || method.ShouldRun()) && !method.ShouldSkip();
+            if (method.ShouldSkip())
+            {
+                return false;
+            }
+
+            // Default behavior is to accept all public methods if no running members exist.
+            if (!HasRunningMembers && !RunAll)
+            {
+                return true;
+            }
+
+            return (this.RunAll || method.ShouldRun());
         }
 
         /// <summary>
@@ -304,7 +334,7 @@ namespace AutoPipe
         {
             var values = GetExecutionParameters(method, context);
             var result = method.Invoke(Processor, values.ToArray());
-            await ProcessResult(method, context, result, skipNameBasedActions: false).ConfigureAwait(false);
+            await ProcessResult(method, context, result, SkipNameBasedActions).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -329,13 +359,22 @@ namespace AutoPipe
             yield return "Add";
         }
 
+        protected virtual bool ProcessBasedOnName(MethodInfo method, Bag context, object methodResult)
+        {
+            bool handled = ProcessBasedOnName(method, GetPropertyUpdateIdentifiers(), property => { context.Set(property, methodResult); });
+            if (handled) return true;
+
+            handled = ProcessBasedOnName(method, GetPropertyEnsureIdentifiers(), property => { context.Set(property, methodResult, skipIfExists: true); });
+            return handled;
+        }
+
         /// <summary>
         /// Executes an action based on method name prefixes and provided identifiers.
         /// </summary>
         /// <param name="method">The method to check.</param>
         /// <param name="actions">The list of action identifiers.</param>
         /// <param name="executor">The action to execute if a match is found.</param>
-        protected virtual void ProcessBasedOnName(MethodInfo method, IEnumerable<string> actions, Action<string> executor)
+        protected virtual bool ProcessBasedOnName(MethodInfo method, IEnumerable<string> actions, Action<string> executor)
         {
             foreach (var identifier in actions)
             {
@@ -353,9 +392,11 @@ namespace AutoPipe
                     }
 
                     executor(property);
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         /// <summary>
@@ -400,11 +441,7 @@ namespace AutoPipe
 
             if (!skipNameBasedActions)
             {
-                bool handled = false;
-                ProcessBasedOnName(method, GetPropertyUpdateIdentifiers(), property => { context.Set(property, methodResult); handled = true; });
-                if (handled) return;
-
-                ProcessBasedOnName(method, GetPropertyEnsureIdentifiers(), property => { context.Set(property, methodResult, skipIfExists: true); handled = true; });
+                var handled = ProcessBasedOnName(method, context, methodResult);
                 if (handled) return;
             }
 
