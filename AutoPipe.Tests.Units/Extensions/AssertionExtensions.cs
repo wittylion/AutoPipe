@@ -27,7 +27,7 @@ namespace AutoPipe.Tests.Units
 
         public AndConstraint<BagAssertions> BeEmpty(string because = "", params object[] becauseArgs)
         {
-            var baseProperties = new List<string>() { Bag.DebugProperty, Bag.ThrowOnMissingProperty, Bag.EndedProperty, Bag.ResultProperty, Bag.ServiceProviderProperty, };
+            var baseProperties = new List<string>() { Bag.DebugProperty, Bag.ThrowOnMissingProperty, Bag.HaltedProperty, Bag.ResultProperty, Bag.ServiceProviderProperty, };
             var message = "Expected {context:bag} to be empty{reason}, but was not.";
             var props = Subject.Keys.Except(baseProperties);
 

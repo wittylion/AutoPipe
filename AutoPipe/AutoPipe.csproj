@@ -32,7 +32,7 @@
       [Order(15)] - provide an order of the processors and methods;
       [After("Previous One")] - say which processor must go before;
       [Or("Default value")] - specify the value to be returned when requested property is not found;
-      [Required(Message = "Cannot go without you", End = true)] - make parameters required for method execution and control further execution.
+      [Required(Message = "Cannot go without you", Halt = true)] - make parameters required for method execution and control further execution.
       [Strict] - claim all parameters for your method;
 
     </PackageReleaseNotes>

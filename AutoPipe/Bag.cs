@@ -18,7 +18,7 @@ namespace AutoPipe
     /// about the flow of the pipeline. By default, it has
     /// messages collection which can be accessed by using
     /// <see cref="MessageObjects()"/> method and a flag
-    /// <see cref="Ended"/> identifying whether pipeline was ended.
+    /// <see cref="Halted"/> identifying whether pipeline was ended.
     /// </summary>
     [Serializable]
     public class Bag : ISerializable, IDisposable, IDictionary<string, object>
@@ -201,10 +201,10 @@ namespace AutoPipe
         /// Flag identifying whether pipeline must be ended/stopped,
         /// it can be used as a cancellation identifier for the execution flow.
         /// </summary>
-        public bool Ended
+        public bool Halted
         {
-            get => Get(EndedProperty, false);
-            set => SetProperty(EndedProperty, value);
+            get => Get(HaltedProperty, false);
+            set => SetProperty(HaltedProperty, value);
         }
 
         /// <summary>
@@ -1052,13 +1052,13 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Ends pipeline by setting a flag <see cref="Ended"/> to true.
+        /// Halts pipeline by setting a flag <see cref="Halted"/> to true.
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public virtual void EndPipeline()
+        public virtual void HaltPipeline()
         {
-            Ended = true;
+            Halted = true;
         }
 
         /// <summary>
@@ -1196,7 +1196,7 @@ namespace AutoPipe
         /// </param>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue($"{nameof(Bag)}.{nameof(Ended)}", Ended);
+            info.AddValue($"{nameof(Bag)}.{nameof(Halted)}", Halted);
             info.AddValue($"{nameof(Bag)}.{nameof(MessagesCollection)}", MessagesCollection, typeof(ICollection<PipelineMessage>));
         }
 
@@ -1210,9 +1210,9 @@ namespace AutoPipe
         public static readonly bool ThrowOnMissingDefault = true;
 
         /// <summary>
-        /// The property name for the Ended flag.
+        /// The property name for the Halted flag.
         /// </summary>
-        public static readonly string EndedProperty = "ended";
+        public static readonly string HaltedProperty = "halted";
         /// <summary>
         /// The property name for the Debug flag.
         /// </summary>

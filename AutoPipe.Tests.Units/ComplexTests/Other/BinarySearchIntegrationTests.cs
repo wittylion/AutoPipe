@@ -101,7 +101,7 @@ namespace AutoPipe.Tests.Integrations
                 var bag = new Bag(container)
                     .Computed("ElementFound", e)
                     .Computed("CurrentElement", b)
-                    .Computed("NotEnded", c);
+                    .Computed("NotHalted", c);
 
                 await Runner.Run(bag).ConfigureAwait(false);
 
@@ -121,7 +121,7 @@ namespace AutoPipe.Tests.Integrations
             public IEnumerable<IProcessor> GetProcessors()
             {
                 yield return SortArray;
-                yield return EnsureStartAndEnd;
+                yield return EnsureStartAndHalt;
                 yield return RunSearch;
             }
 
@@ -136,10 +136,10 @@ namespace AutoPipe.Tests.Integrations
                 return PipelineTask.CompletedTask;
             }
 
-            private IProcessor EnsureStartAndEnd =>
-                ActionProcessor.From(EnsureStartAndEndImplementation);
+            private IProcessor EnsureStartAndHalt =>
+                ActionProcessor.From(EnsureStartAndHaltImplementation);
 
-            private Task EnsureStartAndEndImplementation(Bag container)
+            private Task EnsureStartAndHaltImplementation(Bag container)
             {
                 if (container.DoesNotContain<object>("EndSearchIndex"))
                 {
@@ -154,7 +154,7 @@ namespace AutoPipe.Tests.Integrations
 
             private async Task RunSearchImplementation(Bag bag)
             {
-                while (bag.Bool("NotEnded") && !bag.Bool("ElementFound"))
+                while (bag.Bool("NotHalted") && !bag.Bool("ElementFound"))
                 {
                     await Finder.Run(bag);
                 }

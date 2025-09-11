@@ -519,7 +519,7 @@ namespace AutoPipe
                 }
                 while (ex != null);
 
-                context.ErrorEnd(sb.ToString());
+                context.ErrorHalt(sb.ToString());
 
                 return;
             }
@@ -583,9 +583,9 @@ namespace AutoPipe
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <returns>An action for ending the pipeline with error.</returns>
-        protected virtual Action<Bag> ErrorEnd(string message)
+        protected virtual Action<Bag> ErrorHalt(string message)
         {
-            return context => context.ErrorEnd(message);
+            return context => context.ErrorHalt(message);
         }
 
         /// <summary>
@@ -593,9 +593,9 @@ namespace AutoPipe
         /// </summary>
         /// <param name="message">The warning message.</param>
         /// <returns>An action for ending the pipeline with warning.</returns>
-        protected virtual Action<Bag> WarningEnd(string message)
+        protected virtual Action<Bag> WarningHalt(string message)
         {
-            return context => context.WarningEnd(message);
+            return context => context.WarningHalt(message);
         }
 
         /// <summary>
@@ -603,18 +603,18 @@ namespace AutoPipe
         /// </summary>
         /// <param name="message">The informational message.</param>
         /// <returns>An action for ending the pipeline with information.</returns>
-        protected virtual Action<Bag> InfoEnd(string message)
+        protected virtual Action<Bag> InfoHalt(string message)
         {
-            return context => context.InfoEnd(message);
+            return context => context.InfoHalt(message);
         }
 
         /// <summary>
         /// Returns an action that ends the pipeline.
         /// </summary>
         /// <returns>An action for ending the pipeline.</returns>
-        protected virtual Action<Bag> End()
+        protected virtual Action<Bag> Halt()
         {
-            return context => context.End();
+            return context => context.Halt();
         }
 
         /// <summary>
@@ -622,9 +622,9 @@ namespace AutoPipe
         /// </summary>
         /// <param name="result">The result to set.</param>
         /// <returns>An action for ending the pipeline with a result.</returns>
-        protected virtual Action<Bag> EndResult(object result)
+        protected virtual Action<Bag> HaltResult(object result)
         {
-            return context => context.EndResult(result);
+            return context => context.HaltResult(result);
         }
 
         /// <summary>
@@ -643,9 +643,9 @@ namespace AutoPipe
         /// <param name="result">The result to set.</param>
         /// <param name="message">The informational message.</param>
         /// <returns>An action for ending with info and result.</returns>
-        protected virtual Action<Bag> InfoEndResult(object result, string message)
+        protected virtual Action<Bag> InfoHaltResult(object result, string message)
         {
-            return context => context.InfoEndResult(result, message);
+            return context => context.InfoHaltResult(result, message);
         }
 
         /// <summary>
@@ -654,9 +654,9 @@ namespace AutoPipe
         /// <param name="result">The result to set.</param>
         /// <param name="message">The warning message.</param>
         /// <returns>An action for ending with warning and result.</returns>
-        protected virtual Action<Bag> WarningEndResult(object result, string message)
+        protected virtual Action<Bag> WarningHaltResult(object result, string message)
         {
-            return context => context.WarningEndResult(result, message);
+            return context => context.WarningHaltResult(result, message);
         }
 
         /// <summary>
@@ -665,9 +665,9 @@ namespace AutoPipe
         /// <param name="result">The result to set.</param>
         /// <param name="message">The error message.</param>
         /// <returns>An action for ending with error and result.</returns>
-        protected virtual Action<Bag> ErrorEndResult(object result, string message)
+        protected virtual Action<Bag> ErrorHaltResult(object result, string message)
         {
-            return context => context.ErrorEndResult(result, message);
+            return context => context.ErrorHaltResult(result, message);
         }
 
         /// <summary>
@@ -675,9 +675,9 @@ namespace AutoPipe
         /// </summary>
         /// <param name="message">The informational message.</param>
         /// <returns>An action for ending with info and no result.</returns>
-        protected virtual Action<Bag> InfoEndNoResult(string message)
+        protected virtual Action<Bag> InfoHaltNoResult(string message)
         {
-            return context => context.InfoEndNoResult(message);
+            return context => context.InfoHaltNoResult(message);
         }
 
         /// <summary>
@@ -685,9 +685,9 @@ namespace AutoPipe
         /// </summary>
         /// <param name="message">The warning message.</param>
         /// <returns>An action for ending with warning and no result.</returns>
-        protected virtual Action<Bag> WarningEndNoResult(string message)
+        protected virtual Action<Bag> WarningHaltNoResult(string message)
         {
-            return context => context.WarningEndNoResult(message);
+            return context => context.WarningHaltNoResult(message);
         }
 
         /// <summary>
@@ -695,9 +695,9 @@ namespace AutoPipe
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <returns>An action for ending with error and no result.</returns>
-        protected virtual Action<Bag> ErrorEndNoResult(string message)
+        protected virtual Action<Bag> ErrorHaltNoResult(string message)
         {
-            return context => context.ErrorEndNoResult(message);
+            return context => context.ErrorHaltNoResult(message);
         }
 
         /// <summary>
@@ -959,7 +959,7 @@ namespace AutoPipe
                     context.Debug(message);
                 }
 
-                context.End();
+                context.Halt();
 
                 return false;
             }
@@ -1037,7 +1037,7 @@ namespace AutoPipe
 
             foreach (var method in Methods)
             {
-                if (bag.Ended)
+                if (bag.Halted)
                 {
                     break;
                 }

@@ -67,7 +67,7 @@ namespace AutoPipe
         /// <returns><c>true</c> if all conditions are met and processor should execute; otherwise, <c>false</c>.</returns>
         public virtual bool SafeCondition(Bag bag)
         {
-            if (bag.Ended)
+            if (bag.Halted)
             {
                 bag.Debug("The bag contained end property set to True. Skipping processor.");
                 return false;

@@ -16,10 +16,10 @@ namespace AutoPipe
         /// a property called as <see cref="Name"/> or parameter name.
         /// Will add an <see cref="ErrorMessage"/> as the end reason.
         /// </summary>
-        public bool End { get; set; }
+        public bool Halt { get; set; }
 
         /// <summary>
-        /// In case <see cref="EndIfNotExist"/> true and property is not found,
+        /// In case <see cref="HaltIfNotExist"/> true and property is not found,
         /// this message will be added to the messages collection of the <see cref="Bag"/>.
         /// </summary>
         public string Message { get; set; }
