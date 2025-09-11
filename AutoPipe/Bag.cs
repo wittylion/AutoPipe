@@ -552,6 +552,18 @@ namespace AutoPipe
             return Contains(name, out property);
         }
 
+        public virtual bool HasErrors()
+        {
+            return MessagesCollection.IsValueCreated &&
+                MessagesCollection.Value.Any(m => m.MessageType == MessageType.Error);
+        }
+
+        public virtual bool HasWarnings()
+        {
+            return MessagesCollection.IsValueCreated &&
+                   MessagesCollection.Value.Any(m => m.MessageType == MessageType.Warning);
+        }
+
         /// <summary>
         /// The function returns boolean value that indicates whether property
         /// of specified type exists in collection of properties.
