@@ -1259,6 +1259,33 @@ namespace AutoPipe
             return this.List<TElement>(ResultProperty);
         }
 
+        public TResult As<TResult>() where TResult : new()
+        {
+            return To<TResult>();
+        }
+
+        public TResult To<TResult>() where TResult : new()
+        {
+            TResult result = new TResult();
+            Update(result);
+            return result;
+        }
+
+        public void Update<TResult>(TResult entity) where TResult : new()
+        {
+            foreach (var prop in entity.GetType().GetProperties())
+            {
+                if (this.Contains(prop.Name) && prop.CanWrite)
+                {
+                    var value = this.GetOrThrow<object>(prop.Name);
+                    if (value != null && prop.PropertyType.IsInstanceOfType(value))
+                    {
+                        prop.SetValue(entity, value);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// In case the value of the result is null, you can specify a
         /// <paramref name="fallbackValue"/> which will be returned
