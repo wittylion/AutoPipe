@@ -906,7 +906,6 @@ namespace AutoPipe
                     {
                         if (context.Debug)
                         {
-                            var methodName = method.GetName();
                             context.Debug("There is a property of type {0} found in service provider. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
                         continue;
@@ -920,7 +919,6 @@ namespace AutoPipe
                     {
                         if (context.Debug)
                         {
-                            var methodName = method.GetName();
                             context.Debug("There is only one property of type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
                         continue;
@@ -931,7 +929,6 @@ namespace AutoPipe
                     {
                         if (context.Debug)
                         {
-                            var methodName = method.GetName();
                             context.Debug("There is only one property assignable to type {0}. It will be used to fill the parameter \"{1}\".".FormatWith(parameter.ParameterType, parameter.Name));
                         }
                         continue;
@@ -959,7 +956,10 @@ namespace AutoPipe
                     context.Debug(message);
                 }
 
-                context.Halt();
+                if (metadata != null && metadata.Halt)
+                {
+                    context.Halt();
+                }
 
                 return false;
             }
