@@ -54,7 +54,7 @@ namespace AutoPipe
         /// and returned one more time.
         /// </param>
         /// <returns>
-        /// Enumerable object retutning instances of <see cref="IProcessor"/>
+        /// Enumerable object returning instances of <see cref="IProcessor"/>
         /// repeated as many times as <paramref name="condition"/> returned <c>true</c>.
         /// </returns>
         public static IEnumerable<IProcessor> RepeatProcessorsWhile(
@@ -130,7 +130,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Method that allows add a processor into <paramref name="enumerable"/> object.
+        /// Method that allows to add a processor into <paramref name="enumerable"/> object.
         /// </summary>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> where <paramref name="nextProcessor"/>
@@ -148,7 +148,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Method that allows concatenate processors into <paramref name="enumerable"/> object.
+        /// Method that allows to concatenate processors into <paramref name="enumerable"/> object.
         /// </summary>
         /// <param name="enumerable">
         /// Enumerable object of <see cref="IProcessor"/> where <paramref name="nextProcessors"/>

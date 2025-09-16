@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AutoPipe
 {
     /// <summary>
-    /// Extensions for the <see cref="PipelineContext"/>.
+    /// Extensions for the <see cref="Bag"/>.
     /// </summary>
     public static class BagExtensionMethods
     {
@@ -253,13 +253,13 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Ends pipeline by setting a flag <see cref="Ended"/> to true.
+        /// Halts pipeline by setting a flag <see cref="Halted"/> to true.
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public static TBag End<TBag>(this TBag bag) where TBag : Bag
+        public static TBag Halt<TBag>(this TBag bag) where TBag : Bag
         {
-            bag.EndPipeline();
+            bag.HaltPipeline();
             return bag;
         }
 
@@ -270,9 +270,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Text that describes a cause of the end.
         /// </param>
-        public static TBag End<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag Halt<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.End().Message(message);
+            return bag.Halt().Message(message);
         }
 
         /// <summary>
@@ -283,12 +283,12 @@ namespace AutoPipe
         /// Text that describes a cause of the end.
         /// </param>
         /// <param name="type">
-        /// A type of the message, it will help you to find message
+        /// A type of the message, it will help you find message
         /// by using <see cref="GetMessages"/> method.
         /// </param>
-        public static TBag End<TBag>(this TBag bag, string message, MessageType type) where TBag : Bag
+        public static TBag Halt<TBag>(this TBag bag, string message, MessageType type) where TBag : Bag
         {
-            return bag.End().Message(message, type);
+            return bag.Halt().Message(message, type);
         }
 
         /// <summary>
@@ -298,9 +298,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Error message text that describes a cause of the end.
         /// </param>
-        public static TBag ErrorEnd<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag ErrorHalt<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.End(message, MessageType.Error);
+            return bag.Halt(message, MessageType.Error);
         }
 
         /// <summary>
@@ -310,9 +310,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Warning message text that describes a cause of the end.
         /// </param>
-        public static TBag WarningEnd<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag WarningHalt<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.End(message, MessageType.Warning);
+            return bag.Halt(message, MessageType.Warning);
         }
 
         /// <summary>
@@ -322,9 +322,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Information message text that describes a cause of the end.
         /// </param>
-        public static TBag InfoEnd<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag InfoHalt<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.End(message, MessageType.Information);
+            return bag.Halt(message, MessageType.Information);
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace AutoPipe
         public static TBag Info<TBag>(this TBag bag, string message, bool end = false) where TBag : Bag
         {
             bag.Message(message, MessageType.Information);
-            if (end) { bag.End(); }
+            if (end) { bag.Halt(); }
             return bag;
         }
 
@@ -351,7 +351,7 @@ namespace AutoPipe
 
             if (end)
             {
-                bag.End();
+                bag.Halt();
             }
 
             return bag;
@@ -367,7 +367,7 @@ namespace AutoPipe
 
             if (end)
             {
-                bag.End();
+                bag.Halt();
             }
 
             return bag;
@@ -383,7 +383,7 @@ namespace AutoPipe
         public static TBag Warning<TBag>(this TBag bag, string message, bool end = false) where TBag : Bag
         {
             bag.Message(message, MessageType.Warning);
-            if (end) { bag.End(); }
+            if (end) { bag.Halt(); }
             return bag;
         }
 
@@ -398,7 +398,7 @@ namespace AutoPipe
         public static TBag Error<TBag>(this TBag bag, string message, bool end = false) where TBag : Bag
         {
             bag.Message(message, MessageType.Error);
-            if (end) { bag.End(); }
+            if (end) { bag.Halt(); }
             return bag;
         }
 
@@ -484,9 +484,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Error message indicating the reason of the ended pipeline and no result.
         /// </param>
-        public static TBag ErrorEndNoResult<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag ErrorHaltNoResult<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.UnsetResult().ErrorEnd(message);
+            return bag.UnsetResult().ErrorHalt(message);
         }
 
         /// <summary>
@@ -496,9 +496,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Warning message indicating the reason of the ended pipeline and no result.
         /// </param>
-        public static TBag WarningEndNoResult<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag WarningHaltNoResult<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.UnsetResult().WarningEnd(message);
+            return bag.UnsetResult().WarningHalt(message);
         }
 
         /// <summary>
@@ -508,9 +508,9 @@ namespace AutoPipe
         /// <param name="message">
         /// Information message indicating the reason of the ended pipeline and no result.
         /// </param>
-        public static TBag InfoEndNoResult<TBag>(this TBag bag, string message) where TBag : Bag
+        public static TBag InfoHaltNoResult<TBag>(this TBag bag, string message) where TBag : Bag
         {
-            return bag.UnsetResult().InfoEnd(message);
+            return bag.UnsetResult().InfoHalt(message);
         }
 
         /// <summary>
@@ -538,7 +538,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Resets the result to null and adds a error message
+        /// Resets the result to null and adds an error message
         /// describing the reason of the reset result.
         /// </summary>
         /// <param name="message">
@@ -549,25 +549,25 @@ namespace AutoPipe
             return bag.UnsetResult().Error(message);
         }
 
-        public static TBag EndResult<TBag>(this TBag bag, object result) where TBag : Bag
+        public static TBag HaltResult<TBag>(this TBag bag, object result) where TBag : Bag
         {
-            return bag.SetResult(result).End();
+            return bag.SetResult(result).Halt();
         }
 
-        public static TBag InfoEndResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
+        public static TBag InfoHaltResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
         {
-            return bag.SetResult(result).InfoEnd(message);
+            return bag.SetResult(result).InfoHalt(message);
         }
 
-        public static TBag ErrorEndResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
+        public static TBag ErrorHaltResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
         {
-            return bag.SetResult(result).ErrorEnd(message);
+            return bag.SetResult(result).ErrorHalt(message);
         }
 
 
-        public static TBag WarningEndResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
+        public static TBag WarningHaltResult<TBag>(this TBag bag, object result, string message) where TBag : Bag
         {
-            return bag.SetResult(result).WarningEnd(message);
+            return bag.SetResult(result).WarningHalt(message);
         }
 
     }

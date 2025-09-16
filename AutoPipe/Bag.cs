@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -14,10 +15,10 @@ namespace AutoPipe
 
     /// <summary>
     /// Introduces possibility to keep context information
-    /// about the flow of the pipeline. By default it has
+    /// about the flow of the pipeline. By default, it has
     /// messages collection which can be accessed by using
-    /// <see cref="MessageObjects"/> method and a flag
-    /// <see cref="Ended"/> identifying whether pipeline was ended.
+    /// <see cref="MessageObjects()"/> method and a flag
+    /// <see cref="Halted"/> identifying whether pipeline was ended.
     /// </summary>
     [Serializable]
     public class Bag : ISerializable, IDisposable, IDictionary<string, object>
@@ -33,16 +34,20 @@ namespace AutoPipe
             return new Bag();
         }
 
+        /// <summary>
+        /// Creates a copy of the specified <see cref="Bag"/>, optionally including its messages.
+        /// </summary>
+        /// <param name="bag">The bag to copy.</param>
+        /// <param name="includeMessages">Whether to include messages in the copy.</param>
         public static Bag Copy(Bag bag, bool includeMessages = false)
         {
             return bag.Copy(includeMessages);
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with
+        /// Creates a new <see cref="Bag"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
-        /// <typeparam name="TProperties">The type of property container.</typeparam>
         /// <param name="propertyContainer">
         /// Object which properties will be used in pipeline context when it will be created.
         /// </param>
@@ -55,7 +60,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with properties composed from
+        /// Creates a new <see cref="Bag"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
@@ -63,11 +68,16 @@ namespace AutoPipe
         /// Dictionary which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
-        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// New pipeline context with properties from a dictionary passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
         public static Bag Create<TValue>(IDictionary<string, TValue> propertyContainer)
         {
             return Bag.CreateFromDictionary(propertyContainer);
+        }
+
+        public static Bag Create(NameValueCollection propertyContainer)
+        {
+            return Bag.CreateFromNameValueCollection(propertyContainer);
         }
 
         /// <summary>
@@ -76,7 +86,7 @@ namespace AutoPipe
         /// </summary>
         /// <typeparam name="TContext">
         /// The type of the pipeline context that is derived from
-        /// <see cref="PipelineContext"/> and has a parameter-less constructor.
+        /// <see cref="Bag"/> and has a parameter-less constructor.
         /// </typeparam>
         /// <returns>
         /// A new pipeline context.
@@ -87,19 +97,19 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="TContext"/> with properties composed from
+        /// Creates a new <see cref="TContext"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TContext">
         /// The type of the pipeline context that is derived from
-        /// <see cref="PipelineContext"/> and has a parameter-less constructor.
+        /// <see cref="Bag"/> and has a parameter-less constructor.
         /// </typeparam>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
         /// <param name="propertyContainer">
         /// Dictionary which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
-        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// New pipeline context with properties from a dictionary passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
         public static TContext Create<TContext, TValue>(IDictionary<string, TValue> propertyContainer) where TContext : Bag, new()
         {
@@ -115,7 +125,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with
+        /// Creates a new <see cref="Bag"/> with
         /// properties of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <param name="propertyContainer">
@@ -130,7 +140,7 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Creates a new <see cref="PipelineContext"/> with properties composed from
+        /// Creates a new <see cref="Bag"/> with properties composed of
         /// keys and values of the object passed in <paramref name="propertyContainer"/>.
         /// </summary>
         /// <typeparam name="TValue">The type of values of the dictionary.</typeparam>
@@ -138,7 +148,7 @@ namespace AutoPipe
         /// Dictionary which properties will be used in pipeline context when it will be created.
         /// </param>
         /// <returns>
-        /// New pipeline context with properties from an dictionary passed in parameter <paramref name="propertyContainer"/>.
+        /// New pipeline context with properties from a dictionary passed in parameter <paramref name="propertyContainer"/>.
         /// </returns>
         public static Bag CreateFromDictionary<TValue>(IDictionary<string, TValue> propertyContainer)
         {
@@ -153,41 +163,80 @@ namespace AutoPipe
             return context;
         }
 
-        public event MessageAdded OnMessage;
-        public event SpecificMessageAdded OnError;
+        public static Bag CreateFromNameValueCollection(NameValueCollection collection)
+        {
+            var context = new Bag();
+            if (collection != null && collection.Count > 0)
+            {
+                foreach (string key in collection)
+                {
+                    context.SetProperty(key, collection[key]);
+                }
+            }
+            return context;
+        }
 
+        /// <summary>
+        /// Occurs when a message is added to the context.
+        /// </summary>
+        public event MessageAdded OnMessage;
+        /// <summary>
+        /// Occurs when an error message is added to the context.
+        /// </summary>
+        public event SpecificMessageAdded OnError;
+        /// <summary>
+        /// Occurs when a property is added to the context.
+        /// </summary>
         public event PropertyAdded OnPropertyAdded;
+        /// <summary>
+        /// Occurs when a property is removed from the context.
+        /// </summary>
         public event PropertyRemoved OnPropertyRemoved;
+        /// <summary>
+        /// Occurs when a property value is changed in the context.
+        /// </summary>
         public event PropertyChanged OnPropertyChanged;
 
         /// <summary>
         /// Flag identifying whether pipeline must be ended/stopped,
-        /// it can be used as a cancelation identifier for the execution flow.
+        /// it can be used as a cancellation identifier for the execution flow.
         /// </summary>
-        public bool Ended
+        public bool Halted
         {
-            get => Get(EndedProperty, false);
-            set => SetProperty(EndedProperty, value);
+            get => Get(HaltedProperty, false);
+            set => SetProperty(HaltedProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether debug mode is enabled for this context.
+        /// </summary>
         public bool Debug
         {
             get => Get(DebugProperty, DebugDefault);
             set => SetProperty(DebugProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether missing properties should throw exceptions.
+        /// </summary>
         public bool ThrowOnMissing
         {
             get => Get(ThrowOnMissingProperty, ThrowOnMissingDefault);
             set => SetProperty(ThrowOnMissingProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets the service provider for dependency resolution.
+        /// </summary>
         public IServiceProvider ServiceProvider
         {
             get => Get(ServiceProviderProperty, (IServiceProvider) null);
             set => SetProperty(ServiceProviderProperty, value);
         }
 
+        /// <summary>
+        /// Releases all resources used by the context, including properties collection and messages collection.
+        /// </summary>
         public void Dispose()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -223,19 +272,34 @@ namespace AutoPipe
         /// <summary>
         /// Collection of the properties that contains all the collected
         /// or obtained values during pipeline execution or before
-        /// execution is started <see cref="PipelineContext(object)"/>.
+        /// execution is started <see cref="Bag"/>.
         /// </summary>
         protected Lazy<Dictionary<string, object>> PropertiesDictionary { get; } = new Lazy<Dictionary<string, object>>(() =>
             new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase));
 
+        /// <summary>
+        /// Gets the collection of property keys.
+        /// </summary>
         public ICollection<string> Keys => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Keys : (ICollection<string>)Enumerable.Empty<string>();
 
+        /// <summary>
+        /// Gets the collection of property values.
+        /// </summary>
         public ICollection<object> Values => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Values.ToList() : (ICollection<object>)Enumerable.Empty<object>();
 
+        /// <summary>
+        /// Gets the number of properties in the context.
+        /// </summary>
         public int Count => PropertiesDictionary.IsValueCreated ? PropertiesDictionary.Value.Count : 0;
 
+        /// <summary>
+        /// Gets a value indicating whether the context is read-only.
+        /// </summary>
         public bool IsReadOnly => false;
 
+        /// <summary>
+        /// Gets or sets a property value by key.
+        /// </summary>
         public object this[string key]
         {
             get => this.Get<object>(key);
@@ -279,10 +343,10 @@ namespace AutoPipe
         /// <summary>
         /// Adds the property to the collection <see cref="PropertiesDictionary"/>
         /// or updates the value if key of parameter <paramref name="name"/>
-        /// has been added previously (alias to <see cref="UpdateOrAddProperty{TValue}"/>).
+        /// has been added previously.
         /// </summary>
         /// <remarks>
-        /// Parameter name will be used in case-insensetive way.
+        /// Parameter name will be used in case-insensitive way.
         /// It means that if you previously added property name "MESSAGE"
         /// it will be updated if you pass to this method property name "message".
         /// </remarks>
@@ -290,7 +354,7 @@ namespace AutoPipe
         /// The type of the added value.
         /// </typeparam>
         /// <param name="name">
-        /// Key to identify the property (case-insensetive).
+        /// Key to identify the property (case-insensitive).
         /// </param>
         /// <param name="value">
         /// The value to be kept under the <paramref name="name"/> of the property.
@@ -319,6 +383,11 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Gets a property value by name, or throws if missing and <see cref="ThrowOnMissing"/> is true.
+        /// </summary>
+        /// <typeparam name="TValue">Type of the value.</typeparam>
+        /// <param name="name">Property name.</param>
         public virtual TValue Get<TValue>(string name)
         {
             if (ThrowOnMissing)
@@ -332,29 +401,34 @@ namespace AutoPipe
         /// <summary>
         /// Retrieves the value that is defined under the property
         /// of parameter <paramref name="name"/> or if was not added
-        /// or the type of the contained property is different than
+        /// or the type of the contained property is different from
         /// <see cref="TValue"/>, the <paramref name="or"/> will be retrieved.
         /// </summary>
         /// <typeparam name="TValue">
         /// The type of the retrieved value.
         /// </typeparam>
         /// <param name="name">
-        /// Key to identify the property (case-insensetive).
+        /// Key to identify the property (case-insensitive).
         /// </param>
         /// <param name="or">
         /// Default value to be retrieved if the value of the property
-        /// was not added or the type of the value is different than <see cref="TValue"/>.
+        /// was not added or the type of the value is different from <see cref="TValue"/>.
         /// </param>
         /// <returns>
         /// The value kept under the <paramref name="name"/> of the property
         /// or <paramref name="or"/> if property was not added or the type
-        /// of the value is different than <see cref="TValue"/>.
+        /// of the value is different from <see cref="TValue"/>.
         /// </returns>
         public virtual TValue Get<TValue>(string name, TValue or)
         {
             return Get(name, or: () => or);
         }
 
+        /// <summary>
+        /// Gets a property value by name, or throws an exception if not found.
+        /// </summary>
+        /// <typeparam name="TValue">Type of the value.</typeparam>
+        /// <param name="name">Property name.</param>
         public virtual TValue GetOrThrow<TValue>(string name)
         {
             return Get<TValue>(name, or: () =>
@@ -364,6 +438,9 @@ namespace AutoPipe
             });
         }
 
+        /// <summary>
+        /// Gets a string property value by name, or empty string if not found.
+        /// </summary>
         public virtual string String(string name)
         {
             if (Has(name, out string value))
@@ -374,6 +451,9 @@ namespace AutoPipe
             return string.Empty;
         }
 
+        /// <summary>
+        /// Gets an integer property value by name, or zero if not found.
+        /// </summary>
         public virtual int Int(string name)
         {
             if (Has(name, out int value))
@@ -384,6 +464,9 @@ namespace AutoPipe
             return 0;
         }
 
+        /// <summary>
+        /// Gets a boolean property value by name, or false if not found.
+        /// </summary>
         public virtual bool Bool(string name)
         {
             if (Has(name, out bool value))
@@ -394,16 +477,28 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Gets a list property value by name, or an empty list if not found.
+        /// </summary>
         public virtual List<TElement> List<TElement>(string name)
         {
             return Get(name, or: Enumerable.Empty<TElement>()).ToList();
         }
 
+        /// <summary>
+        /// Gets an array property value by name, or an empty array if not found.
+        /// </summary>
         public virtual TElement[] Array<TElement>(string name)
         {
             return Get(name, or: new TElement[0]);
         }
 
+        /// <summary>
+        /// Gets a property value by name, or uses a function to provide a default if not found.
+        /// </summary>
+        /// <typeparam name="TValue">Type of the value.</typeparam>
+        /// <param name="name">Property name.</param>
+        /// <param name="or">Function to provide default value.</param>
         public virtual TValue Get<TValue>(string name, Func<TValue> or)
         {
             if (PropertiesDictionary.IsValueCreated && PropertiesDictionary.Value.TryGetValue(name, out object maybeValue))
@@ -441,14 +536,32 @@ namespace AutoPipe
             return Contains<TProperty>(name);
         }
 
+        /// <summary>
+        /// Checks if a property exists by name.
+        /// </summary>
         public virtual bool Has(string name)
         {
             return Contains(name);
         }
 
+        /// <summary>
+        /// Checks if a property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool Has<TProperty>(string name, out TProperty property)
         {
             return Contains(name, out property);
+        }
+
+        public virtual bool HasErrors()
+        {
+            return MessagesCollection.IsValueCreated &&
+                MessagesCollection.Value.Any(m => m.MessageType == MessageType.Error);
+        }
+
+        public virtual bool HasWarnings()
+        {
+            return MessagesCollection.IsValueCreated &&
+                   MessagesCollection.Value.Any(m => m.MessageType == MessageType.Warning);
         }
 
         /// <summary>
@@ -472,11 +585,17 @@ namespace AutoPipe
                 (foundValue is TProperty || foundValue is ComputedProperty computed && typeof(TProperty).IsAssignableFrom(computed.Lambda.ReturnType));
         }
 
+        /// <summary>
+        /// Checks if a property exists by name.
+        /// </summary>
         public virtual bool Contains(string name)
         {
             return ContainsKey(name);
         }
 
+        /// <summary>
+        /// Checks if a single property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool ContainsSingle(Type type, out object valueOfType)
         {
             var bagTypes = this.GetSingleTypeValues();
@@ -489,9 +608,12 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Checks if a property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool Contains<TProperty>(string name, out TProperty value)
         {
-            value = default(TProperty);
+            value = default;
             if (!PropertiesDictionary.IsValueCreated)
             {
                 return false;
@@ -517,6 +639,9 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Checks if any property from the given names exists and retrieves its value.
+        /// </summary>
         public virtual bool ContainsAny<TProperty>(IEnumerable<string> names, out TProperty value)
         {
             value = default;
@@ -533,6 +658,9 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Checks if a single property of the specified type exists and retrieves its value.
+        /// </summary>
         public virtual bool ContainsSingle<TProperty>(out TProperty value)
         {
             value = default;
@@ -571,6 +699,9 @@ namespace AutoPipe
             return !Contains<TProperty>(name);
         }
 
+        /// <summary>
+        /// Checks if a property is missing by name.
+        /// </summary>
         public virtual bool DoesNotContain(string name)
         {
             return !Contains(name);
@@ -597,6 +728,12 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Deletes a property by name and retrieves its value.
+        /// </summary>
+        /// <typeparam name="TElement">Type of the property value.</typeparam>
+        /// <param name="name">Property name.</param>
+        /// <param name="element">The deleted value.</param>
         public virtual bool DeleteProperty<TElement>(string name, out TElement element)
         {
             element = default;
@@ -640,9 +777,9 @@ namespace AutoPipe
         /// context.AddWarning("Could not recognize the id of the site, continued with the default");
         /// context.AddError("Request to the database failed, review the connection string");
         ///
-        /// context.GetMessages(MessageFilter.Informations);
-        /// context.GetMessages(MessageFilter.Informations | MessageFilter.Errors);
-        /// context.GetMessages(MessageFilter.Errors| MessageFilter.Warnings);
+        /// context.GetMessages(MessageFilter.Info);
+        /// context.GetMessages(MessageFilter.Info | MessageFilter.Error);
+        /// context.GetMessages(MessageFilter.Error| MessageFilter.Warning);
         /// context.GetMessages(MessageFilter.All);
         /// 
         /// </example>
@@ -666,7 +803,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <returns>
         /// All messages of the context, that have been added
@@ -680,7 +817,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <returns>
         /// All text messages of the context, that have been added
@@ -696,7 +833,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns filtered text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="filter">
         /// A filter for the message collection.
@@ -715,7 +852,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns filtered text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="filter">
         /// A filter for the message collection.
@@ -745,7 +882,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns filtered text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="filter">
         /// A filter for the message collection.
@@ -774,7 +911,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="format">
         /// Function that accepts <see cref="PipelineMessage.Message"/>
@@ -801,7 +938,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns all text messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations, warnings and errors.
+        /// including: information, warnings and errors.
         /// </summary>
         /// <param name="format">
         /// Function that accepts <see cref="PipelineMessage.Message"/>
@@ -827,9 +964,9 @@ namespace AutoPipe
         /// <summary>
         /// Produces a string of joined texts of message collection.
         /// </summary>
-        /// <param name="separator">
-        /// A separator to join the texts of the messages.
-        /// </param>
+        /// <param name="separator">Separator string.</param>
+        /// <param name="filter">Message filter.</param>
+        /// <param name="format">Formatting function.</param>
         /// <returns>
         /// Returns a string of joined texts of message collection.
         /// </returns>
@@ -847,7 +984,7 @@ namespace AutoPipe
         /// <summary>
         /// Returns messages of the pipeline context
         /// that have been added during pipeline execution,
-        /// including: informations and warnings.
+        /// including: information and warnings.
         /// </summary>
         /// <returns>
         /// Information and warning messages of the context,
@@ -915,13 +1052,13 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// Ends pipeline by setting a flag <see cref="Ended"/> to true.
+        /// Halts pipeline by setting a flag <see cref="Halted"/> to true.
         /// It allows to tell all the other users of this context that pipeline
         /// cannot be run further.
         /// </summary>
-        public virtual void EndPipeline()
+        public virtual void HaltPipeline()
         {
-            Ended = true;
+            Halted = true;
         }
 
         /// <summary>
@@ -1005,6 +1142,9 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="Bag"/> and populates it with properties from the given object.
+        /// </summary>
         public Bag(object propertyContainer, bool? debug = null, bool? throwOnMissing = null, IServiceProvider serviceProvider = null, MessageAdded onMessage = null, SpecificMessageAdded onError = null, PropertyAdded onPropertyAdded = null, PropertyChanged onPropertyChanged = null, PropertyRemoved onPropertyRemoved = null) : this(debug: debug, throwOnMissing: throwOnMissing, serviceProvider: serviceProvider, onMessage: onMessage, onError: onError, onPropertyAdded: onPropertyAdded, onPropertyChanged: onPropertyChanged, onPropertyRemoved: onPropertyRemoved)
         {
             if (propertyContainer.HasValue())
@@ -1028,6 +1168,11 @@ namespace AutoPipe
         {
         }
 
+
+        /// <summary>
+        /// Creates a copy of the current <see cref="Bag"/>, optionally including its messages.
+        /// </summary>
+        /// <param name="includeMessages">Whether to include messages in the copy.</param>
         public Bag Copy(bool includeMessages = false)
         {
             var result = CreateFromDictionary(this);
@@ -1051,17 +1196,38 @@ namespace AutoPipe
         /// </param>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue($"{nameof(Bag)}.{nameof(Ended)}", Ended);
+            info.AddValue($"{nameof(Bag)}.{nameof(Halted)}", Halted);
             info.AddValue($"{nameof(Bag)}.{nameof(MessagesCollection)}", MessagesCollection, typeof(ICollection<PipelineMessage>));
         }
 
+        /// <summary>
+        /// Default value for the Debug property.
+        /// </summary>
         public static readonly bool DebugDefault = false;
+        /// <summary>
+        /// Default value for the ThrowOnMissing property.
+        /// </summary>
         public static readonly bool ThrowOnMissingDefault = true;
 
-        public static readonly string EndedProperty = "ended";
+        /// <summary>
+        /// The property name for the Halted flag.
+        /// </summary>
+        public static readonly string HaltedProperty = "halted";
+        /// <summary>
+        /// The property name for the Debug flag.
+        /// </summary>
         public static readonly string DebugProperty = "debug";
+        /// <summary>
+        /// The property name for the ThrowOnMissing flag.
+        /// </summary>
         public static readonly string ThrowOnMissingProperty = "throwonmissing";
+        /// <summary>
+        /// The property name for the result value.
+        /// </summary>
         public static readonly string ResultProperty = "result";
+        /// <summary>
+        /// The property name for the service provider.
+        /// </summary>
         public static readonly string ServiceProviderProperty = "serviceprovider";
 
         /// <summary>
@@ -1077,14 +1243,47 @@ namespace AutoPipe
             return this.GetOrThrow<TResult>(ResultProperty);
         }
 
+        /// <summary>
+        /// Gets the result property value as a string.
+        /// </summary>
         public string StringResult()
         {
             return this.String(ResultProperty);
         }
 
+        /// <summary>
+        /// Gets the result property value as a list.
+        /// </summary>
         public List<TElement> ListResult<TElement>()
         {
             return this.List<TElement>(ResultProperty);
+        }
+
+        public TResult As<TResult>() where TResult : new()
+        {
+            return To<TResult>();
+        }
+
+        public TResult To<TResult>() where TResult : new()
+        {
+            TResult result = new TResult();
+            Update(result);
+            return result;
+        }
+
+        public void Update<TResult>(TResult entity) where TResult : new()
+        {
+            foreach (var prop in entity.GetType().GetProperties())
+            {
+                if (this.Contains(prop.Name) && prop.CanWrite)
+                {
+                    var value = this.GetOrThrow<object>(prop.Name);
+                    if (value != null && prop.PropertyType.IsInstanceOfType(value))
+                    {
+                        prop.SetValue(entity, value);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1102,12 +1301,10 @@ namespace AutoPipe
         }
 
         /// <summary>
-        /// In case the value of the result is null, you can specify a
-        /// <paramref name="fallbackValue"/> which will be returned
-        /// instead of the value in result property.
+        /// Gets the result property value or uses a function to provide a fallback if not set.
         /// </summary>
         /// <returns>
-        /// Value of the result property or <paramref name="fallbackValue"/>
+        /// Value of the result property or executes <paramref name="or"/> function
         /// if value of the result is null.
         /// </returns>
         public TResult GetResult<TResult>(Func<TResult> or)
@@ -1127,29 +1324,33 @@ namespace AutoPipe
             return this.Contains<TResult>(ResultProperty);
         }
 
+        /// <summary>
+        /// Checks if the result property is set and retrieves its value.
+        /// </summary>
         public virtual bool ContainsResult<TResult>(out TResult result)
         {
             return this.Contains(ResultProperty, out result);
         }
 
         /// <summary>
-        /// Returns value indicating whether result is missing,
-        /// the value may be not specified or reset.
+        /// Checks if the result property is missing.
         /// </summary>
-        /// <returns>
-        /// Returns <c>true</c> in case result is missing,
-        /// otherwise <c>false</c>.
-        /// </returns>
         public virtual bool DoesNotContainResult<TResult>()
         {
             return !ContainsResult<TResult>();
         }
 
+        /// <summary>
+        /// Adds a property to the context.
+        /// </summary>
         public void Add(string key, object value)
         {
             this.SetProperty(key, value);
         }
 
+        /// <summary>
+        /// Checks if a property exists by key.
+        /// </summary>
         public bool ContainsKey(string key)
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1160,21 +1361,33 @@ namespace AutoPipe
             return false;
         }
 
+        /// <summary>
+        /// Removes a property by key.
+        /// </summary>
         public bool Remove(string key)
         {
             return this.DeleteProperty(key);
         }
 
+        /// <summary>
+        /// Tries to get a property value by key.
+        /// </summary>
         public bool TryGetValue(string key, out object value)
         {
             return Contains(key, out value);
         }
 
+        /// <summary>
+        /// Adds a key-value pair to the context.
+        /// </summary>
         public void Add(KeyValuePair<string, object> item)
         {
             this.Set(item.Key, item.Value);
         }
 
+        /// <summary>
+        /// Clears all properties from the context.
+        /// </summary>
         public void Clear()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1186,15 +1399,19 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Checks if a key-value pair exists in the context.
+        /// </summary>
         public bool Contains(KeyValuePair<string, object> item)
         {
             return TryGetValue(item.Key, out object val) && val == item.Value;
         }
 
+        /// <summary>
+        /// Copies properties to an array starting at the specified index.
+        /// </summary>
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            if (array == null) return;
-
             if (PropertiesDictionary.IsValueCreated)
             {
                 var props = PropertiesDictionary.Value.Skip(arrayIndex);
@@ -1206,12 +1423,18 @@ namespace AutoPipe
             }
         }
 
+        /// <summary>
+        /// Removes a key-value pair from the context.
+        /// </summary>
         public bool Remove(KeyValuePair<string, object> item)
         {
             if (Contains(item)) DeleteProperty(item.Key);
             return true;
         }
 
+        /// <summary>
+        /// Returns an enumerator for the context's properties.
+        /// </summary>
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             if (PropertiesDictionary.IsValueCreated)
@@ -1225,6 +1448,9 @@ namespace AutoPipe
             yield break;
         }
 
+        /// <summary>
+        /// Returns a non-generic enumerator for the context's properties.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

@@ -34,9 +34,6 @@ namespace AutoPipe
         /// Runs pipeline's processors one by one with a <see cref="ProcessorRunner"/> 
         /// in an order they are returned from <see cref="IPipeline.GetProcessors"/>.
         /// </summary>
-        /// <typeparam name="TArgs">
-        /// Type of the arguments used in each processors of the pipeline.
-        /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline which processors should be executed.
         /// </param>

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoPipe.Modifications;
@@ -77,6 +79,22 @@ namespace AutoPipe
             return args;
         }
 
+        public static async Task<Bag> Run<TValue>(this IPipeline pipeline, IDictionary<string, TValue> args, IPipelineRunner runner = null)
+        {
+            runner = runner ?? Runner.Instance;
+            var bag = Bag.Create(args);
+            await runner.Run(pipeline, bag);
+            return bag;
+        }
+
+        public static async Task<Bag> Run(this IPipeline pipeline, NameValueCollection args, IPipelineRunner runner = null)
+        {
+            runner = runner ?? Runner.Instance;
+            var bag = Bag.Create(args);
+            await runner.Run(pipeline, bag);
+            return bag;
+        }
+
         public static async Task<Bag> Run(this IPipeline pipeline, object args, IPipelineRunner runner = null)
         {
             runner = runner ?? Runner.Instance;
@@ -106,6 +124,16 @@ namespace AutoPipe
         /// The runner which will be used to run the wrapped pipeline.
         /// </param>
         public static Bag RunSync(this IPipeline pipeline, Bag args = null, IPipelineRunner runner = null)
+        {
+            return pipeline.Run(args, runner).Result;
+        }
+
+        public static Bag RunSync<TValue>(this IPipeline pipeline, IDictionary<string, TValue> args, IPipelineRunner runner = null)
+        {
+            return pipeline.Run(args, runner).Result;
+        }
+
+        public static Bag RunSync(this IPipeline pipeline, NameValueCollection args, IPipelineRunner runner = null)
         {
             return pipeline.Run(args, runner).Result;
         }

@@ -23,11 +23,11 @@ namespace AutoPipe.Tests.Units.BagTests
         }
 
         [Fact]
-        public void EndMessageWithError_Calls_End_Pipeline_Method()
+        public void HaltMessageWithError_Calls_Halt_Pipeline_Method()
         {
             var pipelineContext = new Bag();
-            pipelineContext.ErrorEnd(nameof(Bag));
-            pipelineContext.Ended.Should().BeTrue("because the method should End pipeline");
+            pipelineContext.ErrorHalt(nameof(Bag));
+            pipelineContext.Halted.Should().BeTrue("because the method should Halt pipeline");
         }
 
         [Fact]

@@ -37,6 +37,12 @@ namespace AutoPipe
             return default;
         }
 
+        public static bool HasRunningMembers(this Type type)
+        {
+            var bindingFlags = BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            return type.GetMembers(bindingFlags).Any(x => x.ShouldRun());
+        }
+
         public static bool ShouldSkip(this MemberInfo member)
         {
             var skipAttribute = member?.GetCustomAttribute<SkipAttribute>();

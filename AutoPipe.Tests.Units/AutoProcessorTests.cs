@@ -21,6 +21,14 @@ namespace AutoPipe.Tests.Units
         }
 
         [Fact]
+        public void GetMethodsToExecute_ShouldReturnOnlyPublicMethods_ByDefault()
+        {
+            var mock = new TestAutoProcessorWithNoRunMethods();
+            mock.GetMethodsToExecute().Should().NotContain(TestAutoProcessorWithNoRunMethods.ProtectedMethod)
+                .And.Contain(TestAutoProcessorWithNoRunMethods.PublicMethod);
+        }
+
+        [Fact]
         public void GetMethodsToExecute_ShouldReturnNonEmptyCollection_WhenDescendantClassContainsImplementations()
         {
             TestAutoProcessor processor = new TestAutoProcessor();
@@ -134,9 +142,9 @@ namespace AutoPipe.Tests.Units
 
 
         [Fact]
-        public async Task AutoProcessor_ShouldSkipOtherMethods_WhenOneEnds()
+        public async Task AutoProcessor_ShouldSkipOtherMethods_WhenOneHalts()
         {
-            var processor = new Mock<TestEndingContextParameter>(MockBehavior.Loose) { CallBase = true };
+            var processor = new Mock<TestHaltingContextParameter>(MockBehavior.Loose) { CallBase = true };
 
             Bag context = Bag.Create();
             await processor.Object.Run(context).ConfigureAwait(false);
@@ -146,38 +154,26 @@ namespace AutoPipe.Tests.Units
         }
     }
 
-    public class TestEndingContextParameter : AutoProcessor
+    public class TestHaltingContextParameter : AutoProcessor
     {
         [Run]
         [Order(1)]
         public virtual void EmptyMethod(
-            [Required(End = true, Message = "Parameter does not exist.")] object parameter) { }
+            [Required(Halt = true, Message = "Parameter does not exist.")] object parameter) { }
 
         [Run]
         [Order(2)]
         public virtual void EmptyMethod2() { }
 
-        public TestEndingContextParameter()
+        public TestHaltingContextParameter()
         {
         }
     }
 
-    public class TestAutoProcessor : AutoProcessor
+    public class TestAutoProcessorBase : AutoProcessor
     {
-        public static MethodInfo EmptyMethodInfo = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod));
-        public static MethodInfo EmptyMethod2Info = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod2));
-
         public Func<IEnumerable<BindingFlags>> GetFlags { get; set; }
         public Func<MethodInfo, bool> MethodsFilter { get; set; }
-
-        [Run]
-        public void EmptyMethod() { }
-
-        [Run]
-        [Order(2)]
-        public void EmptyMethod2() { }
-
-        public void EmptyMethodNotForExecution() { }
 
         public new Task ProcessResult(MethodInfo info, Bag context, object methodResult, bool skip = true)
         {
@@ -203,6 +199,30 @@ namespace AutoPipe.Tests.Units
 
             return base.AcceptableByFilter(method);
         }
+    }
+
+    public class TestAutoProcessor : TestAutoProcessorBase
+    {
+        public static MethodInfo EmptyMethodInfo = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod));
+        public static MethodInfo EmptyMethod2Info = typeof(TestAutoProcessor).GetMethod(nameof(EmptyMethod2));
+
+        [Run]
+        public void EmptyMethod() { }
+
+        [Run]
+        [Order(2)]
+        public void EmptyMethod2() { }
+
+        public void EmptyMethodNotForExecution() { }
+    }
+
+    public class TestAutoProcessorWithNoRunMethods : AutoProcessor
+    {
+        public static MethodInfo PublicMethod = typeof(TestAutoProcessorWithNoRunMethods).GetMethod(nameof(EmptyMethod));
+        public static MethodInfo ProtectedMethod = typeof(TestAutoProcessorWithNoRunMethods).GetMethod(nameof(EmptyMethodNotForExecution));
+
+        public void EmptyMethod() { }
+        protected void EmptyMethodNotForExecution() { }
     }
 
     public class TestOrderOfAutoProcessor : AutoProcessor

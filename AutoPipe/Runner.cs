@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 namespace AutoPipe
 {
     public delegate void PipelineStarting(PipelineInfo pipelineInfo);
-    public delegate void PipelineEnded(PipelineInfo pipelineInfo);
+    public delegate void PipelineHalted(PipelineInfo pipelineInfo);
     public delegate void ProcessorStarting(ProcessorInfo pipelineInfo);
-    public delegate void ProcessorEnded(ProcessorInfo pipelineInfo);
+    public delegate void ProcessorHalted(ProcessorInfo pipelineInfo);
 
     /// <summary>
     /// Runs instances of <see cref="IProcessor"/> and <see cref="IPipeline"/>.
@@ -20,7 +20,7 @@ namespace AutoPipe
         public static Runner Instance => instance ?? (instance = new Runner());
         private static Runner instance;
 
-        public Runner(PipelineStarting onPipelineStart = null, ProcessorStarting onProcessorStart = null, ProcessorEnded onProcessorEnd = null, PipelineEnded onPipelineEnd = null)
+        public Runner(PipelineStarting onPipelineStart = null, ProcessorStarting onProcessorStart = null, ProcessorHalted onProcessorHalt = null, PipelineHalted onPipelineHalt = null)
         {
             if (onPipelineStart != null)
             {
@@ -32,33 +32,30 @@ namespace AutoPipe
                 OnProcessorStart += onProcessorStart;
             }
 
-            if (onProcessorEnd != null)
+            if (onProcessorHalt != null)
             {
-                OnProcessorEnd += onProcessorEnd;
+                OnProcessorHalt += onProcessorHalt;
             }
 
-            if (onPipelineEnd != null)
+            if (onPipelineHalt != null)
             {
-                OnPipelineEnd += onPipelineEnd;
+                OnPipelineHalt += onPipelineHalt;
             }
         }
 
         public event PipelineStarting OnPipelineStart;
         public event ProcessorStarting OnProcessorStart;
-        public event ProcessorEnded OnProcessorEnd;
-        public event PipelineEnded OnPipelineEnd;
+        public event ProcessorHalted OnProcessorHalt;
+        public event PipelineHalted OnPipelineHalt;
 
         /// <summary>
         /// Runs pipeline's processors one by one in an order
         /// they are returned from <see cref="IPipeline.GetProcessors"/>.
         /// </summary>
-        /// <typeparam name="TArgs">
-        /// Type of the arguments used in each processors of the pipeline.
-        /// </typeparam>
         /// <param name="pipeline">
         /// The pipeline which processors should be executed.
         /// </param>
-        /// <param name="args">
+        /// <param name="bag">
         /// The arguments that has to be passed to each processor
         /// of the executed pipeline.
         /// </param>
@@ -73,14 +70,14 @@ namespace AutoPipe
                 return;
             }
 
-            if (bag.Ended)
+            if (bag.Halted)
             {
                 bag.Debug($"The bag contained end property set to True. Skipping pipeline: [{pipeline.Name()}].");
                 return;
             }
 
             PipelineInfo pipelineInfo = null;
-            if (OnPipelineStart != null || OnPipelineEnd != null)
+            if (OnPipelineStart != null || OnPipelineHalt != null)
             {
                 pipelineInfo = new PipelineInfo() { Context = bag, Pipeline = pipeline };
             }
@@ -115,9 +112,9 @@ namespace AutoPipe
                 await Run(processors, bag).ConfigureAwait(false);
             }
 
-            if (OnPipelineEnd != null)
+            if (OnPipelineHalt != null)
             {
-                OnPipelineEnd(pipelineInfo);
+                OnPipelineHalt(pipelineInfo);
             }
         }
 
@@ -141,7 +138,7 @@ namespace AutoPipe
         /// </returns>
         public virtual async Task Run(IEnumerable<IProcessor> processors, Bag bag)
         {
-            if (bag.Ended)
+            if (bag.Halted)
             {
                 bag.Debug("The bag contained end property set to True. Skipping all processors.");
                 return;
@@ -154,9 +151,9 @@ namespace AutoPipe
                 bag.Debug("Running processor #{0}.".FormatWith(index));
                 await Run(processor, bag).ConfigureAwait(false);
 
-                if (bag.Ended)
+                if (bag.Halted)
                 {
-                    bag.Debug("Completed processor #{0}. Ending loop.".FormatWith(index));
+                    bag.Debug("Completed processor #{0}. Halting loop.".FormatWith(index));
                     break;
                 }
                 else
@@ -192,14 +189,14 @@ namespace AutoPipe
                 return;
             }
 
-            if (bag.Ended)
+            if (bag.Halted)
             {
                 bag.Debug("The bag contained end property set to True. Skipping processor.");
                 return;
             }
 
             ProcessorInfo processorInfo = null;
-            if (OnPipelineStart != null || OnPipelineEnd != null)
+            if (OnPipelineStart != null || OnPipelineHalt != null)
             {
                 processorInfo = new ProcessorInfo() { Context = bag, Processor = processor };
             }
@@ -226,7 +223,7 @@ namespace AutoPipe
 
                 await processor.Run(bag).ConfigureAwait(false);
 
-                if (bag.Ended)
+                if (bag.Halted)
                 {
                     bag.Debug("Processor [{0}] completed with end pipeline signal.".FormatWith(processorName));
                 }
@@ -240,10 +237,10 @@ namespace AutoPipe
                 await processor.Run(bag).ConfigureAwait(false);
             }
 
-            if (OnProcessorEnd != null)
+            if (OnProcessorHalt != null)
             {
                 bag.Debug("Running processor end event.");
-                OnProcessorEnd(processorInfo);
+                OnProcessorHalt(processorInfo);
             }
         }
     }
